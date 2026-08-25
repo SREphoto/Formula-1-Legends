@@ -22,6 +22,14 @@ npm run dev
 
 The Vite development server runs on `http://localhost:5173`.
 
+## GitHub Pages
+
+The production build is committed in `/docs` and configured for:
+
+**https://srephoto.github.io/Formula-1-Legends/**
+
+In the repository's **Settings → Pages** screen, choose **Deploy from a branch**, select the published branch and the `/docs` folder. After this branch is merged, use `main` and `/docs`.
+
 ## Quality checks
 
 ```bash
