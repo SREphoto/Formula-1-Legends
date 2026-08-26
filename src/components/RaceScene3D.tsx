@@ -35,7 +35,11 @@ function createRibbon(curve: THREE.CatmullRomCurve3, width: number, y: number, c
   const positions: number[] = []
   const uvs: number[] = []
   const indices: number[] = []
+  const rows: { left: THREE.Vector3; right: THREE.Vector3 }[] = []
   const up = new THREE.Vector3(0, 1, 0)
+  const firstEdge = new THREE.Vector3()
+  const secondEdge = new THREE.Vector3()
+  const faceNormal = new THREE.Vector3()
 
   for (let index = 0; index <= segments; index += 1) {
     const t = index / segments
@@ -46,11 +50,35 @@ function createRibbon(curve: THREE.CatmullRomCurve3, width: number, y: number, c
     const edge = side.clone().multiplyScalar(width / 2)
     const left = point.clone().add(offset).add(edge)
     const right = point.clone().add(offset).sub(edge)
+    rows.push({ left, right })
     positions.push(left.x, y, left.z, right.x, y, right.z)
     uvs.push(t * 34, 0, t * 34, 1)
-    if (index < segments) {
-      const base = index * 2
-      indices.push(base, base + 2, base + 1, base + 2, base + 3, base + 1)
+  }
+
+  // Adaptive winding: each triangle decides its own order so every face points up
+  // toward the sunlight. Switchbacks can reverse the tangent, which flips the
+  // original winding; checking each triangle's actual normal keeps the road visible.
+  for (let index = 0; index < segments; index += 1) {
+    const current = rows[index]
+    const next = rows[index + 1]
+    const base = index * 2
+    // First triangle: current.left, next.left, current.right.
+    firstEdge.copy(next.left).sub(current.left)
+    secondEdge.copy(current.right).sub(current.left)
+    faceNormal.crossVectors(firstEdge, secondEdge)
+    if (faceNormal.y >= 0) {
+      indices.push(base, base + 2, base + 1)
+    } else {
+      indices.push(base, base + 1, base + 2)
+    }
+    // Second triangle: next.left, next.right, current.right.
+    firstEdge.copy(next.right).sub(next.left)
+    secondEdge.copy(current.right).sub(next.left)
+    faceNormal.crossVectors(firstEdge, secondEdge)
+    if (faceNormal.y >= 0) {
+      indices.push(base + 2, base + 3, base + 1)
+    } else {
+      indices.push(base + 2, base + 1, base + 3)
     }
   }
 
@@ -286,13 +314,13 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
     const rightLineGeometry = createRibbon(curve, 0.22, 0.085, 4.32)
     const rubberGeometry = createRibbon(curve, 3.6, 0.09)
 
-    const runoffMaterial = new THREE.MeshStandardMaterial({ color: '#b6bec5', roughness: 0.95 })
+    const runoffMaterial = new THREE.MeshStandardMaterial({ color: '#b6bec5', roughness: 0.95, side: THREE.DoubleSide })
     const curbMap = curbTexture()
     curbMap.repeat.set(9, 1)
-    const curbMaterial = new THREE.MeshStandardMaterial({ map: curbMap, roughness: 0.7 })
-    const roadMaterial = new THREE.MeshStandardMaterial({ color: '#5a6169', roughness: 0.92 })
-    const lineMaterial = new THREE.MeshBasicMaterial({ color: '#f2f6f8' })
-    const rubberMaterial = new THREE.MeshStandardMaterial({ color: '#41484f', roughness: 1 })
+    const curbMaterial = new THREE.MeshStandardMaterial({ map: curbMap, roughness: 0.7, side: THREE.DoubleSide })
+    const roadMaterial = new THREE.MeshStandardMaterial({ color: '#5a6169', roughness: 0.92, side: THREE.DoubleSide })
+    const lineMaterial = new THREE.MeshBasicMaterial({ color: '#f2f6f8', side: THREE.DoubleSide })
+    const rubberMaterial = new THREE.MeshStandardMaterial({ color: '#41484f', roughness: 1, side: THREE.DoubleSide })
 
     const runoff = new THREE.Mesh(runoffGeometry, runoffMaterial)
     runoff.receiveShadow = true
