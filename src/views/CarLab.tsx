@@ -16,9 +16,11 @@ import {
   Wind,
   Wrench,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import type { DriverState, SetupState } from '../types'
 import { calculateAero } from '../engine/physics/AeroEngine'
+
+const CarShowroom3D = lazy(() => import('../components/CarShowroom3D').then((module) => ({ default: module.CarShowroom3D })))
 
 interface CarLabProps {
   selectedDriver: DriverState
@@ -148,6 +150,15 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
             <span className="model-live"><i /> 100 HZ SOLVER</span>
           </div>
           <div className="car-visualizer">
+            <Suspense fallback={<div className="scene-loader"><i /><strong>LOADING 3D CAR</strong><span>Preparing live aero geometry…</span></div>}>
+              <CarShowroom3D
+                primaryColor={selectedDriver.teamColor}
+                accentColor={selectedDriver.secondaryColor}
+                frontBalance={aero.frontBalancePercent}
+                downforceKn={aero.downforceN / 1000}
+                porpoising={aero.porpoisingActive}
+              />
+            </Suspense>
             <div className="airflow-lines left">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
             <div className="airflow-lines right">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
             <svg viewBox="0 0 520 640" role="img" aria-label="Top-down aerodynamic visualization of the race car">

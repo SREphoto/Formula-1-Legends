@@ -27,7 +27,7 @@ export function RaceDashboard({
     <main className="race-dashboard">
       <TimingTower drivers={snapshot.drivers} selectedDriverId={selectedDriverId} onSelectDriver={onSelectDriver} />
       <div className="race-center-column">
-        <TrackMap snapshot={snapshot} selectedDriver={selectedDriver} onSelectDriver={onSelectDriver} />
+        <TrackMap snapshot={snapshot} selectedDriver={selectedDriver} onSelectDriver={onSelectDriver} onOpenStrategy={onOpenStrategy} />
         <StrategyHorizon snapshot={snapshot} driver={selectedDriver} onOpenStrategy={onOpenStrategy} />
       </div>
       <DriverTelemetryPanel driver={selectedDriver} sendCommand={sendCommand} onNotify={onNotify} />

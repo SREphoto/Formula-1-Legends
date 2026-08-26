@@ -5,7 +5,10 @@ A high-density Formula racing management simulator built with React, TypeScript,
 ## Features
 
 - **100 Hz race simulation** in a dedicated Web Worker with 10 Hz telemetry delivery
-- Live timing tower and animated Silverstone circuit map for a 20-driver legends grid
+- Interactive Three.js Silverstone race world with 20 animated 3D cars, trackside and onboard cameras, scenery, lighting, and sparks
+- Touch-driven 3D engineering showroom with live aero visualization
+- Mobile-first race controls with readable telemetry, bottom navigation, and clear strategy prompts
+- Live timing tower and circuit map for a 20-driver legends grid
 - Driver telemetry with two-layer tyre temperatures, wear, ERS, fuel, brakes, and plank wear
 - Interactive pace, ERS, tyre, and pit-stop commands
 - Strategy workspace with pit-window, stint, weather, traffic, and outcome projections
