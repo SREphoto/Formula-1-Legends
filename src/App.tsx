@@ -1,6 +1,7 @@
 import { CheckCircle2, TriangleAlert, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { AppHeader } from './components/AppHeader'
+import { OnboardingOverlay } from './components/OnboardingOverlay'
 import { RaceStatusBar } from './components/RaceStatusBar'
 import { useRaceSimulation } from './hooks/useRaceSimulation'
 import type { AppView } from './types'
@@ -23,6 +24,22 @@ function App() {
   const [paused, setPaused] = useState(false)
   const [speed, setSpeed] = useState(1)
   const [toast, setToast] = useState<ToastState | null>(null)
+  const [showGuide, setShowGuide] = useState(() => {
+    try {
+      return window.sessionStorage.getItem('f1l-guide-seen') !== '1'
+    } catch {
+      return true
+    }
+  })
+
+  const closeGuide = () => {
+    try {
+      window.sessionStorage.setItem('f1l-guide-seen', '1')
+    } catch {
+      /* sessionStorage unavailable — guide just closes for this render */
+    }
+    setShowGuide(false)
+  }
 
   const selectedDriver = useMemo(
     () => snapshot?.drivers.find((driver) => driver.id === selectedDriverId) ?? snapshot?.drivers[0],
@@ -51,7 +68,8 @@ function App() {
 
   return (
     <div className="app-shell">
-      <AppHeader activeView={activeView} onViewChange={setActiveView} />
+      <span className="build-chip" aria-hidden="true">BUILD R3</span>
+      <AppHeader activeView={activeView} onViewChange={setActiveView} onHelp={() => setShowGuide(true)} />
       <RaceStatusBar
         snapshot={snapshot}
         paused={paused}
@@ -83,6 +101,8 @@ function App() {
       )}
       {activeView === 'car' && <CarLab selectedDriver={selectedDriver} onNotify={notify} />}
       {activeView === 'hq' && <HQDashboard onNotify={notify} />}
+
+      {showGuide && <OnboardingOverlay onClose={closeGuide} />}
 
       {toast && (
         <div className={`app-toast ${toast.tone}`} key={toast.id} role="status">
