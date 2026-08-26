@@ -145,6 +145,7 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
             <div><small>FOCUS CAR</small><b>{selectedDriver.code}</b></div>
             <span><small>TYRE</small><b>{selectedDriver.tire.charAt(0)} · {selectedDriver.tireAge}L</b></span>
             <span><small>ERS</small><b>{selectedDriver.ers.toFixed(0)}%</b></span>
+            <span><small>SPEED</small><b>{Math.round(selectedDriver.speed)}</b></span>
           </div>
         )}
       </div>
