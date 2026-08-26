@@ -1439,3 +1439,72 @@ button { background-color: transparent; }
 .workspace small { font-size: 10px; line-height: 1.35; }
 .race-dashboard .eyebrow,
 .workspace .eyebrow { font-size: 10px; letter-spacing: .95px; }
+
+/* --------------------------------------------------------------------------
+   Onboarding, plain-English settings, and remaining legibility lifts
+   -------------------------------------------------------------------------- */
+.help-button {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid #39434d;
+  background: #171d24;
+  color: #d5dde3;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  cursor: pointer;
+}
+.help-button:hover { border-color: var(--orange); color: #fff; }
+
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(3, 6, 9, .78);
+  backdrop-filter: blur(9px);
+}
+.onboarding-card {
+  width: min(580px, 100%);
+  max-height: 88vh;
+  overflow: auto;
+  padding: 26px 26px 22px;
+  border: 1px solid #3a444f;
+  background: linear-gradient(180deg, #12181f, #0c1015);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+}
+.onboarding-card .eyebrow { color: #ff9442; }
+.onboarding-card h2 { margin: 10px 0 6px; font-family: var(--font-display); font-size: 30px; letter-spacing: .4px; }
+.onboarding-card > p { color: #aeb9c2; font-size: 14px; line-height: 1.5; }
+.onboarding-steps { margin: 18px 0 20px; display: flex; flex-direction: column; gap: 13px; list-style: none; padding: 0; }
+.onboarding-steps li { display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: flex-start; }
+.onboarding-step-icon { width: 38px; height: 38px; display: grid; place-items: center; color: #ffb066; border: 1px solid rgba(255, 139, 50, .35); background: rgba(255, 122, 24, .09); }
+.onboarding-steps b { display: block; font-family: var(--font-display); font-size: 14px; letter-spacing: .5px; }
+.onboarding-steps span { display: block; margin-top: 3px; color: #9fabb5; font-size: 13px; line-height: 1.5; }
+.onboarding-cta { width: 100%; height: 52px; color: #14100c; background: linear-gradient(110deg, #ff9442, #ff7a18); font-family: var(--font-display); font-size: 15px; font-weight: 800; letter-spacing: .8px; border: 0; cursor: pointer; }
+.onboarding-cta:hover { filter: brightness(1.07); }
+
+.control-group-about { margin: -6px 0 13px; color: #8b98a4; font-size: 11px; line-height: 1.45; }
+.setup-slider-head small { display: block; margin-top: 2px; color: #93a0ab; font-size: 10px; font-weight: 600; letter-spacing: .2px; line-height: 1.35; }
+.command-hint { margin: -3px 0 11px 57px; color: #8b98a4; font-size: 11px; line-height: 1.4; }
+.command-hint.pit-hint { margin: 10px 0 0; }
+.command-label { font-size: 12px; }
+.control-group-title small { font-size: 10px; }
+
+@media (max-width: 760px) {
+  .help-button span { display: none; }
+  .help-button { width: 34px; justify-content: center; padding: 0; }
+  .onboarding-card { padding: 20px 16px; }
+  .onboarding-card h2 { font-size: 24px; }
+  .onboarding-steps span { font-size: 12.5px; }
+  .command-hint { margin-left: 0; font-size: 10.5px; }
+  .setup-slider-head small { font-size: 10px; }
+  .control-group-about { font-size: 10.5px; }
+}

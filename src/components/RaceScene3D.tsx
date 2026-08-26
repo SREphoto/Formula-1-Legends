@@ -411,7 +411,7 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
         side.set(-tangent.z, 0, tangent.x)
         const lane = ((index % 3) - 1) * 0.58
         point.addScaledVector(side, lane)
-        car.position.set(point.x, 0.02, point.z)
+        car.position.set(point.x, 0.07, point.z)
         car.rotation.y = Math.atan2(tangent.x, tangent.z)
         car.rotation.z = Math.sin(elapsed * 8 + index) * 0.006
         car.children.forEach((child) => {

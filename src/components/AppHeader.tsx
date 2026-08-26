@@ -2,6 +2,7 @@ import {
   Building2,
   ChevronDown,
   Gauge,
+  HelpCircle,
   Radio,
   SlidersHorizontal,
   Sparkles,
@@ -11,6 +12,7 @@ import type { AppView } from '../types'
 interface AppHeaderProps {
   activeView: AppView
   onViewChange: (view: AppView) => void
+  onHelp?: () => void
 }
 
 const navItems: { id: AppView; label: string; icon: typeof Radio }[] = [
@@ -20,7 +22,7 @@ const navItems: { id: AppView; label: string; icon: typeof Radio }[] = [
   { id: 'hq', label: 'Team HQ', icon: Building2 },
 ]
 
-export function AppHeader({ activeView, onViewChange }: AppHeaderProps) {
+export function AppHeader({ activeView, onViewChange, onHelp }: AppHeaderProps) {
   return (
     <header className="app-header">
       <button className="brand" onClick={() => onViewChange('race')} aria-label="Formula 1 Legends home">
@@ -49,6 +51,12 @@ export function AppHeader({ activeView, onViewChange }: AppHeaderProps) {
       </nav>
 
       <div className="header-actions">
+        {onHelp && (
+          <button className="help-button" onClick={onHelp} title="How to play">
+            <HelpCircle size={14} />
+            <span>HOW TO PLAY</span>
+          </button>
+        )}
         <div className="simulation-health" title="Deterministic physics worker online">
           <span className="health-dot" />
           <span><b>SIM</b> ONLINE</span>

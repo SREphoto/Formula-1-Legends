@@ -186,6 +186,7 @@ export function DriverTelemetryPanel({ driver, sendCommand, onNotify }: DriverTe
             ))}
           </div>
         </div>
+        <p className="command-hint">How hard your driver pushes — ATTACK is quickest but eats tyres and fuel.</p>
 
         <div className="command-row">
           <span className="command-label"><Zap size={13} /> ERS</span>
@@ -195,6 +196,7 @@ export function DriverTelemetryPanel({ driver, sendCommand, onNotify }: DriverTe
             ))}
           </div>
         </div>
+        <p className="command-hint">Hybrid battery — HARVEST recharges it, DEPLOY spends it on extra speed.</p>
 
         <div className="pit-command">
           <div className="compound-choice">
@@ -209,6 +211,7 @@ export function DriverTelemetryPanel({ driver, sendCommand, onNotify }: DriverTe
             <small>{driver.boxThisLap ? 'PIT WINDOW OPEN' : `FIT ${pitCompound} · ${driver.position === 1 ? 'REJOIN P4' : `REJOIN P${Math.min(20, driver.position + 3)}`}`}</small>
           </button>
         </div>
+        <p className="command-hint pit-hint">Pick a tyre colour, then BOX THIS LAP schedules the stop. Soft is fast but wears fast — hard lasts.</p>
       </div>
     </aside>
   )

@@ -121,25 +121,28 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
           <div className="workspace-panel-title"><div><span className="eyebrow">CAR 12 · SPEC B</span><h2>Setup parameters</h2></div><Wrench size={16} /></div>
 
           <div className="setup-control-group">
-            <div className="control-group-title"><span><AirVent size={14} /> AERODYNAMICS</span><small>4 PARAMETERS</small></div>
-            <SetupSlider label="Front wing" hint="Turn-in response" value={setup.frontWing} min={10} max={50} unit="°" onChange={(value) => update('frontWing', value)} />
-            <SetupSlider label="Rear wing" hint="Rear stability" value={setup.rearWing} min={10} max={50} unit="°" onChange={(value) => update('rearWing', value)} />
-            <SetupSlider label="Cooling aperture" hint="Drag / reliability" value={setup.cooling} min={20} max={80} unit="%" onChange={(value) => update('cooling', value)} />
+            <div className="control-group-title"><span><AirVent size={14} /> AERODYNAMICS</span><small>GRIP VS TOP SPEED</small></div>
+            <p className="control-group-about">Wings add cornering grip but slow the straights. Cooling protects the engine at a cost in top speed.</p>
+            <SetupSlider label="Front wing" hint="More wing — sharper steering, slower straights" value={setup.frontWing} min={10} max={50} unit="°" onChange={(value) => update('frontWing', value)} />
+            <SetupSlider label="Rear wing" hint="More wing — steadier rear, slower straights" value={setup.rearWing} min={10} max={50} unit="°" onChange={(value) => update('rearWing', value)} />
+            <SetupSlider label="Cooling aperture" hint="Open it to run cooler, at a cost in top speed" value={setup.cooling} min={20} max={80} unit="%" onChange={(value) => update('cooling', value)} />
           </div>
 
           <div className="setup-control-group">
-            <div className="control-group-title"><span><ArrowDown size={14} /> PLATFORM</span><small>GROUND EFFECT</small></div>
-            <SetupSlider label="Front ride height" hint="Floor seal" value={setup.rideHeightFront} min={15} max={30} step={0.1} unit="mm" onChange={(value) => update('rideHeightFront', value)} />
-            <SetupSlider label="Rear ride height" hint="Rake angle" value={setup.rideHeightRear} min={20} max={40} step={0.1} unit="mm" onChange={(value) => update('rideHeightRear', value)} />
+            <div className="control-group-title"><span><ArrowDown size={14} /> PLATFORM</span><small>UNDERFLOOR</small></div>
+            <p className="control-group-about">Ride height feeds the underfloor. Run low for free grip — too low and the car starts bouncing (porpoising).</p>
+            <SetupSlider label="Front ride height" hint="Lower is faster until the floor starts bouncing" value={setup.rideHeightFront} min={15} max={30} step={0.1} unit="mm" onChange={(value) => update('rideHeightFront', value)} />
+            <SetupSlider label="Rear ride height" hint="A higher rear stance helps the floor make grip" value={setup.rideHeightRear} min={20} max={40} step={0.1} unit="mm" onChange={(value) => update('rideHeightRear', value)} />
             {aero.porpoisingActive && <div className="setup-warning"><Activity size={14} /><span><b>PORPOISING DETECTED</b><small>Raise front ride height above 20.0 mm to recover floor stability.</small></span></div>}
           </div>
 
           <div className="setup-control-group compact-group">
             <div className="control-group-title"><span><Gauge size={14} /> MECHANICAL</span><small>BRAKES &amp; TYRES</small></div>
-            <SetupSlider label="Brake bias" value={setup.brakeBias} min={52} max={60} step={0.1} unit="%" onChange={(value) => update('brakeBias', value)} />
+            <p className="control-group-about">Brake bias and tyre pressures shape how the car turns, stops and wears its tyres.</p>
+            <SetupSlider label="Brake bias" hint="Forward is safer under braking, back rotates the car" value={setup.brakeBias} min={52} max={60} step={0.1} unit="%" onChange={(value) => update('brakeBias', value)} />
             <div className="dual-pressure">
-              <SetupSlider label="Front pressure" value={setup.tirePressureFront} min={21} max={25} step={0.1} unit="psi" onChange={(value) => update('tirePressureFront', value)} />
-              <SetupSlider label="Rear pressure" value={setup.tirePressureRear} min={19} max={23} step={0.1} unit="psi" onChange={(value) => update('tirePressureRear', value)} />
+              <SetupSlider label="Front pressure" hint="Higher — sharper response, more front wear" value={setup.tirePressureFront} min={21} max={25} step={0.1} unit="psi" onChange={(value) => update('tirePressureFront', value)} />
+              <SetupSlider label="Rear pressure" hint="Higher — more traction, hotter rears" value={setup.tirePressureRear} min={19} max={23} step={0.1} unit="psi" onChange={(value) => update('tirePressureRear', value)} />
             </div>
           </div>
         </section>
