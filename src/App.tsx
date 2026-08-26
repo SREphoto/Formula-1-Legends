@@ -68,6 +68,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      <span className="build-chip" aria-hidden="true">BUILD R3</span>
       <AppHeader activeView={activeView} onViewChange={setActiveView} onHelp={() => setShowGuide(true)} />
       <RaceStatusBar
         snapshot={snapshot}

@@ -1508,3 +1508,23 @@ button { background-color: transparent; }
   .setup-slider-head small { font-size: 10px; }
   .control-group-about { font-size: 10.5px; }
 }
+
+/* Diagnostic build tag — tells you which version is on screen */
+.build-chip {
+  position: fixed;
+  right: 8px;
+  top: 70px;
+  z-index: 400;
+  padding: 3px 7px;
+  color: #7c8893;
+  border: 1px solid #2c343d;
+  background: rgba(8, 11, 15, .82);
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  pointer-events: none;
+}
+@media (max-width: 760px) {
+  .build-chip { top: 132px; right: 6px; font-size: 8px; }
+}
