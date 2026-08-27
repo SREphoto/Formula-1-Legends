@@ -7,6 +7,7 @@ import { useRaceSimulation } from './hooks/useRaceSimulation'
 import type { AppView } from './types'
 import { CarLab } from './views/CarLab'
 import { HQDashboard } from './views/HQDashboard'
+import { LiveTelemetryExplorer } from './views/LiveTelemetryExplorer'
 import { RaceDashboard } from './views/RaceDashboard'
 import { StrategyWorkspace } from './views/StrategyWorkspace'
 
@@ -20,7 +21,7 @@ interface ToastState {
 function App() {
   const { snapshot, sendCommand } = useRaceSimulation()
   const [activeView, setActiveView] = useState<AppView>('race')
-  const [selectedDriverId, setSelectedDriverId] = useState('sen')
+  const [selectedDriverId, setSelectedDriverId] = useState('nor')
   const [paused, setPaused] = useState(false)
   const [speed, setSpeed] = useState(1)
   const [toast, setToast] = useState<ToastState | null>(null)
@@ -101,6 +102,7 @@ function App() {
       )}
       {activeView === 'car' && <CarLab selectedDriver={selectedDriver} onNotify={notify} />}
       {activeView === 'hq' && <HQDashboard onNotify={notify} />}
+      {activeView === 'telemetry' && <LiveTelemetryExplorer />}
 
       {showGuide && <OnboardingOverlay onClose={closeGuide} />}
 

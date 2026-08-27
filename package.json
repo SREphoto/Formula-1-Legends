@@ -7,6 +7,9 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "sop:validate": "node .master/scripts/validate_sop.js",
+    "run": "npm run build && vite preview --open --host 0.0.0.0",
+    "run:local": "vite --open --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {

@@ -1,24 +1,14 @@
 import {
-  ArrowDownRight,
   ArrowRight,
-  ChevronRight,
-  CloudRain,
-  Info,
-  Medal,
-  Radio,
-  ShieldAlert,
-  Sparkles,
-  TimerReset,
+  CheckCircle2,
+  Compass,
   TrendingUp,
-  Umbrella,
-  Users,
   Wind,
   Zap,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { DriverState, RaceSnapshot, TireCompound, WorkerCommand } from '../types'
 import { TireBadge } from '../components/TimingTower'
-import { formatLapTime } from '../utils/format'
 
 interface StrategyWorkspaceProps {
   snapshot: RaceSnapshot
@@ -28,185 +18,358 @@ interface StrategyWorkspaceProps {
   onNotify: (title: string, message: string, tone?: 'success' | 'warning') => void
 }
 
-type Plan = 'A' | 'B' | 'C'
+type PlanKey = 'A' | 'B' | 'C'
 
-const planMeta: Record<Plan, { name: string; compound: TireCompound; risk: string; finish: string; delta: string }> = {
-  A: { name: 'ONE STOP · CONTROL', compound: 'HARD', risk: 'LOW RISK', finish: 'P1', delta: '+2.8s' },
-  B: { name: 'TWO STOP · ATTACK', compound: 'SOFT', risk: 'MED RISK', finish: 'P2', delta: '+0.9s' },
-  C: { name: 'RAIN COVER', compound: 'INTERMEDIATE', risk: 'VARIABLE', finish: 'P4', delta: '−5.1s' },
+interface StrategyPlan {
+  id: PlanKey
+  name: string
+  subtitle: string
+  compound: TireCompound
+  stops: number
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH'
+  projectedFinish: string
+  delta: string
+  winProbability: number
+  pitWindow: string
+  description: string
 }
 
-export function StrategyWorkspace({ snapshot, selectedDriver, onSelectDriver, sendCommand, onNotify }: StrategyWorkspaceProps) {
-  const [plan, setPlan] = useState<Plan>('A')
-  const [pitLap, setPitLap] = useState(snapshot.lap + 2)
-  const [compound, setCompound] = useState<TireCompound>('HARD')
+const STRATEGY_PLANS: Record<PlanKey, StrategyPlan> = {
+  A: {
+    id: 'A',
+    name: 'PLAN A · PRIME OVERCUT',
+    subtitle: '1-Stop: Medium (Current) → Hard to Flag',
+    compound: 'HARD',
+    stops: 1,
+    riskLevel: 'LOW',
+    projectedFinish: 'P1',
+    delta: '+2.8s',
+    winProbability: 46,
+    pitWindow: 'Laps 38 – 42',
+    description: 'Extend current stint to overcut competitors, fitting Hard tires to run at delta pace until race end.',
+  },
+  B: {
+    id: 'B',
+    name: 'PLAN B · SPRINT UNDERCUT',
+    subtitle: '2-Stop: Medium → Soft → Soft Attack',
+    compound: 'SOFT',
+    stops: 2,
+    riskLevel: 'MEDIUM',
+    projectedFinish: 'P2',
+    delta: '+0.9s',
+    winProbability: 32,
+    pitWindow: 'Laps 35 & 46',
+    description: 'Aggressive 2-stop sprint exploiting fresh soft compound grip delta (+1.4s/lap) to pass in DRS zones.',
+  },
+  C: {
+    id: 'C',
+    name: 'PLAN C · WEATHER CONTINGENCY',
+    subtitle: '1-Stop: Medium → Intermediate Cover',
+    compound: 'INTERMEDIATE',
+    stops: 1,
+    riskLevel: 'HIGH',
+    projectedFinish: 'P3',
+    delta: '-4.2s',
+    winProbability: 18,
+    pitWindow: 'Lap 44 (On Rain Onset)',
+    description: 'Delay pit stop until rain probability crosses 50% threshold to avoid double-stop penalty.',
+  },
+}
+
+export function StrategyWorkspace({
+  snapshot,
+  selectedDriver,
+  onSelectDriver,
+  sendCommand,
+  onNotify,
+}: StrategyWorkspaceProps) {
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey>('A')
   const managedDrivers = snapshot.drivers.filter((driver) => driver.isManaged)
-  const leader = snapshot.drivers[0]
-  const meta = planMeta[plan]
-  const finishChance = plan === 'A' ? 42 : plan === 'B' ? 31 : 12
-  const lapsLeft = snapshot.totalLaps - snapshot.lap
+  const currentPlan = STRATEGY_PLANS[selectedPlan]
 
-  const weatherBars = useMemo(() => [8, 7, 9, 12, 18, 28, 38, 31, 22, 16, 12, 9], [])
-
-  const activatePlan = () => {
-    sendCommand({ type: 'PIT_COMMAND', driverId: selectedDriver.id, compound })
-    onNotify('STRATEGY A ACTIVATED', `${selectedDriver.code}: box lap ${pitLap}, fit ${compound.toLowerCase()} tyres.`, 'success')
+  const commitPlan = () => {
+    sendCommand({ type: 'PIT_COMMAND', driverId: selectedDriver.id, compound: currentPlan.compound })
+    onNotify(
+      `STRATEGY ${currentPlan.id} COMMITTED`,
+      `${selectedDriver.code} pit window scheduled: ${currentPlan.pitWindow} for ${currentPlan.compound} tyres.`,
+      'success',
+    )
   }
+
+  // Lap ticks for chart
+  const startLap = snapshot.lap
+  const lapInterval = Math.max(2, Math.floor((snapshot.totalLaps - startLap) / 6))
+  const chartLaps = [
+    startLap,
+    startLap + lapInterval,
+    startLap + lapInterval * 2,
+    startLap + lapInterval * 3,
+    startLap + lapInterval * 4,
+    snapshot.totalLaps,
+  ]
 
   return (
     <main className="workspace strategy-workspace">
-      <div className="workspace-heading">
+      {/* Workspace Header */}
+      <div className="workspace-header-bar">
         <div>
-          <span className="eyebrow">LIVE DECISION ENGINE · LAP {snapshot.lap}</span>
-          <h1>Race strategy</h1>
-          <p>Compare outcomes, monitor crossover points and commit your pit window.</p>
+          <span className="section-eyebrow">RACE STRATEGY AI DECISION HUB · LAP {snapshot.lap} OF {snapshot.totalLaps}</span>
+          <h1 className="workspace-title">Pit Window &amp; Degradation Strategy</h1>
         </div>
-        <div className="driver-switcher">
-          {managedDrivers.map((driver) => (
-            <button key={driver.id} className={driver.id === selectedDriver.id ? 'active' : ''} onClick={() => onSelectDriver(driver.id)} style={{ '--team-color': driver.teamColor } as React.CSSProperties}>
-              <span className="switch-number">{driver.number}</span>
-              <span><small>CAR {driver.position}</small><b>{driver.code}</b></span>
-              <TireBadge compound={driver.tire} small />
-            </button>
-          ))}
+
+        {/* Managed Driver Switcher */}
+        <div className="driver-selector-deck">
+          {managedDrivers.map((driver) => {
+            const isSelected = driver.id === selectedDriver.id
+            return (
+              <button
+                key={driver.id}
+                className={`driver-select-card ${isSelected ? 'active' : ''}`}
+                onClick={() => onSelectDriver(driver.id)}
+                style={{ '--team-color': driver.teamColor } as React.CSSProperties}
+              >
+                <span className="select-num">#{driver.number}</span>
+                <div className="select-meta">
+                  <strong>{driver.code}</strong>
+                  <small>P{driver.position} · {driver.tireAge}L on {driver.tire}</small>
+                </div>
+                <TireBadge compound={driver.tire} small />
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      <div className="strategy-workspace-grid">
-        <section className="panel strategy-plans-panel">
-          <div className="workspace-panel-title">
-            <div><span className="eyebrow">SCENARIO MODEL</span><h2>Strategy plans</h2></div>
-            <span className="model-live"><i /> LIVE</span>
+      {/* Main Grid: Left Scenario Cards + Right Delta Chart & Timeline */}
+      <div className="strategy-main-layout">
+        {/* Left Column: Strategy Scenario Plans */}
+        <section className="panel strategy-cards-column">
+          <div className="card-panel-header">
+            <div className="header-text">
+              <span className="eyebrow">PREDICTIVE SIMULATIONS (48,000 RUNS)</span>
+              <h2>Strategic Options</h2>
+            </div>
+            <span className="live-status-chip"><i /> REAL-TIME</span>
           </div>
-          <div className="strategy-plan-list">
-            {(Object.keys(planMeta) as Plan[]).map((key) => {
-              const item = planMeta[key]
+
+          <div className="plans-stack">
+            {(Object.keys(STRATEGY_PLANS) as PlanKey[]).map((key) => {
+              const plan = STRATEGY_PLANS[key]
+              const isSelected = selectedPlan === key
               return (
-                <button key={key} className={`strategy-plan-card ${plan === key ? 'active' : ''}`} onClick={() => { setPlan(key); setCompound(item.compound) }}>
-                  <span className="plan-letter">{key}</span>
-                  <span className="plan-main"><small>{item.risk}</small><b>{item.name}</b><em>Projected finish <strong>{item.finish}</strong></em></span>
-                  <TireBadge compound={item.compound} />
-                  <span className={item.delta.startsWith('+') ? 'plan-delta positive' : 'plan-delta negative'}>{item.delta}</span>
-                  <ChevronRight size={15} />
-                </button>
+                <div
+                  key={key}
+                  className={`strategy-option-card ${isSelected ? 'active-plan' : ''} risk-${plan.riskLevel.toLowerCase()}`}
+                  onClick={() => setSelectedPlan(key)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="plan-card-top">
+                    <div className="plan-badge">
+                      <span className="plan-letter">{plan.id}</span>
+                      <div>
+                        <strong>{plan.name}</strong>
+                        <small>{plan.subtitle}</small>
+                      </div>
+                    </div>
+                    <span className={`risk-tag risk-${plan.riskLevel.toLowerCase()}`}>{plan.riskLevel} RISK</span>
+                  </div>
+
+                  <p className="plan-desc">{plan.description}</p>
+
+                  <div className="plan-kpis-grid">
+                    <div className="plan-kpi">
+                      <small>TARGET TYRE</small>
+                      <div className="compound-target">
+                        <TireBadge compound={plan.compound} small />
+                        <strong>{plan.compound}</strong>
+                      </div>
+                    </div>
+                    <div className="plan-kpi">
+                      <small>PROJ. FINISH</small>
+                      <strong className="finish-highlight">{plan.projectedFinish}</strong>
+                    </div>
+                    <div className="plan-kpi">
+                      <small>RACE DELTA</small>
+                      <strong className={plan.delta.startsWith('+') ? 'positive-delta' : 'negative-delta'}>{plan.delta}</strong>
+                    </div>
+                    <div className="plan-kpi">
+                      <small>WIN PROB.</small>
+                      <strong>{plan.winProbability}%</strong>
+                    </div>
+                  </div>
+
+                  {isSelected && (
+                    <button className="commit-strategy-btn" onClick={(e) => { e.stopPropagation(); commitPlan() }}>
+                      <CheckCircle2 size={16} />
+                      <span>COMMIT STRATEGY {plan.id} TO CAR #{selectedDriver.number}</span>
+                    </button>
+                  )}
+                </div>
               )
             })}
           </div>
 
-          <div className="strategy-confidence">
-            <div className="confidence-ring"><span>87<small>%</small></span></div>
-            <div><small>MODEL CONFIDENCE</small><b>High-confidence window</b><p>Based on 48,240 simulations using live degradation and traffic.</p></div>
-          </div>
-
-          <div className="model-variables">
-            <span><i><Wind size={13} /></i><small>TRACK EVOLUTION</small><b>+1.2%</b></span>
-            <span><i><Users size={13} /></i><small>PIT TRAFFIC</small><b>LOW</b></span>
-            <span><i><Zap size={13} /></i><small>SC RISK</small><b>18%</b></span>
+          {/* Model AI Factors */}
+          <div className="ai-factors-card">
+            <div className="factor-item">
+              <Wind size={15} />
+              <div>
+                <small>TRACK EVOLUTION</small>
+                <strong>+1.2% GRIP GAIN</strong>
+              </div>
+            </div>
+            <div className="factor-item">
+              <Compass size={15} />
+              <div>
+                <small>PIT WINDOW TRAFFIC</small>
+                <strong>CLEAN AIR WINDOW</strong>
+              </div>
+            </div>
+            <div className="factor-item">
+              <Zap size={15} />
+              <div>
+                <small>SAFETY CAR PROB.</small>
+                <strong>18% CHANCE</strong>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="panel strategy-model-panel">
-          <div className="workspace-panel-title">
-            <div><span className="eyebrow">PLAN {plan} · PROJECTED RACE DELTA</span><h2>Position forecast</h2></div>
-            <div className="forecast-legend"><span><i className="orange" />{selectedDriver.code}</span><span><i className="red" />{leader.id === selectedDriver.id ? 'SCH' : leader.code}</span><span><i className="cyan" />HAM</span></div>
+        {/* Right Column: High-Contrast Race Delta & Degradation Chart */}
+        <section className="panel strategy-chart-column">
+          <div className="card-panel-header">
+            <div className="header-text">
+              <span className="eyebrow">PROJECTED FINISH GAP VS. LEAD RUNNER</span>
+              <h2>Race Delta &amp; Pit Window Forecast</h2>
+            </div>
+            <div className="chart-legend-pills">
+              <span className="legend-pill orange"><i /> #{selectedDriver.number} {selectedDriver.code}</span>
+              <span className="legend-pill red"><i /> #1 VER</span>
+              <span className="legend-pill cyan"><i /> #16 LEC</span>
+            </div>
           </div>
 
-          <div className="forecast-summary-row">
-            <div><small>PROJECTED FINISH</small><b className="big-position">{meta.finish}</b><span className="positive"><TrendingUp size={13} /> +{Math.max(0, selectedDriver.position - Number(meta.finish.slice(1)))} POS</span></div>
-            <div><small>RACE TIME DELTA</small><b>{meta.delta}</b><span>vs. stay out</span></div>
-            <div><small>WIN PROBABILITY</small><b>{finishChance}%</b><span>+8.4 pts</span></div>
-            <div><small>PIT LOSS</small><b>22.6s</b><span>green flag</span></div>
+          {/* KPI Summary Row */}
+          <div className="strategy-summary-cards">
+            <div className="summary-card">
+              <span className="summary-label">PROJECTED FINISH</span>
+              <strong className="summary-val finish">{currentPlan.projectedFinish}</strong>
+              <small className="positive-text"><TrendingUp size={11} /> +{Math.max(0, selectedDriver.position - 1)} Positions</small>
+            </div>
+            <div className="summary-card">
+              <span className="summary-label">NET TIME DELTA</span>
+              <strong className="summary-val">{currentPlan.delta}</strong>
+              <small>vs. baseline stay out</small>
+            </div>
+            <div className="summary-card">
+              <span className="summary-label">WIN PROBABILITY</span>
+              <strong className="summary-val win">{currentPlan.winProbability}%</strong>
+              <small className="positive-text">+8.4 pts in standings</small>
+            </div>
+            <div className="summary-card">
+              <span className="summary-label">PIT LOSS DELTA</span>
+              <strong className="summary-val">22.4s</strong>
+              <small>Stationary + Pit Lane</small>
+            </div>
           </div>
 
-          <div className="large-forecast-chart">
-            <div className="chart-axis"><span>+8s</span><span>+4s</span><span>0s</span><span>−4s</span><span>−8s</span></div>
-            <div className="forecast-canvas">
-              <svg viewBox="0 0 900 250" preserveAspectRatio="none">
+          {/* SVG Line Chart */}
+          <div className="strategy-chart-container">
+            <div className="chart-y-axis">
+              <span>+10s</span>
+              <span>+5s</span>
+              <span>0s (LEADER)</span>
+              <span>−5s</span>
+              <span>−10s</span>
+            </div>
+
+            <div className="chart-svg-wrapper">
+              <svg viewBox="0 0 900 240" preserveAspectRatio="none" className="strategy-svg-chart">
                 <defs>
-                  <linearGradient id="forecastArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ff7a18" stopOpacity="0.32" /><stop offset="1" stopColor="#ff7a18" stopOpacity="0" /></linearGradient>
-                  <filter id="lineGlow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+                  <linearGradient id="planAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ff8000" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#ff8000" stopOpacity="0.0" />
+                  </linearGradient>
                 </defs>
-                {[20, 72, 124, 176, 228].map((y) => <line key={y} x1="0" x2="900" y1={y} y2={y} stroke="#28303a" strokeDasharray="4 6" />)}
-                {[0, 112, 225, 337, 450, 562, 675, 787, 899].map((x) => <line key={x} x1={x} x2={x} y1="0" y2="250" stroke="#1d232b" />)}
-                <path d="M 0 125 C 90 119 160 125 220 143 C 248 152 273 190 310 181 C 388 163 426 127 494 104 C 588 71 676 59 760 40 C 816 29 850 27 900 20 L 900 250 L 0 250 Z" fill="url(#forecastArea)" />
-                <path d="M 0 125 C 90 119 160 125 220 143 C 248 152 273 190 310 181 C 388 163 426 127 494 104 C 588 71 676 59 760 40 C 816 29 850 27 900 20" fill="none" stroke="#ff8424" strokeWidth="3" filter="url(#lineGlow)" vectorEffect="non-scaling-stroke" />
-                <path d="M 0 126 C 105 132 183 121 264 116 C 340 111 405 115 485 130 C 574 145 655 151 733 156 C 803 160 847 157 900 166" fill="none" stroke="#ee4b53" strokeWidth="2" strokeDasharray="7 5" vectorEffect="non-scaling-stroke" />
-                <path d="M 0 140 C 105 147 181 141 267 130 C 340 121 421 112 501 119 C 590 125 675 112 754 106 C 819 101 853 103 900 98" fill="none" stroke="#35d4c7" strokeWidth="1.8" strokeDasharray="3 5" vectorEffect="non-scaling-stroke" />
-                <rect x="250" y="0" width="72" height="250" fill="#ff7a18" opacity="0.055" />
-                <line x1="286" x2="286" y1="0" y2="250" stroke="#ff9b50" strokeDasharray="3 4" />
-                <circle cx="286" cy="186" r="5" fill="#ff8424" stroke="#fff" strokeWidth="2" />
+
+                {/* Grid Lines */}
+                {[20, 68, 120, 172, 220].map((y) => (
+                  <line key={y} x1="0" x2="900" y1={y} y2={y} stroke="#1e2634" strokeDasharray="3 4" />
+                ))}
+
+                {/* Pit Window Highlighted Zone */}
+                <rect x="220" y="0" width="120" height="240" fill="#ff8000" fillOpacity="0.08" />
+                <line x1="280" x2="280" y1="0" y2="240" stroke="#ff8000" strokeDasharray="4 4" strokeWidth="1.5" />
+
+                {/* Curve Plan A (Managed Car) */}
+                <path
+                  d="M 0 120 C 100 115, 180 125, 230 148 C 260 162, 280 190, 310 180 C 400 150, 480 100, 600 70 C 720 40, 820 28, 900 20 L 900 240 L 0 240 Z"
+                  fill="url(#planAreaGradient)"
+                />
+                <path
+                  d="M 0 120 C 100 115, 180 125, 230 148 C 260 162, 280 190, 310 180 C 400 150, 480 100, 600 70 C 720 40, 820 28, 900 20"
+                  fill="none"
+                  stroke="#ff8000"
+                  strokeWidth="3.5"
+                />
+
+                {/* Rival Car 1 (Verstappen) */}
+                <path
+                  d="M 0 122 C 120 130, 240 120, 360 118 C 480 115, 600 135, 750 150 C 820 158, 860 162, 900 168"
+                  fill="none"
+                  stroke="#e8002d"
+                  strokeWidth="2"
+                  strokeDasharray="6 4"
+                />
+
+                {/* Rival Car 2 (Leclerc) */}
+                <path
+                  d="M 0 138 C 140 144, 280 136, 420 122 C 540 110, 680 116, 800 108 C 850 104, 880 102, 900 98"
+                  fill="none"
+                  stroke="#00d2be"
+                  strokeWidth="2"
+                  strokeDasharray="3 3"
+                />
+
+                {/* Pit Window Optimal Box Point */}
+                <circle cx="280" cy="184" r="6" fill="#ff8000" stroke="#ffffff" strokeWidth="2.5" />
               </svg>
-              <div className="pit-window-band" style={{ left: '27.7%', width: '8%' }}><span>PIT WINDOW</span></div>
-              <div className="forecast-laps"><span>L{snapshot.lap}</span><span>L{snapshot.lap + 3}</span><span>L{snapshot.lap + 6}</span><span>L{snapshot.lap + 9}</span><span>L{snapshot.lap + 12}</span><span>L{snapshot.lap + 15}</span><span>L{snapshot.lap + 18}</span><span>L{snapshot.totalLaps}</span></div>
+
+              <div className="chart-pit-tag" style={{ left: '29%' }}>
+                <span>OPTIMAL BOX (LAP 40)</span>
+              </div>
+            </div>
+
+            {/* Clear, well-spaced lap labels */}
+            <div className="chart-x-laps">
+              {chartLaps.map((lap, i) => (
+                <span key={i} className="lap-tick">LAP {lap}</span>
+              ))}
             </div>
           </div>
 
-          <div className="stint-plan-editor">
-            <div className="stint-editor-label"><span>STINT PLAN</span><small>{lapsLeft} LAPS REMAINING</small></div>
-            <div className="editable-stint-track">
-              <span className="current-medium" style={{ width: `${((pitLap - snapshot.lap) / lapsLeft) * 100}%` }}><TireBadge compound={selectedDriver.tire} small /> {pitLap - snapshot.lap} LAPS</span>
-              <span className={`next-${compound.toLowerCase()}`}><TireBadge compound={compound} small /> {snapshot.totalLaps - pitLap} LAPS · TO FLAG</span>
-              <i className="pit-handle" style={{ left: `${((pitLap - snapshot.lap) / lapsLeft) * 100}%` }} />
+          {/* Stint Degradation & Weather Strip */}
+          <div className="strategy-stint-footer">
+            <div className="stint-segment">
+              <span className="stint-tag">STINT 1 (CURRENT)</span>
+              <div className="stint-bar-info">
+                <TireBadge compound={selectedDriver.tire} small />
+                <strong>{selectedDriver.tire} · {selectedDriver.tireAge} LAPS DONE</strong>
+                <span>DEGRADATION: 1.8% / LAP</span>
+              </div>
+            </div>
+            <div className="stint-arrow"><ArrowRight size={18} /></div>
+            <div className="stint-segment target">
+              <span className="stint-tag">STINT 2 (TARGET)</span>
+              <div className="stint-bar-info">
+                <TireBadge compound={currentPlan.compound} small />
+                <strong>{currentPlan.compound} · {snapshot.totalLaps - 40} LAPS TO FLAG</strong>
+                <span className="green-text">PROJECTED DELTA: +0.65s / LAP</span>
+              </div>
             </div>
           </div>
         </section>
-
-        <aside className="strategy-side-column">
-          <section className="panel commit-strategy-card">
-            <div className="recommendation-ribbon"><Sparkles size={13} /> AI RECOMMENDED</div>
-            <div className="commit-title"><span>PLAN {plan}</span><b>{meta.name}</b><small>Undercut protection against {leader.id === selectedDriver.id ? 'Schumacher' : leader.lastName}</small></div>
-
-            <label className="pit-lap-control">
-              <span><small>PIT LAP</small><b>LAP {pitLap}</b></span>
-              <input type="range" min={snapshot.lap + 1} max={Math.min(snapshot.lap + 8, snapshot.totalLaps - 2)} value={pitLap} onChange={(event) => setPitLap(Number(event.target.value))} />
-              <span className="range-labels"><i>L{snapshot.lap + 1}</i><i>OPTIMAL</i><i>L{Math.min(snapshot.lap + 8, snapshot.totalLaps - 2)}</i></span>
-            </label>
-
-            <div className="compound-selector-block">
-              <small>NEXT COMPOUND</small>
-              <div className="large-compound-options">
-                {(['SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE'] as TireCompound[]).map((item) => (
-                  <button key={item} className={compound === item ? 'active' : ''} onClick={() => setCompound(item)}><TireBadge compound={item} /><span>{item === 'INTERMEDIATE' ? 'INTER' : item}</span></button>
-                ))}
-              </div>
-            </div>
-
-            <div className="pit-outcome-list">
-              <span><i><ArrowDownRight size={14} /></i><small>REJOIN POSITION</small><b>P4 <em>+7.2s clean air</em></b></span>
-              <span><i><TimerReset size={14} /></i><small>STOP TARGET</small><b>2.18s <em>P74 confidence</em></b></span>
-              <span><i><Medal size={14} /></i><small>FINISH RANGE</small><b>P1–P3 <em>78% probability</em></b></span>
-            </div>
-
-            <button className="activate-plan-button" onClick={activatePlan}>
-              <span>ACTIVATE PLAN {plan}<small>BOX LAP {pitLap} · FIT {compound}</small></span><ArrowRight size={18} />
-            </button>
-            <p className="commit-note"><Info size={12} /> Driver and pit crew will be notified immediately.</p>
-          </section>
-
-          <section className="panel weather-window-card">
-            <div className="side-card-heading"><span><CloudRain size={15} /> WEATHER WINDOW</span><b>18% RAIN</b></div>
-            <div className="weather-radar-mini">
-              <div className="radar-rings"><i /><i /><i /><span className="rain-cell one" /><span className="rain-cell two" /><b>+</b></div>
-              <div className="rain-timeline">
-                {weatherBars.map((bar, index) => <span key={index}><i style={{ height: `${bar}px` }} /><small>{index % 3 === 0 ? `+${index * 2}m` : ''}</small></span>)}
-              </div>
-            </div>
-            <div className="weather-alert"><Umbrella size={14} /><span><b>Light rain possible in 18 min</b><small>Turn 6 · confidence 64%</small></span></div>
-          </section>
-
-          <section className="panel rival-watch-card">
-            <div className="side-card-heading"><span><Radio size={15} /> RIVAL WATCH</span><b>LIVE</b></div>
-            {[snapshot.drivers.find((d) => d.id === 'sch'), snapshot.drivers.find((d) => d.id === 'ham')].filter(Boolean).map((rival) => rival && (
-              <div className="rival-row" key={rival.id}>
-                <span className="rival-color" style={{ background: rival.teamColor }} />
-                <span><small>P{rival.position} · {rival.teamShort}</small><b>{rival.code}</b></span>
-                <TireBadge compound={rival.tire} small />
-                <span><small>LAST</small><b>{formatLapTime(rival.lastLap)}</b></span>
-                <ShieldAlert size={14} className={rival.boxThisLap ? 'warning' : ''} />
-              </div>
-            ))}
-          </section>
-        </aside>
       </div>
     </main>
   )

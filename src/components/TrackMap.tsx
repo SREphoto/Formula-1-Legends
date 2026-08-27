@@ -1,6 +1,7 @@
-import { Camera, ChevronRight, Cuboid, Flag, Map, Maximize2, RadioTower, Sparkles, Video } from 'lucide-react'
+import { Camera, ChevronRight, CloudRain, Cuboid, Flag, Map, Maximize2, Radio, RadioTower, Sparkles, Video } from 'lucide-react'
 import { lazy, Suspense, useRef, useState } from 'react'
-import type { DriverState, RaceSnapshot } from '../types'
+import type { DriverState, RaceSnapshot, WorkerCommand } from '../types'
+import { DopplerRadarOverlay } from './DopplerRadarOverlay'
 
 const RaceScene3D = lazy(() => import('./RaceScene3D').then((module) => ({ default: module.RaceScene3D })))
 
@@ -9,15 +10,17 @@ interface TrackMapProps {
   selectedDriver: DriverState
   onSelectDriver: (driverId: string) => void
   onOpenStrategy: () => void
+  sendCommand?: (command: WorkerCommand) => void
 }
 
 const CIRCUIT_PATH = 'M 128 316 C 91 286 77 237 101 200 C 120 171 155 174 171 143 C 185 115 154 94 179 64 C 209 30 272 41 302 73 C 329 102 353 117 389 98 C 430 77 450 36 500 45 C 547 53 558 90 542 116 C 524 145 485 149 472 177 C 458 207 493 224 532 213 C 575 201 621 214 645 246 C 669 279 653 317 616 330 C 579 344 558 317 522 325 C 486 334 476 373 434 380 C 391 388 364 354 324 348 C 283 342 255 374 213 370 C 170 366 151 338 128 316 Z'
 
-export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrategy }: TrackMapProps) {
+export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrategy, sendCommand }: TrackMapProps) {
   const pathRef = useRef<SVGPathElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
-  const [viewMode, setViewMode] = useState<'3d' | 'map'>('3d')
+  const [viewMode, setViewMode] = useState<'3d' | 'map' | 'radar'>('3d')
   const [cameraMode, setCameraMode] = useState<'broadcast' | 'onboard'>('broadcast')
+  const [radarOverlayActive, setRadarOverlayActive] = useState(true)
 
   const getCarPoint = (progress: number) => {
     const path = pathRef.current
@@ -29,6 +32,10 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
 
   const requestFullscreen = () => stageRef.current?.requestFullscreen?.()
 
+  const handleRainfallChange = (rainfall: number) => {
+    sendCommand?.({ type: 'WEATHER', rainfall })
+  }
+
   return (
     <section className={`panel track-panel view-${viewMode} camera-${cameraMode}`}>
       <div className="track-panel-header">
@@ -38,27 +45,79 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
         </div>
         <div className="track-controls">
           <div className="segment-control view-selector">
-            <button className={viewMode === '3d' ? 'active' : ''} onClick={() => setViewMode('3d')}><Cuboid size={14} /> 3D RACE</button>
-            <button className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')}><Map size={14} /> MAP</button>
+            <button className={viewMode === '3d' ? 'active' : ''} onClick={() => setViewMode('3d')}>
+              <Cuboid size={14} /> 3D RACE
+            </button>
+            <button className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')}>
+              <Map size={14} /> MAP
+            </button>
+            <button className={viewMode === 'radar' ? 'active radar-btn' : 'radar-btn'} onClick={() => setViewMode('radar')}>
+              <Radio size={14} /> DOPPLER RADAR
+            </button>
           </div>
-          <button disabled={viewMode === 'map'} className={`icon-button ${viewMode === '3d' && cameraMode === 'broadcast' ? 'active' : ''}`} onClick={() => setCameraMode('broadcast')} title="Trackside chase camera"><Video size={15} /></button>
-          <button disabled={viewMode === 'map'} className={`icon-button ${viewMode === '3d' && cameraMode === 'onboard' ? 'active' : ''}`} onClick={() => setCameraMode('onboard')} title="Onboard camera"><Camera size={15} /></button>
-          <button className="icon-button" title="Fullscreen" onClick={requestFullscreen}><Maximize2 size={15} /></button>
+
+          {viewMode !== 'radar' && (
+            <button
+              className={`icon-button radar-toggle-chip ${radarOverlayActive ? 'active' : ''}`}
+              onClick={() => setRadarOverlayActive(!radarOverlayActive)}
+              title="Toggle Doppler radar precipitation overlay"
+            >
+              <CloudRain size={15} />
+            </button>
+          )}
+
+          <button
+            disabled={viewMode !== '3d'}
+            className={`icon-button ${viewMode === '3d' && cameraMode === 'broadcast' ? 'active' : ''}`}
+            onClick={() => setCameraMode('broadcast')}
+            title="Trackside chase camera"
+          >
+            <Video size={15} />
+          </button>
+          <button
+            disabled={viewMode !== '3d'}
+            className={`icon-button ${viewMode === '3d' && cameraMode === 'onboard' ? 'active' : ''}`}
+            onClick={() => setCameraMode('onboard')}
+            title="Onboard camera"
+          >
+            <Camera size={15} />
+          </button>
+          <button className="icon-button" title="Fullscreen" onClick={requestFullscreen}>
+            <Maximize2 size={15} />
+          </button>
         </div>
       </div>
 
       <div className="track-stage" ref={stageRef}>
-        {viewMode === '3d' ? (
+        {viewMode === '3d' && (
           <Suspense fallback={<div className="scene-loader"><i /><strong>BUILDING 3D RACE WORLD</strong><span>Loading cars, circuit and grandstands…</span></div>}>
             <RaceScene3D
               drivers={snapshot.drivers}
               selectedDriverId={selectedDriver.id}
               cameraMode={cameraMode}
               onSelectDriver={onSelectDriver}
+              rainfall={snapshot.rainfall}
+              showDopplerRadar={radarOverlayActive}
             />
           </Suspense>
-        ) : (
+        )}
+
+        {viewMode === 'map' && (
           <>
+            {/* Background Doppler Radar Sweep & Precipitation Heatmap under 2D track */}
+            {radarOverlayActive && (
+              <div className="track-map-radar-layer">
+                <DopplerRadarOverlay
+                  rainfall={snapshot.rainfall}
+                  trackTemp={snapshot.trackTemp}
+                  airTemp={snapshot.airTemp}
+                  onRainfallChange={handleRainfallChange}
+                  showControls={false}
+                  compact={true}
+                />
+              </div>
+            )}
+
             <div className="track-grid" />
             <div className="track-location-label label-stowe">STOWE</div>
             <div className="track-location-label label-copse">COPSE</div>
@@ -118,6 +177,18 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
             </svg>
             <div className="track-zoom-rail"><button>+</button><span /><button>−</button></div>
           </>
+        )}
+
+        {viewMode === 'radar' && (
+          <div className="full-radar-view">
+            <DopplerRadarOverlay
+              rainfall={snapshot.rainfall}
+              trackTemp={snapshot.trackTemp}
+              airTemp={snapshot.airTemp}
+              onRainfallChange={handleRainfallChange}
+              showControls={true}
+            />
+          </div>
         )}
 
         {viewMode === '3d' && (

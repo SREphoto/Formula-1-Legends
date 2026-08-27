@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import type { DriverState } from '../types'
 import { createF1Car, disposeF1Car } from '../graphics/createF1Car'
+import { createPitCrew, disposePitCrew, type PitCrewRig } from '../graphics/createPitCrew'
 
 interface RaceScene3DProps {
   drivers: DriverState[]
   selectedDriverId: string
   cameraMode: 'broadcast' | 'onboard'
   onSelectDriver: (driverId: string) => void
+  rainfall?: number
+  showDopplerRadar?: boolean
 }
 
 const TRACK_POINTS = [
@@ -31,15 +34,25 @@ const TRACK_POINTS = [
   new THREE.Vector3(-17, 0, 1),
 ]
 
+const PIT_LANE_POINTS = [
+  new THREE.Vector3(-14, 0, 0),
+  new THREE.Vector3(-19, 0, 4.2),
+  new THREE.Vector3(-23.5, 0, 8.2),
+  new THREE.Vector3(-26.5, 0, 10.8),
+  new THREE.Vector3(-29.5, 0, 5.5),
+  new THREE.Vector3(-30.8, 0, -1.5),
+]
+
+/**
+ * Creates a watertight, cleanly indexed ribbon mesh along a 3D spline.
+ * Explicitly sets clean up-facing normals to prevent shadow acne and polygon artifacts.
+ */
 function createRibbon(curve: THREE.CatmullRomCurve3, width: number, y: number, centerOffset = 0, segments = 360) {
   const positions: number[] = []
+  const normals: number[] = []
   const uvs: number[] = []
   const indices: number[] = []
-  const rows: { left: THREE.Vector3; right: THREE.Vector3 }[] = []
   const up = new THREE.Vector3(0, 1, 0)
-  const firstEdge = new THREE.Vector3()
-  const secondEdge = new THREE.Vector3()
-  const faceNormal = new THREE.Vector3()
 
   for (let index = 0; index <= segments; index += 1) {
     const t = index / segments
@@ -50,43 +63,23 @@ function createRibbon(curve: THREE.CatmullRomCurve3, width: number, y: number, c
     const edge = side.clone().multiplyScalar(width / 2)
     const left = point.clone().add(offset).add(edge)
     const right = point.clone().add(offset).sub(edge)
-    rows.push({ left, right })
-    positions.push(left.x, y, left.z, right.x, y, right.z)
-    uvs.push(t * 34, 0, t * 34, 1)
-  }
 
-  // Adaptive winding: each triangle decides its own order so every face points up
-  // toward the sunlight. Switchbacks can reverse the tangent, which flips the
-  // original winding; checking each triangle's actual normal keeps the road visible.
-  for (let index = 0; index < segments; index += 1) {
-    const current = rows[index]
-    const next = rows[index + 1]
-    const base = index * 2
-    // First triangle: current.left, next.left, current.right.
-    firstEdge.copy(next.left).sub(current.left)
-    secondEdge.copy(current.right).sub(current.left)
-    faceNormal.crossVectors(firstEdge, secondEdge)
-    if (faceNormal.y >= 0) {
+    positions.push(left.x, y, left.z, right.x, y, right.z)
+    normals.push(0, 1, 0, 0, 1, 0)
+    uvs.push(t * 34, 0, t * 34, 1)
+
+    if (index < segments) {
+      const base = index * 2
       indices.push(base, base + 2, base + 1)
-    } else {
-      indices.push(base, base + 1, base + 2)
-    }
-    // Second triangle: next.left, next.right, current.right.
-    firstEdge.copy(next.right).sub(next.left)
-    secondEdge.copy(current.right).sub(next.left)
-    faceNormal.crossVectors(firstEdge, secondEdge)
-    if (faceNormal.y >= 0) {
-      indices.push(base + 2, base + 3, base + 1)
-    } else {
-      indices.push(base + 2, base + 1, base + 3)
+      indices.push(base + 1, base + 2, base + 3)
     }
   }
 
   const geometry = new THREE.BufferGeometry()
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3))
   geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
   geometry.setIndex(indices)
-  geometry.computeVertexNormals()
   return geometry
 }
 
@@ -102,9 +95,9 @@ function canvasTexture(width: number, height: number, draw: (context: CanvasRend
 
 function grassTexture() {
   const texture = canvasTexture(128, 128, (context) => {
-    context.fillStyle = '#4ba55c'
+    context.fillStyle = '#3a8747'
     context.fillRect(0, 0, 128, 128)
-    context.fillStyle = '#41955222'
+    context.fillStyle = '#337a3f'
     for (let index = 0; index < 128; index += 32) context.fillRect(0, index, 128, 16)
   })
   texture.wrapS = THREE.RepeatWrapping
@@ -116,7 +109,7 @@ function grassTexture() {
 function curbTexture() {
   const texture = canvasTexture(256, 32, (context) => {
     for (let index = 0; index < 8; index += 1) {
-      context.fillStyle = index % 2 === 0 ? '#f6f8f9' : '#e0293c'
+      context.fillStyle = index % 2 === 0 ? '#ffffff' : '#e10600'
       context.fillRect(index * 32, 0, 32, 32)
     }
   })
@@ -129,124 +122,108 @@ function checkerTexture() {
   return canvasTexture(288, 32, (context) => {
     for (let column = 0; column < 18; column += 1) {
       for (let row = 0; row < 2; row += 1) {
-        context.fillStyle = (column + row) % 2 === 0 ? '#f2f5f6' : '#15181c'
+        context.fillStyle = (column + row) % 2 === 0 ? '#ffffff' : '#11151c'
         context.fillRect(column * 16, row * 16, 16, 16)
       }
     }
   })
 }
 
-function crowdTexture() {
-  return canvasTexture(128, 64, (context) => {
-    context.fillStyle = '#39424c'
-    context.fillRect(0, 0, 128, 64)
-    const palette = ['#d8dee4', '#e2b23c', '#c74b45', '#4d94c9', '#57b378', '#a77bd6', '#e07e4f']
-    for (let index = 0; index < 620; index += 1) {
-      context.fillStyle = palette[index % palette.length]
-      context.globalAlpha = 0.35 + (index % 5) * 0.14
-      context.fillRect((index * 37) % 126, (index * 23) % 62, 2, 2)
-    }
-    context.globalAlpha = 1
-  })
-}
-
 function addScenery(scene: THREE.Scene) {
-  const unitBox = new THREE.BoxGeometry(1, 1, 1)
-  const unitCylinder = new THREE.CylinderGeometry(1, 1, 1, 10)
-  const unitCone = new THREE.ConeGeometry(1, 1, 8)
+  const materials: THREE.Material[] = []
+  const textures: THREE.Texture[] = []
+  const geometries: THREE.BufferGeometry[] = []
 
-  const wallMaterial = new THREE.MeshStandardMaterial({ color: '#dbe2e8', roughness: 0.85 })
-  const roofMaterial = new THREE.MeshStandardMaterial({ color: '#8e99a3', roughness: 0.7, metalness: 0.25 })
-  const glassMaterial = new THREE.MeshStandardMaterial({ color: '#8fc3e3', roughness: 0.18, metalness: 0.55, emissive: '#2c5a78', emissiveIntensity: 0.18 })
-  const standMaterial = new THREE.MeshStandardMaterial({ color: '#5c6873', roughness: 0.85 })
-  const crowdMap = crowdTexture()
-  const crowdMaterial = new THREE.MeshBasicMaterial({ map: crowdMap })
-  const trunkMaterial = new THREE.MeshStandardMaterial({ color: '#7a5a3a', roughness: 1 })
-  const leafMaterial = new THREE.MeshStandardMaterial({ color: '#2e8f4e', roughness: 0.95 })
+  // Grandstand
+  const grandstandGeo = new THREE.BoxGeometry(22, 6, 6)
+  const grandstandMat = new THREE.MeshStandardMaterial({ color: '#2a3342', roughness: 0.8 })
+  const grandstand = new THREE.Mesh(grandstandGeo, grandstandMat)
+  grandstand.position.set(-2, 3, -15)
+  grandstand.rotation.y = 0.22
+  grandstand.castShadow = true
+  grandstand.receiveShadow = true
+  scene.add(grandstand)
+  materials.push(grandstandMat)
+  geometries.push(grandstandGeo)
 
-  // Pit complex along the top straight
-  const pitBuilding = new THREE.Group()
-  for (let index = 0; index < 8; index += 1) {
-    const unit = new THREE.Mesh(unitBox, wallMaterial)
-    unit.scale.set(4.2, 2.6, 5.0)
-    unit.position.set(-29 + index * 4.3, 1.3, 40)
-    unit.castShadow = true
-    unit.receiveShadow = true
-    pitBuilding.add(unit)
-    const windowBand = new THREE.Mesh(unitBox, glassMaterial)
-    windowBand.scale.set(3.5, 0.9, 0.1)
-    windowBand.position.set(-29 + index * 4.3, 1.7, 37.48)
-    pitBuilding.add(windowBand)
-    const roof = new THREE.Mesh(unitBox, roofMaterial)
-    roof.scale.set(4.4, 0.22, 5.2)
-    roof.position.set(-29 + index * 4.3, 2.72, 40)
-    pitBuilding.add(roof)
-  }
-  scene.add(pitBuilding)
+  // Trackside trees
+  const trunkGeo = new THREE.CylinderGeometry(0.2, 0.3, 2.4, 6)
+  const foliageGeo = new THREE.ConeGeometry(1.6, 4.2, 6)
+  const trunkMat = new THREE.MeshStandardMaterial({ color: '#4a3b2c', roughness: 0.9 })
+  const foliageMat = new THREE.MeshStandardMaterial({ color: '#276b36', roughness: 0.7 })
+  materials.push(trunkMat, foliageMat)
+  geometries.push(trunkGeo, foliageGeo)
 
-  // Grandstands with crowd texture facing the track
-  const standLocations: [number, number, number, number][] = [
-    [38, 0, 18, -0.55], [-25, 0, -29, 0.18], [22, 0, -23, -0.35],
+  const treePositions = [
+    [-36, 18], [-38, -12], [-14, -32], [22, -24], [42, 6], [18, 34], [-24, 28],
+    [2, 14], [-12, -8], [12, -2],
   ]
-  standLocations.forEach(([x, , z, rotation]) => {
-    const stand = new THREE.Group()
-    for (let tier = 0; tier < 4; tier += 1) {
-      const block = new THREE.Mesh(unitBox, standMaterial)
-      block.scale.set(15, 0.7, 2.4)
-      block.position.set(0, 0.35 + tier * 0.75, -tier * 0.9)
-      block.castShadow = true
-      stand.add(block)
-      const crowd = new THREE.Mesh(unitBox, crowdMaterial)
-      crowd.scale.set(14.6, 0.62, 0.12)
-      crowd.position.set(0, 0.38 + tier * 0.75, -tier * 0.9 + 1.26)
-      stand.add(crowd)
-    }
-    const roof = new THREE.Mesh(unitBox, roofMaterial)
-    roof.scale.set(15.6, 0.2, 5)
-    roof.position.set(0, 4.1, -1.4)
-    stand.add(roof)
-    stand.position.set(x, 0, z)
-    stand.rotation.y = rotation
-    scene.add(stand)
+  treePositions.forEach(([x, z]) => {
+    const tree = new THREE.Group()
+    const trunk = new THREE.Mesh(trunkGeo, trunkMat)
+    trunk.position.y = 1.2
+    const foliage = new THREE.Mesh(foliageGeo, foliageMat)
+    foliage.position.y = 3.6
+    tree.add(trunk, foliage)
+    tree.position.set(x, 0, z)
+    tree.castShadow = true
+    scene.add(tree)
   })
 
-  // Tree line around the venue
-  for (let index = 0; index < 46; index += 1) {
-    const angle = index * 2.399
-    const radius = 50 + (index % 7) * 2.9
-    const tree = new THREE.Group()
-    const trunk = new THREE.Mesh(unitCylinder, trunkMaterial)
-    trunk.scale.set(0.26, 2.4, 0.26)
-    trunk.position.y = 1.2
-    tree.add(trunk)
-    const leaves = new THREE.Mesh(unitCone, leafMaterial)
-    leaves.scale.set(1.5, 4.0, 1.5)
-    leaves.position.y = 3.6
-    leaves.castShadow = true
-    tree.add(leaves)
-    tree.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius)
-    scene.add(tree)
-  }
-
-  return {
-    materials: [wallMaterial, roofMaterial, glassMaterial, standMaterial, crowdMaterial, trunkMaterial, leafMaterial],
-    textures: [crowdMap],
-    geometries: [unitBox, unitCylinder, unitCone],
-  }
+  return { materials, textures, geometries }
 }
 
-export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDriver }: RaceScene3DProps) {
+export function RaceScene3D({
+  drivers,
+  selectedDriverId,
+  cameraMode,
+  onSelectDriver,
+  rainfall = 0,
+  showDopplerRadar = false,
+}: RaceScene3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const driversRef = useRef(drivers)
-  const cameraModeRef = useRef(cameraMode)
-  const selectedRef = useRef(selectedDriverId)
-  const selectRef = useRef(onSelectDriver)
   const [webglFailed, setWebglFailed] = useState(false)
+  const driversRef = useRef(drivers)
+  const selectedRef = useRef(selectedDriverId)
+  const cameraModeRef = useRef(cameraMode)
+  const selectRef = useRef(onSelectDriver)
+  const rainfallRef = useRef(rainfall)
+  const showRadarRef = useRef(showDopplerRadar)
 
-  driversRef.current = drivers
-  cameraModeRef.current = cameraMode
-  selectedRef.current = selectedDriverId
-  selectRef.current = onSelectDriver
+  const [activePitDriver, setActivePitDriver] = useState<DriverState | null>(null)
+
+  useEffect(() => {
+    driversRef.current = drivers
+    const pitting = drivers.find((d) => d.pitStatus === 'PITTING')
+    const selected = drivers.find((d) => d.id === selectedDriverId)
+    if (selected && (selected.pitStatus === 'PITTING' || selected.pitStatus === 'REQUESTED')) {
+      setActivePitDriver(selected)
+    } else if (pitting) {
+      setActivePitDriver(pitting)
+    } else {
+      setActivePitDriver(null)
+    }
+  }, [drivers, selectedDriverId])
+
+  useEffect(() => {
+    selectedRef.current = selectedDriverId
+  }, [selectedDriverId])
+
+  useEffect(() => {
+    cameraModeRef.current = cameraMode
+  }, [cameraMode])
+
+  useEffect(() => {
+    selectRef.current = onSelectDriver
+  }, [onSelectDriver])
+
+  useEffect(() => {
+    rainfallRef.current = rainfall
+  }, [rainfall])
+
+  useEffect(() => {
+    showRadarRef.current = showDopplerRadar
+  }, [showDopplerRadar])
 
   useEffect(() => {
     const container = containerRef.current
@@ -260,28 +237,29 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
       return
     }
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6))
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
     renderer.setSize(container.clientWidth, container.clientHeight)
     renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.16
+    renderer.toneMappingExposure = 1.12
     renderer.shadowMap.enabled = window.innerWidth > 760
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.domElement.className = 'race-3d-canvas'
     renderer.domElement.style.touchAction = 'none'
     container.appendChild(renderer.domElement)
 
-    // Bright broadcast daylight
+    // Broadcast daylight atmosphere
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color('#a9cdf0')
-    scene.fog = new THREE.FogExp2('#bcd8ef', 0.0026)
+    scene.background = new THREE.Color('#9cc0e6')
+    scene.fog = new THREE.FogExp2('#b0d0f0', 0.0028)
 
     const camera = new THREE.PerspectiveCamera(46, container.clientWidth / Math.max(1, container.clientHeight), 0.1, 320)
     camera.position.set(0, 48, 66)
 
-    const hemisphere = new THREE.HemisphereLight('#e8f4ff', '#5a8f62', 1.05)
+    const hemisphere = new THREE.HemisphereLight('#f0f7ff', '#4f8054', 1.1)
     scene.add(hemisphere)
-    const sun = new THREE.DirectionalLight('#fff5e2', 2.9)
+
+    const sun = new THREE.DirectionalLight('#fff7eb', 2.8)
     sun.position.set(-34, 60, 26)
     sun.castShadow = true
     sun.shadow.mapSize.set(1024, 1024)
@@ -289,23 +267,26 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
     sun.shadow.camera.right = 75
     sun.shadow.camera.top = 75
     sun.shadow.camera.bottom = -75
-    sun.shadow.bias = -0.0004
+    sun.shadow.bias = 0.0008
+    sun.shadow.normalBias = 0.02
     scene.add(sun)
-    const rimLight = new THREE.DirectionalLight('#cfe3ff', 0.5)
-    rimLight.position.set(40, 18, -40)
+
+    const rimLight = new THREE.DirectionalLight('#d6e8ff', 0.6)
+    rimLight.position.set(40, 22, -40)
     scene.add(rimLight)
 
-    // Mown-grass infield and runoff
+    // Ground infield
     const grassMap = grassTexture()
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(260, 200),
       new THREE.MeshStandardMaterial({ map: grassMap, roughness: 1, metalness: 0 }),
     )
     ground.rotation.x = -Math.PI / 2
-    ground.position.y = -0.32
+    ground.position.y = -0.3
     ground.receiveShadow = true
     scene.add(ground)
 
+    // Main circuit spline & ribbons
     const curve = new THREE.CatmullRomCurve3(TRACK_POINTS, true, 'centripetal', 0.35)
     const runoffGeometry = createRibbon(curve, 14.2, -0.02)
     const curbGeometry = createRibbon(curve, 12.3, 0.02)
@@ -314,13 +295,13 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
     const rightLineGeometry = createRibbon(curve, 0.22, 0.085, 4.32)
     const rubberGeometry = createRibbon(curve, 3.6, 0.09)
 
-    const runoffMaterial = new THREE.MeshStandardMaterial({ color: '#b6bec5', roughness: 0.95, side: THREE.DoubleSide })
+    const runoffMaterial = new THREE.MeshStandardMaterial({ color: '#9ba4ad', roughness: 0.95, side: THREE.DoubleSide })
     const curbMap = curbTexture()
     curbMap.repeat.set(9, 1)
     const curbMaterial = new THREE.MeshStandardMaterial({ map: curbMap, roughness: 0.7, side: THREE.DoubleSide })
-    const roadMaterial = new THREE.MeshStandardMaterial({ color: '#5a6169', roughness: 0.92, side: THREE.DoubleSide })
-    const lineMaterial = new THREE.MeshBasicMaterial({ color: '#f2f6f8', side: THREE.DoubleSide })
-    const rubberMaterial = new THREE.MeshStandardMaterial({ color: '#41484f', roughness: 1, side: THREE.DoubleSide })
+    const roadMaterial = new THREE.MeshStandardMaterial({ color: '#4a5159', roughness: 0.92, side: THREE.DoubleSide })
+    const lineMaterial = new THREE.MeshBasicMaterial({ color: '#f5f7fa', side: THREE.DoubleSide })
+    const rubberMaterial = new THREE.MeshStandardMaterial({ color: '#31373e', roughness: 1, side: THREE.DoubleSide })
 
     const runoff = new THREE.Mesh(runoffGeometry, runoffMaterial)
     runoff.receiveShadow = true
@@ -345,6 +326,86 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
     startLine.position.set(startPoint.x, 0.11, startPoint.z)
     scene.add(startLine)
 
+    // --- Pit Lane & Pit Wall Architecture ---
+    const pitCurve = new THREE.CatmullRomCurve3(PIT_LANE_POINTS, false, 'centripetal', 0.4)
+    const pitRoadGeometry = createRibbon(pitCurve, 4.6, 0.065, 0, 80)
+    const pitLineGeo = createRibbon(pitCurve, 0.18, 0.088, -2.1, 80)
+    const pitSpeedLimitGeo = createRibbon(pitCurve, 0.18, 0.088, 2.1, 80)
+    const pitRoadMat = new THREE.MeshStandardMaterial({ color: '#3c434c', roughness: 0.94, side: THREE.DoubleSide })
+    const pitLineMat = new THREE.MeshBasicMaterial({ color: '#ffcc00', side: THREE.DoubleSide })
+
+    const pitRoad = new THREE.Mesh(pitRoadGeometry, pitRoadMat)
+    pitRoad.receiveShadow = true
+    const pitLine = new THREE.Mesh(pitLineGeo, pitLineMat)
+    const pitSpeedLimitLine = new THREE.Mesh(pitSpeedLimitGeo, lineMaterial)
+    scene.add(pitRoad, pitLine, pitSpeedLimitLine)
+
+    // Pit Wall barrier dividing track from pit lane
+    const pitWallGeo = new THREE.BoxGeometry(18, 1.1, 0.7)
+    const pitWallMat = new THREE.MeshStandardMaterial({ color: '#272d36', roughness: 0.8 })
+    const pitWall = new THREE.Mesh(pitWallGeo, pitWallMat)
+    pitWall.position.set(-23.5, 0.55, 6.2)
+    pitWall.rotation.y = 0.52
+    pitWall.castShadow = true
+    pitWall.receiveShadow = true
+    scene.add(pitWall)
+
+    // Pit Building / Team Garages
+    const pitBuildingGeo = new THREE.BoxGeometry(26, 5.5, 7.5)
+    const pitBuildingMat = new THREE.MeshStandardMaterial({ color: '#161c24', roughness: 0.85, metalness: 0.2 })
+    const pitBuilding = new THREE.Mesh(pitBuildingGeo, pitBuildingMat)
+    pitBuilding.position.set(-27.5, 2.75, 14.5)
+    pitBuilding.rotation.y = 0.52
+    pitBuilding.castShadow = true
+    pitBuilding.receiveShadow = true
+    scene.add(pitBuilding)
+
+    // Pit Crew Rig instantiated for Primary Pit Box
+    const pitCrewRig: PitCrewRig = createPitCrew('#ff8000', '#00e5ff')
+    pitCrewRig.group.position.set(-24.5, 0, 9.2)
+    pitCrewRig.group.rotation.y = 0.52
+    scene.add(pitCrewRig.group)
+
+    // --- 3D Rain Particle System ---
+    const rainCount = 2800
+    const rainGeo = new THREE.BufferGeometry()
+    const rainPositions = new Float32Array(rainCount * 3)
+    for (let i = 0; i < rainCount; i += 1) {
+      rainPositions[i * 3] = (Math.random() - 0.5) * 160
+      rainPositions[i * 3 + 1] = Math.random() * 45
+      rainPositions[i * 3 + 2] = (Math.random() - 0.5) * 160
+    }
+    rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPositions, 3))
+    const rainMat = new THREE.PointsMaterial({
+      color: '#cce4ff',
+      size: 0.28,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+    })
+    const rainParticles = new THREE.Points(rainGeo, rainMat)
+    scene.add(rainParticles)
+
+    // --- 3D Atmospheric Doppler Radar Scanning Dome & Sweep ---
+    const radarGeo = new THREE.RingGeometry(2, 68, 64)
+    const radarCanvas = document.createElement('canvas')
+    radarCanvas.width = 512
+    radarCanvas.height = 512
+    const radarCtx = radarCanvas.getContext('2d')!
+    const radarTex = new THREE.CanvasTexture(radarCanvas)
+
+    const radarMat = new THREE.MeshBasicMaterial({
+      map: radarTex,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    })
+    const radarSweepMesh = new THREE.Mesh(radarGeo, radarMat)
+    radarSweepMesh.rotation.x = -Math.PI / 2
+    radarSweepMesh.position.set(2, 6.5, 4)
+    scene.add(radarSweepMesh)
+
     const scenery = addScenery(scene)
 
     const carGroups = new Map<string, THREE.Group>()
@@ -361,22 +422,11 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
 
     const selectionRing = new THREE.Mesh(
       new THREE.RingGeometry(1.35, 1.6, 40),
-      new THREE.MeshBasicMaterial({ color: '#ff7a18', transparent: true, opacity: 0.95, side: THREE.DoubleSide }),
+      new THREE.MeshBasicMaterial({ color: '#ff8000', transparent: true, opacity: 0.95, side: THREE.DoubleSide }),
     )
     selectionRing.rotation.x = -Math.PI / 2
     selectionRing.position.y = 0.12
     scene.add(selectionRing)
-
-    const sparkCount = 42
-    const sparkPositions = new Float32Array(sparkCount * 3)
-    const sparkLife = new Float32Array(sparkCount)
-    const sparkGeometry = new THREE.BufferGeometry()
-    sparkGeometry.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3))
-    const sparks = new THREE.Points(
-      sparkGeometry,
-      new THREE.PointsMaterial({ color: '#ffb547', size: 0.14, transparent: true, opacity: 0.9, depthWrite: false }),
-    )
-    scene.add(sparks)
 
     let orbitOffset = 0
     let dragging = false
@@ -422,45 +472,177 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
       animationFrame = requestAnimationFrame(animate)
       const deltaTime = Math.min(0.04, clock.getDelta())
       const elapsed = clock.elapsedTime
+      const currentRain = rainfallRef.current
+      const currentRadar = showRadarRef.current
+
+      // 1. Weather Dynamics & Sky Atmospheric Adjustments
+      if (currentRain > 0) {
+        rainParticles.visible = true
+        rainMat.opacity = Math.min(0.85, 0.15 + (currentRain / 100) * 0.65)
+        const rainPos = rainGeo.attributes.position.array as Float32Array
+        const fallSpeed = 32 + (currentRain / 100) * 28
+        for (let i = 0; i < rainCount; i += 1) {
+          rainPos[i * 3 + 1] -= fallSpeed * deltaTime
+          rainPos[i * 3] += Math.sin(elapsed * 2) * 0.05
+          if (rainPos[i * 3 + 1] < 0) {
+            rainPos[i * 3 + 1] = 45
+          }
+        }
+        rainGeo.attributes.position.needsUpdate = true
+
+        // Wet track surface darkening and gloss
+        const wetness = Math.min(1, currentRain / 100)
+        roadMaterial.roughness = THREE.MathUtils.lerp(0.92, 0.22, wetness)
+        roadMaterial.color.set(wetness > 0.4 ? '#252a30' : '#3d444d')
+        scene.fog = new THREE.FogExp2('#687c94', 0.005 + wetness * 0.008)
+        sun.intensity = THREE.MathUtils.lerp(2.8, 1.2, wetness)
+      } else {
+        rainParticles.visible = false
+        rainMat.opacity = 0
+        roadMaterial.roughness = 0.92
+        roadMaterial.color.set('#4a5159')
+        scene.fog = new THREE.FogExp2('#b0d0f0', 0.0028)
+        sun.intensity = 2.8
+      }
+
+      // 2. 3D Atmospheric Doppler Radar Dynamic Texture Updates
+      if (currentRadar || currentRain > 5) {
+        radarSweepMesh.visible = true
+        radarMat.opacity = currentRadar ? 0.68 : Math.min(0.5, (currentRain / 100) * 0.5)
+
+        // Draw radial radar sweep onto texture
+        radarCtx.clearRect(0, 0, 512, 512)
+        const sweepRad = ((elapsed % 3) / 3) * Math.PI * 2
+        const cx = 256
+        const cy = 256
+
+        // Range rings
+        radarCtx.strokeStyle = 'rgba(56, 189, 248, 0.35)'
+        radarCtx.lineWidth = 2
+        ;[64, 128, 192, 240].forEach((r) => {
+          radarCtx.beginPath()
+          radarCtx.arc(cx, cy, r, 0, Math.PI * 2)
+          radarCtx.stroke()
+        })
+
+        // Rain precipitation Doppler blobs
+        if (currentRain > 5) {
+          const rFactor = currentRain / 100
+          const rainGrad = radarCtx.createRadialGradient(cx - 30, cy + 20, 0, cx - 30, cy + 20, 180 * rFactor)
+          if (currentRain > 60) {
+            rainGrad.addColorStop(0, 'rgba(239, 68, 68, 0.6)')
+            rainGrad.addColorStop(0.5, 'rgba(234, 179, 8, 0.4)')
+            rainGrad.addColorStop(1, 'rgba(34, 197, 94, 0)')
+          } else {
+            rainGrad.addColorStop(0, 'rgba(234, 179, 8, 0.5)')
+            rainGrad.addColorStop(0.6, 'rgba(34, 197, 94, 0.35)')
+            rainGrad.addColorStop(1, 'rgba(56, 189, 248, 0)')
+          }
+          radarCtx.fillStyle = rainGrad
+          radarCtx.beginPath()
+          radarCtx.arc(cx - 30, cy + 20, 180 * rFactor, 0, Math.PI * 2)
+          radarCtx.fill()
+        }
+
+        // Phosphor sweep fan
+        const fanGrad = radarCtx.createRadialGradient(cx, cy, 0, cx, cy, 240)
+        fanGrad.addColorStop(0, 'rgba(0, 242, 170, 0.4)')
+        fanGrad.addColorStop(0.8, 'rgba(56, 189, 248, 0.2)')
+        fanGrad.addColorStop(1, 'rgba(0, 242, 170, 0)')
+        radarCtx.save()
+        radarCtx.beginPath()
+        radarCtx.moveTo(cx, cy)
+        radarCtx.arc(cx, cy, 240, sweepRad - Math.PI / 4, sweepRad)
+        radarCtx.closePath()
+        radarCtx.fillStyle = fanGrad
+        radarCtx.fill()
+        radarCtx.restore()
+
+        radarTex.needsUpdate = true
+      } else {
+        radarSweepMesh.visible = false
+      }
+
+      // 3. Cars Simulation & Pit Crew Animation
       let selectedPoint: THREE.Vector3 | undefined
       let selectedTangent: THREE.Vector3 | undefined
+      let anyPittingActive = false
 
       driversRef.current.forEach((driver, index) => {
         const car = carGroups.get(driver.id)
         if (!car) return
+
+        const isPitting = driver.pitStatus === 'PITTING'
+        const isOutLap = driver.pitStatus === 'OUT_LAP' && driver.progress < 0.15
+
         let current = car.userData.progress as number
         let difference = driver.progress - current
         if (difference > 0.5) difference -= 1
         if (difference < -0.5) difference += 1
         current = (current + difference * Math.min(1, deltaTime * 7) + 1) % 1
         car.userData.progress = current
-        const point = curve.getPointAt(current)
-        const tangent = curve.getTangentAt(current).normalize()
-        side.set(-tangent.z, 0, tangent.x)
-        const lane = ((index % 3) - 1) * 0.58
-        point.addScaledVector(side, lane)
-        car.position.set(point.x, 0.07, point.z)
+
+        let point: THREE.Vector3
+        let tangent: THREE.Vector3
+        let carElevation = 0
+
+        if (isPitting || isOutLap) {
+          // Drive along pit lane spline
+          const pitT = isPitting ? Math.min(0.5, current * 2.2) : Math.min(1, 0.5 + current * 3.3)
+          point = pitCurve.getPointAt(pitT)
+          tangent = pitCurve.getTangentAt(pitT).normalize()
+
+          if (isPitting) {
+            anyPittingActive = true
+            const pitDuration = driver.pitDuration ?? 2.8
+            const pitTimer = driver.pitStopTimer ?? 0
+            const progress01 = Math.max(0, Math.min(1, 1 - pitTimer / pitDuration))
+
+            // Animate mechanics (jacks lift, gunners vibrate, lollipop switches)
+            const result = pitCrewRig.update(progress01, true, elapsed)
+            carElevation = result.carElevation
+          }
+        } else {
+          // Regular on-track racing line
+          point = curve.getPointAt(current)
+          tangent = curve.getTangentAt(current).normalize()
+          side.set(-tangent.z, 0, tangent.x)
+          const lane = ((index % 3) - 1) * 0.58
+          point.addScaledVector(side, lane)
+        }
+
+        car.position.set(point.x, 0.07 + carElevation, point.z)
         car.rotation.y = Math.atan2(tangent.x, tangent.z)
-        car.rotation.z = Math.sin(elapsed * 8 + index) * 0.006
+        car.rotation.z = Math.sin(elapsed * 8 + index) * 0.005
+
         car.children.forEach((child) => {
-          if (child.userData.isWheel) child.rotation.x -= deltaTime * Math.max(4, driver.speed * 0.08)
+          if (child.userData.isWheel) {
+            const wheelSpeed = isPitting && carElevation > 0.05 ? 0 : Math.max(4, driver.speed * 0.08)
+            child.rotation.x -= deltaTime * wheelSpeed
+          }
         })
+
         if (driver.id === selectedRef.current) {
           selectedPoint = point.clone()
           selectedTangent = tangent.clone()
         }
       })
 
+      // If no car is currently pitting in the box, reset pit crew to ready idle
+      if (!anyPittingActive) {
+        pitCrewRig.update(0, false, elapsed)
+      }
+
       if (selectedPoint && selectedTangent) {
         selectionRing.position.x = selectedPoint.x
         selectionRing.position.z = selectedPoint.z
-        selectionRing.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.12)
+        selectionRing.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.1)
         selectionRing.rotation.z += deltaTime * 0.7
         side.set(-selectedTangent.z, 0, selectedTangent.x)
 
         if (cameraModeRef.current === 'onboard') {
-          desiredCamera.copy(selectedPoint).addScaledVector(selectedTangent, -3.2).add(new THREE.Vector3(0, 1.7, 0))
-          lookTarget.copy(selectedPoint).addScaledVector(selectedTangent, 14).add(new THREE.Vector3(0, 0.6, 0))
+          desiredCamera.copy(selectedPoint).addScaledVector(selectedTangent, -3.2).add(new THREE.Vector3(0, 1.6, 0))
+          lookTarget.copy(selectedPoint).addScaledVector(selectedTangent, 14).add(new THREE.Vector3(0, 0.5, 0))
           camera.fov = THREE.MathUtils.lerp(camera.fov, 62, 0.08)
         } else {
           const orbitSide = side.clone().multiplyScalar(10 * Math.cos(orbitOffset))
@@ -471,25 +653,6 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
         camera.position.lerp(desiredCamera, 1 - Math.exp(-deltaTime * 2.8))
         camera.lookAt(lookTarget)
         camera.updateProjectionMatrix()
-
-        const selectedDriver = driversRef.current.find((driver) => driver.id === selectedRef.current)
-        const sparkActive = (selectedDriver?.speed ?? 0) > 285
-        for (let index = 0; index < sparkCount; index += 1) {
-          if (sparkLife[index] <= 0 && sparkActive && Math.random() < 0.05) {
-            sparkLife[index] = 1
-            sparkPositions[index * 3] = selectedPoint.x - selectedTangent.x * 1.2 + (Math.random() - 0.5) * 0.5
-            sparkPositions[index * 3 + 1] = 0.18
-            sparkPositions[index * 3 + 2] = selectedPoint.z - selectedTangent.z * 1.2 + (Math.random() - 0.5) * 0.5
-          } else if (sparkLife[index] > 0) {
-            sparkLife[index] -= deltaTime * 1.7
-            sparkPositions[index * 3] -= selectedTangent.x * deltaTime * 5
-            sparkPositions[index * 3 + 1] += deltaTime * (0.8 - sparkLife[index])
-            sparkPositions[index * 3 + 2] -= selectedTangent.z * deltaTime * 5
-          } else {
-            sparkPositions[index * 3 + 1] = -10
-          }
-        }
-        sparkGeometry.attributes.position.needsUpdate = true
       }
 
       renderer.render(scene, camera)
@@ -513,16 +676,25 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
       renderer.domElement.removeEventListener('pointermove', pointerMove)
       renderer.domElement.removeEventListener('pointerup', pointerUp)
       carGroups.forEach(disposeF1Car)
+      disposePitCrew(pitCrewRig)
       runoffGeometry.dispose()
       curbGeometry.dispose()
       roadGeometry.dispose()
       leftLineGeometry.dispose()
       rightLineGeometry.dispose()
       rubberGeometry.dispose()
+      pitRoadGeometry.dispose()
+      pitLineGeo.dispose()
+      pitSpeedLimitGeo.dispose()
+      pitWallGeo.dispose()
+      pitBuildingGeo.dispose()
       ground.geometry.dispose()
+      rainGeo.dispose()
+      radarGeo.dispose()
       grassMap.dispose()
       curbMap.dispose()
       startMap.dispose()
+      radarTex.dispose()
       startLine.geometry.dispose()
       ;(startLine.material as THREE.Material).dispose()
       runoffMaterial.dispose()
@@ -530,18 +702,36 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
       roadMaterial.dispose()
       lineMaterial.dispose()
       rubberMaterial.dispose()
+      pitRoadMat.dispose()
+      pitLineMat.dispose()
+      pitWallMat.dispose()
+      pitBuildingMat.dispose()
+      rainMat.dispose()
+      radarMat.dispose()
       ;(ground.material as THREE.Material).dispose()
       scenery.materials.forEach((material) => material.dispose())
       scenery.textures.forEach((texture) => texture.dispose())
       scenery.geometries.forEach((geometry) => geometry.dispose())
       selectionRing.geometry.dispose()
       ;(selectionRing.material as THREE.Material).dispose()
-      sparkGeometry.dispose()
-      ;(sparks.material as THREE.Material).dispose()
       renderer.dispose()
       renderer.domElement.remove()
     }
   }, [])
+
+  // Calculate live pit stop phase for HUD
+  const pitProgress =
+    activePitDriver?.pitStopTimer !== undefined && activePitDriver?.pitDuration !== undefined
+      ? Math.max(0, Math.min(1, 1 - activePitDriver.pitStopTimer / activePitDriver.pitDuration))
+      : 0
+  const pitPhase =
+    pitProgress < 0.18
+      ? 'JACKS LIFTING'
+      : pitProgress < 0.78
+        ? 'GUNNING & TYRE SWAP'
+        : pitProgress < 0.9
+          ? 'JACKS RELEASING'
+          : 'GREEN LIGHT · GO!'
 
   return (
     <div className="race-scene-3d" ref={containerRef}>
@@ -552,8 +742,43 @@ export function RaceScene3D({ drivers, selectedDriverId, cameraMode, onSelectDri
         </div>
       )}
       <div className="scene-vignette" />
-      <div className="scene-help"><span>DRAG</span> ROTATE CAMERA · TAP A CAR TO SELECT</div>
-      <div className="scene-badge"><i /> LIVE 3D</div>
+      <div className="scene-badge"><i /> 3D BROADCAST FEED</div>
+      <div className="scene-help"><span>DRAG</span> ROTATE CAMERA · TAP ANY CAR TO SELECT</div>
+
+      {/* Real-time 3D Pit Stop HUD stopwatch card */}
+      {activePitDriver && activePitDriver.pitStatus === 'PITTING' && (
+        <div className="scene-pitstop-card" style={{ '--team-color': activePitDriver.teamColor } as React.CSSProperties}>
+          <div className="pitstop-header">
+            <span className="pitstop-pulse-dot" />
+            <div className="pitstop-car-title">
+              <strong>{activePitDriver.code}</strong>
+              <small>BOXING · LAP {activePitDriver.lap}</small>
+            </div>
+            <span className="pitstop-team-tag">{activePitDriver.teamShort}</span>
+          </div>
+
+          <div className="pitstop-body">
+            <div className="pitstop-timer-block">
+              <span className="timer-title">STATIONARY STOPWATCH</span>
+              <strong className="timer-val">
+                {activePitDriver.pitStopTimer !== undefined && activePitDriver.pitDuration !== undefined
+                  ? (activePitDriver.pitDuration - activePitDriver.pitStopTimer).toFixed(2)
+                  : '0.00'}
+                <small>s</small>
+              </strong>
+            </div>
+
+            <div className="pitstop-phase-chip">
+              <span>STATUS:</span>
+              <strong className={pitProgress >= 0.9 ? 'go' : 'active'}>{pitPhase}</strong>
+            </div>
+          </div>
+
+          <div className="pitstop-progress-track">
+            <div className="pitstop-progress-fill" style={{ width: `${(pitProgress * 100).toFixed(0)}%` }} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

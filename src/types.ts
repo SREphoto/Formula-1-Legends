@@ -1,7 +1,7 @@
 export type TireCompound = 'SOFT' | 'MEDIUM' | 'HARD' | 'INTERMEDIATE' | 'WET'
 export type PaceMode = 'CONSERVE' | 'BALANCED' | 'ATTACK'
 export type ErsMode = 'HARVEST' | 'BALANCED' | 'DEPLOY'
-export type AppView = 'race' | 'strategy' | 'car' | 'hq'
+export type AppView = 'race' | 'strategy' | 'car' | 'hq' | 'telemetry'
 
 export interface DriverMeta {
   id: string
@@ -47,6 +47,8 @@ export interface DriverState extends DriverMeta {
   ersMode: ErsMode
   boxThisLap: boolean
   pitStatus: 'NONE' | 'REQUESTED' | 'PITTING' | 'OUT_LAP'
+  pitDuration?: number
+  pitStopTimer?: number
 }
 
 export interface RaceEvent {

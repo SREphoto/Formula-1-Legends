@@ -10,7 +10,11 @@ export default defineConfig(({ command }) => ({
   },
   server: {
     host: '0.0.0.0',
-    port: 5173,
+    port: 5188,
     allowedHosts: true,
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 5188,
   },
 }))

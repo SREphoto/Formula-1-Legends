@@ -19,6 +19,8 @@ let waterDepth = 0
 const nextCompound = new Map<string, TireCompound>()
 const lastProcessedLap = new Map<string, number>()
 const pitTimers = new Map<string, number>()
+const pitStationaryDurations = new Map<string, number>()
+const pitStationaryTimers = new Map<string, number>()
 
 let drivers: DriverState[] = DRIVER_GRID.map((driver, index) => {
   const compound = INITIAL_COMPOUNDS[index]
@@ -106,8 +108,12 @@ function stepDriver(driver: DriverState, simulationDelta: number): DriverState {
       const newProfile = TIRE_PROFILES[tire]
       tireSurfaceTemp = newProfile.optimumMin - 3
       tireCoreTemp = newProfile.optimumMin - 6
-      totalProgress -= 8.5 / BASE_LAP_TIME
-      pitTimers.set(driver.id, 8.5)
+      const stopDuration = Number((1.8 + Math.random() * 2.4).toFixed(2))
+      pitStationaryDurations.set(driver.id, stopDuration)
+      pitStationaryTimers.set(driver.id, stopDuration)
+      const totalPitDelta = 5.0 + stopDuration
+      totalProgress -= totalPitDelta / BASE_LAP_TIME
+      pitTimers.set(driver.id, totalPitDelta)
       pitStatus = 'PITTING'
       boxThisLap = false
       nextCompound.delete(driver.id)
@@ -117,9 +123,17 @@ function stepDriver(driver: DriverState, simulationDelta: number): DriverState {
   if (pitTimer > 0) {
     const remaining = Math.max(0, pitTimer - simulationDelta)
     pitTimers.set(driver.id, remaining)
-    if (remaining === 0) pitStatus = 'OUT_LAP'
+    const stationary = pitStationaryTimers.get(driver.id) ?? 0
+    if (stationary > 0) {
+      pitStationaryTimers.set(driver.id, Math.max(0, stationary - simulationDelta))
+    }
+    if (remaining === 0) {
+      pitStatus = 'OUT_LAP'
+      pitStationaryTimers.delete(driver.id)
+    }
   } else if (pitStatus === 'OUT_LAP' && progress > 0.22) {
     pitStatus = 'NONE'
+    pitStationaryDurations.delete(driver.id)
   }
 
   const wearMultiplier = driver.paceMode === 'ATTACK' ? 1.24 : driver.paceMode === 'CONSERVE' ? 0.72 : 1
@@ -166,6 +180,8 @@ function stepDriver(driver: DriverState, simulationDelta: number): DriverState {
     engineWear,
     pitStatus,
     boxThisLap,
+    pitDuration: pitStationaryDurations.get(driver.id),
+    pitStopTimer: pitStationaryTimers.get(driver.id),
   }
 }
 

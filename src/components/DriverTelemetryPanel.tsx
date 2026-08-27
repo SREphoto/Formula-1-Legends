@@ -1,14 +1,18 @@
 import {
-  CircleGauge,
+  Activity,
+  Award,
+  BatteryCharging,
+  CircleDot,
+  Flame,
+  Fuel,
+  Gauge,
   Headphones,
-  MessageSquareText,
   Radio,
   Send,
-  Settings2,
   ShieldCheck,
+  Sparkles,
   Thermometer,
   TriangleAlert,
-  Wrench,
   Zap,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -24,33 +28,89 @@ interface DriverTelemetryPanelProps {
 
 const pitCompounds: TireCompound[] = ['SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE']
 
-function MetricBar({ label, value, max = 100, suffix = '%', tone = 'cyan', detail }: { label: string; value: number; max?: number; suffix?: string; tone?: string; detail?: string }) {
+function MetricCard({
+  icon: Icon,
+  label,
+  value,
+  unit,
+  max = 100,
+  tone = 'cyan',
+  detail,
+}: {
+  icon: typeof Zap
+  label: string
+  value: number
+  unit: string
+  max?: number
+  tone?: 'cyan' | 'orange' | 'green' | 'purple' | 'red'
+  detail?: string
+}) {
   const percent = Math.max(0, Math.min(100, (value / max) * 100))
   return (
-    <div className="metric-bar-block">
-      <div className="metric-bar-label"><span>{label}</span><span>{detail && <small>{detail}</small>}<b>{value.toFixed(suffix === '°C' ? 0 : 1)}{suffix}</b></span></div>
-      <div className="metric-bar"><i className={`fill-${tone}`} style={{ width: `${percent}%` }} /></div>
+    <div className={`metric-card tone-${tone}`}>
+      <div className="metric-header">
+        <span className="metric-label"><Icon size={12} /> {label}</span>
+        {detail && <span className="metric-detail">{detail}</span>}
+      </div>
+      <div className="metric-value-row">
+        <span className="metric-number">{value.toFixed(unit === '°C' || unit === 'mm' ? (unit === 'mm' ? 2 : 0) : 1)}</span>
+        <span className="metric-unit">{unit}</span>
+      </div>
+      <div className="metric-progress-bar">
+        <div className={`metric-progress-fill fill-${tone}`} style={{ width: `${percent}%` }} />
+      </div>
     </div>
   )
 }
 
-function TireTemperature({ position, surface, core, wear, compound }: { position: string; surface: number; core: number; wear: number; compound: TireCompound }) {
-  const heat = surface > 112 ? 'hot' : surface < 88 ? 'cold' : 'optimal'
+function TireCornerCard({
+  corner,
+  surface,
+  core,
+  wear,
+  compound,
+}: {
+  corner: 'FL' | 'FR' | 'RL' | 'RR'
+  surface: number
+  core: number
+  wear: number
+  compound: TireCompound
+}) {
+  const heatStatus = surface > 115 ? 'HOT' : surface < 88 ? 'COLD' : 'OPT'
+  const heatClass = surface > 115 ? 'temp-hot' : surface < 88 ? 'temp-cold' : 'temp-optimal'
+  const wearRemaining = Math.max(0, Math.min(100, 100 - wear))
+
   return (
-    <div className={`tire-temperature ${heat}`}>
-      <div className="tire-visual">
-        <span className="tire-heat-fill" style={{ height: `${Math.max(15, Math.min(100, ((surface - 60) / 70) * 100))}%` }} />
-        <i />
+    <div className={`tire-corner-card ${heatClass}`}>
+      <div className="tire-corner-top">
+        <span className="corner-tag">{corner}</span>
+        <span className="corner-heat-status">{heatStatus}</span>
+        <TireBadge compound={compound} small />
       </div>
-      <div className="tire-temp-copy">
-        <span>{position}</span>
-        <b>{surface.toFixed(0)}°</b>
-        <small>CORE {core.toFixed(0)}°</small>
+
+      <div className="tire-temps-display">
+        <div className="temp-stat">
+          <span className="temp-label">SURF</span>
+          <span className="temp-val">{surface.toFixed(0)}°C</span>
+        </div>
+        <div className="temp-stat core">
+          <span className="temp-label">CORE</span>
+          <span className="temp-val">{core.toFixed(0)}°C</span>
+        </div>
       </div>
-      <div className="tire-wear-ring" style={{ '--wear': `${100 - wear}%` } as React.CSSProperties}>
-        <span>{Math.round(100 - wear)}</span>
+
+      <div className="tire-wear-section">
+        <div className="wear-meta">
+          <small>LIFE</small>
+          <strong>{wearRemaining.toFixed(0)}%</strong>
+        </div>
+        <div className="wear-bar">
+          <div
+            className={`wear-bar-fill ${wearRemaining < 30 ? 'critical' : wearRemaining < 60 ? 'warning' : 'healthy'}`}
+            style={{ width: `${wearRemaining}%` }}
+          />
+        </div>
       </div>
-      <TireBadge compound={compound} small />
     </div>
   )
 }
@@ -58,160 +118,289 @@ function TireTemperature({ position, surface, core, wear, compound }: { position
 export function DriverTelemetryPanel({ driver, sendCommand, onNotify }: DriverTelemetryPanelProps) {
   const [tab, setTab] = useState<'telemetry' | 'radio'>('telemetry')
   const [pitCompound, setPitCompound] = useState<TireCompound>('HARD')
+
   const rpm = Math.min(15000, Math.max(7200, 6800 + driver.speed * 22))
-  const gear = Math.max(2, Math.min(8, Math.round(driver.speed / 43)))
+  const gear = Math.max(1, Math.min(8, Math.round(driver.speed / 43)))
   const throttle = Math.max(8, Math.min(100, 108 - (330 - driver.speed) * 0.78))
+  const brake = Math.max(0, Math.min(100, 100 - throttle * 1.35))
 
   const radioMessages = useMemo(() => [
-    { sender: 'PIT', time: '43:08', message: `Gap to ${driver.position === 1 ? 'Schumacher behind' : 'the car ahead'} is ${Math.max(0.8, driver.interval).toFixed(1)} seconds. Pace is good.` },
-    { sender: driver.code, time: '42:31', message: 'Balance is moving toward oversteer in the high speed. Fronts are okay.' },
-    { sender: 'PIT', time: '41:54', message: 'Copy. Diff mid minus one. Strat mode six when ready.' },
+    { sender: 'PIT', time: '43:08', message: `Gap to ${driver.position === 1 ? 'car behind' : 'the car ahead'} is ${Math.max(0.8, driver.interval).toFixed(1)}s. Pace is on delta target.` },
+    { sender: driver.code, time: '42:31', message: 'Tire balance is stable through Becketts. Front left temps in the green.' },
+    { sender: 'PIT', time: '41:54', message: 'Copy that. Strat mode 6 available for turn 15 exit.' },
   ], [driver.code, driver.interval, driver.position])
 
   const setPace = (paceMode: PaceMode) => {
     sendCommand({ type: 'DRIVER_COMMAND', driverId: driver.id, paceMode })
-    onNotify('PACE COMMAND SENT', `${driver.code} switched to ${paceMode.toLowerCase()} pace.`, paceMode === 'ATTACK' ? 'warning' : 'success')
+    onNotify('PACE DIRECTIVE SENT', `${driver.code} set to ${paceMode} pace.`, paceMode === 'ATTACK' ? 'warning' : 'success')
   }
 
   const setErs = (ersMode: ErsMode) => {
     sendCommand({ type: 'DRIVER_COMMAND', driverId: driver.id, ersMode })
-    onNotify('ERS MODE UPDATED', `${driver.code}: ${ersMode.toLowerCase()} program active.`, 'success')
+    onNotify('ERS PROGRAM UPDATED', `${driver.code}: ${ersMode} mode active.`, 'success')
   }
 
   const togglePit = () => {
     if (driver.boxThisLap) {
       sendCommand({ type: 'PIT_COMMAND', driverId: driver.id, compound: pitCompound, cancel: true })
-      onNotify('PIT CALL CANCELLED', `${driver.code} will stay out.`, 'warning')
+      onNotify('PIT CALL ABORTED', `${driver.code} will stay out this lap.`, 'warning')
     } else {
       sendCommand({ type: 'PIT_COMMAND', driverId: driver.id, compound: pitCompound })
-      onNotify('BOX CONFIRMED', `${driver.code} will box for ${pitCompound.toLowerCase()} tyres.`, 'success')
+      onNotify('BOX BOX CONFIRMED', `${driver.code} pitted for ${pitCompound} tires.`, 'success')
     }
   }
 
+  // RPM Shift light calculation (8 LEDs)
+  const rpmPercent = Math.max(0, Math.min(1, (rpm - 7000) / 8000))
+  const activeLeds = Math.round(rpmPercent * 8)
+
   return (
     <aside className="panel telemetry-panel">
-      <div className="driver-hero" style={{ '--driver-color': driver.teamColor } as React.CSSProperties}>
-        <div className="driver-number">{driver.number}</div>
-        <div className="driver-hero-main">
-          <div className="driver-overline"><span>{driver.nationality}</span><i />{driver.team}</div>
-          <h2><span>{driver.firstName}</span> {driver.lastName}</h2>
-          <div className="driver-meta-row">
+      {/* Driver Identity Card */}
+      <div className="driver-hero" style={{ '--team-color': driver.teamColor } as React.CSSProperties}>
+        <div className="driver-number-badge">#{driver.number}</div>
+        <div className="driver-hero-details">
+          <div className="driver-team-line">
+            <span className="country-flag">{driver.nationality}</span>
+            <span className="team-name">{driver.team}</span>
+          </div>
+          <h2 className="driver-fullname">
+            <span className="first-name">{driver.firstName}</span>
+            <span className="last-name">{driver.lastName}</span>
+          </h2>
+          <div className="driver-status-chips">
             <span className="position-chip">P{driver.position}</span>
-            <span>{driver.tireAge} LAP STINT</span>
-            <span className={driver.pitStatus !== 'NONE' ? 'status-orange' : ''}>{driver.pitStatus === 'NONE' ? 'ON TRACK' : driver.pitStatus.replace('_', ' ')}</span>
+            <span className="stint-chip">{driver.tireAge} LAPS ON {driver.tire}</span>
+            <span className={`status-pill ${driver.pitStatus !== 'NONE' ? 'pitting' : 'on-track'}`}>
+              {driver.pitStatus === 'NONE' ? 'ON TRACK' : driver.pitStatus.replace('_', ' ')}
+            </span>
           </div>
         </div>
-        <div className="driver-rating"><small>OVR</small><b>{driver.rating}</b></div>
+        <div className="driver-rating-badge">
+          <Award size={14} />
+          <span className="rating-num">{driver.rating}</span>
+          <small>OVR</small>
+        </div>
       </div>
 
+      {/* Tabs */}
       <div className="telemetry-tabs">
-        <button className={tab === 'telemetry' ? 'active' : ''} onClick={() => setTab('telemetry')}><CircleGauge size={13} /> TELEMETRY</button>
-        <button className={tab === 'radio' ? 'active' : ''} onClick={() => setTab('radio')}><Headphones size={13} /> RADIO <i className="unread-dot" /></button>
+        <button
+          className={`telemetry-tab-btn ${tab === 'telemetry' ? 'active' : ''}`}
+          onClick={() => setTab('telemetry')}
+        >
+          <Activity size={14} /> LIVE TELEMETRY
+        </button>
+        <button
+          className={`telemetry-tab-btn ${tab === 'radio' ? 'active' : ''}`}
+          onClick={() => setTab('radio')}
+        >
+          <Headphones size={14} /> PIT RADIO
+          <span className="radio-live-dot" />
+        </button>
       </div>
 
       {tab === 'telemetry' ? (
         <div className="telemetry-scroll">
-          <div className="live-readout">
-            <div><small>SPEED</small><b>{Math.round(driver.speed)}</b><span>KM/H</span></div>
-            <div><small>GEAR</small><b>{gear}</b><span>GEAR</span></div>
-            <div><small>RPM</small><b>{Math.round(rpm / 100) * 100}</b><span>REV/MIN</span></div>
-          </div>
-
-          <div className="input-telemetry">
-            <div><span>THROTTLE</span><div><i className="throttle" style={{ width: `${throttle}%` }} /></div><b>{Math.round(throttle)}%</b></div>
-            <div><span>BRAKE</span><div><i className="brake" style={{ width: `${Math.max(0, 100 - throttle * 1.35)}%` }} /></div><b>{Math.round(Math.max(0, 100 - throttle * 1.35))}%</b></div>
-          </div>
-
-          <section className="telemetry-section tire-section">
-            <div className="subsection-heading">
-              <span><Thermometer size={14} /> TYRE THERMALS</span>
-              <span className="thermal-status"><i /> WINDOW</span>
+          {/* Digital Cockpit Gauges */}
+          <div className="cockpit-gauge-panel">
+            {/* RPM LED Tachometer Bar */}
+            <div className="rpm-tachometer">
+              <div className="rpm-labels">
+                <span>ENGINE TACHOMETER</span>
+                <strong>{Math.round(rpm / 100) * 100} <small>RPM</small></strong>
+              </div>
+              <div className="tachometer-leds">
+                {[0, 1, 2, 3, 4, 5, 6, 7].map((led) => {
+                  const isActive = led < activeLeds
+                  const ledColor = led < 3 ? 'green' : led < 6 ? 'yellow' : 'red'
+                  return <i key={led} className={`led ${ledColor} ${isActive ? 'active' : ''}`} />
+                })}
+              </div>
             </div>
-            <div className="tire-grid">
-              <TireTemperature position="FL" surface={driver.tireSurfaceTemp + 1.4} core={driver.tireCoreTemp + 0.5} wear={driver.tireWear + 0.8} compound={driver.tire} />
-              <TireTemperature position="FR" surface={driver.tireSurfaceTemp + 2.2} core={driver.tireCoreTemp + 0.9} wear={driver.tireWear + 1.2} compound={driver.tire} />
-              <TireTemperature position="RL" surface={driver.tireSurfaceTemp - 1.5} core={driver.tireCoreTemp - 0.6} wear={driver.tireWear - 0.4} compound={driver.tire} />
-              <TireTemperature position="RR" surface={driver.tireSurfaceTemp - 0.7} core={driver.tireCoreTemp - 0.2} wear={driver.tireWear} compound={driver.tire} />
+
+            {/* Speed & Gear Readout */}
+            <div className="speed-gear-grid">
+              <div className="speed-display">
+                <span className="gauge-label">SPEED</span>
+                <div className="gauge-num-row">
+                  <strong className="digital-speed">{Math.round(driver.speed)}</strong>
+                  <span className="digital-unit">KM/H</span>
+                </div>
+              </div>
+              <div className="gear-display">
+                <span className="gauge-label">GEAR</span>
+                <strong className="digital-gear">{gear}</strong>
+              </div>
+            </div>
+
+            {/* Throttle & Brake Bars */}
+            <div className="pedal-bars-grid">
+              <div className="pedal-bar-row">
+                <span className="pedal-tag">THR</span>
+                <div className="pedal-track">
+                  <div className="pedal-fill throttle" style={{ width: `${throttle}%` }} />
+                </div>
+                <strong className="pedal-pct">{Math.round(throttle)}%</strong>
+              </div>
+              <div className="pedal-bar-row">
+                <span className="pedal-tag">BRK</span>
+                <div className="pedal-track">
+                  <div className="pedal-fill brake" style={{ width: `${brake}%` }} />
+                </div>
+                <strong className="pedal-pct">{Math.round(brake)}%</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* 4-Corner Tire Thermal Matrix */}
+          <section className="telemetry-block">
+            <div className="block-title-row">
+              <span className="block-title"><Thermometer size={14} /> TIRE THERMAL MATRIX</span>
+              <span className="status-badge-opt"><Sparkles size={11} /> OPTIMAL WINDOW (90–110°C)</span>
+            </div>
+            <div className="tires-quad-grid">
+              <TireCornerCard corner="FL" surface={driver.tireSurfaceTemp + 1.4} core={driver.tireCoreTemp + 0.5} wear={driver.tireWear + 0.8} compound={driver.tire} />
+              <TireCornerCard corner="FR" surface={driver.tireSurfaceTemp + 2.2} core={driver.tireCoreTemp + 0.9} wear={driver.tireWear + 1.2} compound={driver.tire} />
+              <TireCornerCard corner="RL" surface={driver.tireSurfaceTemp - 1.5} core={driver.tireCoreTemp - 0.6} wear={driver.tireWear - 0.4} compound={driver.tire} />
+              <TireCornerCard corner="RR" surface={driver.tireSurfaceTemp - 0.7} core={driver.tireCoreTemp - 0.2} wear={driver.tireWear} compound={driver.tire} />
             </div>
           </section>
 
-          <section className="telemetry-section systems-section">
-            <div className="subsection-heading"><span><Settings2 size={14} /> CAR SYSTEMS</span><span>10 HZ</span></div>
-            <div className="systems-grid">
-              <MetricBar label="ERS STORE" value={driver.ers} tone={driver.ers < 20 ? 'red' : 'cyan'} detail={driver.ersMode} />
-              <MetricBar label="FUEL LOAD" value={driver.fuel} max={50} suffix=" kg" tone="orange" detail="−0.34 kg" />
-              <MetricBar label="PLANK" value={driver.plankWear} max={1} suffix=" mm" tone={driver.plankWear > 0.8 ? 'red' : 'green'} detail="LIMIT 1.00" />
-              <MetricBar label="ICE WEAR" value={driver.engineWear} tone="purple" detail="UNIT 03" />
+          {/* Car Systems & Powertrain */}
+          <section className="telemetry-block">
+            <div className="block-title-row">
+              <span className="block-title"><Gauge size={14} /> POWERTRAIN &amp; CAR SYSTEMS</span>
+              <span className="telemetry-hz">10 HZ LIVE</span>
             </div>
-            <div className="brake-temperatures">
-              <span><i className="brake-disc hot" /><small>FRONT BRAKES</small><b>{driver.brakeTempFront.toFixed(0)}°C</b></span>
-              <span><i className="brake-disc" /><small>REAR BRAKES</small><b>{driver.brakeTempRear.toFixed(0)}°C</b></span>
+            <div className="systems-cards-grid">
+              <MetricCard icon={BatteryCharging} label="ERS HYBRID STORE" value={driver.ers} unit="%" tone={driver.ers < 20 ? 'red' : 'cyan'} detail={driver.ersMode} />
+              <MetricCard icon={Fuel} label="FUEL REMAINING" value={driver.fuel} unit="kg" max={50} tone="orange" detail="-0.34 kg/lap" />
+              <MetricCard icon={Flame} label="FRONT BRAKES" value={driver.brakeTempFront} unit="°C" max={1000} tone={driver.brakeTempFront > 750 ? 'red' : 'orange'} detail="CARBON ROTOR" />
+              <MetricCard icon={Flame} label="REAR BRAKES" value={driver.brakeTempRear} unit="°C" max={1000} tone="orange" detail="BBW REAR" />
+              <MetricCard icon={Activity} label="ICE ENGINE WEAR" value={driver.engineWear} unit="%" tone="purple" detail="POWER UNIT #1" />
+              <MetricCard icon={CircleDot} label="PLANK WEAR" value={driver.plankWear} unit="mm" max={1.0} tone={driver.plankWear > 0.8 ? 'red' : 'green'} detail="FIA LIMIT 1.0mm" />
             </div>
           </section>
 
-          <div className="lap-performance-row">
-            <span><small>LAST LAP</small><b>{formatLapTime(driver.lastLap)}</b></span>
-            <span><small>PERSONAL BEST</small><b className="purple-text">{formatLapTime(driver.bestLap)}</b></span>
-            <span><small>DELTA</small><b className="negative">+{Math.max(0, driver.lastLap - driver.bestLap).toFixed(3)}</b></span>
+          {/* Lap Time Analysis */}
+          <div className="lap-metrics-card">
+            <div className="lap-stat">
+              <span className="lap-label">LAST LAP</span>
+              <strong className="lap-val">{formatLapTime(driver.lastLap)}</strong>
+            </div>
+            <div className="lap-stat pb">
+              <span className="lap-label">PERSONAL BEST</span>
+              <strong className="lap-val purple">{formatLapTime(driver.bestLap)}</strong>
+            </div>
+            <div className="lap-stat">
+              <span className="lap-label">DELTA TO PB</span>
+              <strong className="lap-val delta">+{Math.max(0, driver.lastLap - driver.bestLap).toFixed(3)}s</strong>
+            </div>
           </div>
         </div>
       ) : (
         <div className="radio-panel-content">
-          <div className="radio-channel-head"><Radio size={15} /><div><b>CAR {driver.number} · PRIVATE CHANNEL</b><small>ENGINEER ↔ {driver.code}</small></div><span>LIVE</span></div>
-          <div className="radio-waveform">{Array.from({ length: 34 }, (_, i) => <i key={i} style={{ height: `${7 + Math.abs(Math.sin(i * 1.7)) * 23}px` }} />)}</div>
+          <div className="radio-header">
+            <div className="radio-tag">
+              <Radio size={14} />
+              <span>CAR #{driver.number} · PIT WALL PRIVATE LINK</span>
+            </div>
+            <span className="radio-live-indicator"><i /> ENCRYPTED</span>
+          </div>
+
           <div className="radio-message-list">
             {radioMessages.map((message, index) => (
-              <div className={`radio-message ${message.sender === driver.code ? 'driver' : ''}`} key={`${message.time}-${index}`}>
-                <span className="radio-sender">{message.sender}</span>
-                <p>{message.message}</p>
-                <time>{message.time}</time>
+              <div className={`radio-bubble ${message.sender === driver.code ? 'from-driver' : 'from-pit'}`} key={index}>
+                <div className="bubble-header">
+                  <strong className="sender-tag">{message.sender}</strong>
+                  <time className="msg-time">{message.time}</time>
+                </div>
+                <p className="bubble-text">{message.message}</p>
               </div>
             ))}
           </div>
-          <button className="radio-compose"><MessageSquareText size={14} /> SEND PRESET MESSAGE <Send size={13} /></button>
+
+          <button className="radio-action-btn" onClick={() => onNotify('RADIO CHECK', 'Pit wall confirmation sent to car.', 'success')}>
+            <Send size={13} /> BROADCAST STRATEGY UPDATE
+          </button>
         </div>
       )}
 
-      <div className="command-dock">
-        <div className="command-dock-heading">
-          <div><span className="command-live-dot" /><b>COMMAND DOCK</b></div>
-          <span>{driver.isManaged ? <><ShieldCheck size={12} /> TEAM CAR</> : <><TriangleAlert size={12} /> SPECTATOR MODE</>}</span>
+      {/* Interactive Tactical Command Wall */}
+      <div className="tactical-command-wall">
+        <div className="command-wall-header">
+          <div className="command-title">
+            <span className="live-pulse-dot" />
+            <strong>RACE ENGINEER COMMAND DOCK</strong>
+          </div>
+          <span className="managed-status-tag">
+            {driver.isManaged ? <><ShieldCheck size={12} /> ACTIVE CONTROL</> : <><TriangleAlert size={12} /> SPECTATOR</>}
+          </span>
         </div>
 
-        <div className="command-row">
-          <span className="command-label"><Wrench size={13} /> PACE</span>
-          <div className="command-options three">
+        {/* Pace Mode Directive */}
+        <div className="command-section">
+          <div className="command-section-label">PACE DIRECTIVE</div>
+          <div className="segmented-command-buttons">
             {(['CONSERVE', 'BALANCED', 'ATTACK'] as PaceMode[]).map((mode) => (
-              <button key={mode} className={driver.paceMode === mode ? 'active' : ''} onClick={() => setPace(mode)}>{mode === 'CONSERVE' ? 'CONSERVE' : mode === 'BALANCED' ? 'BALANCED' : 'ATTACK'}</button>
-            ))}
-          </div>
-        </div>
-        <p className="command-hint">How hard your driver pushes — ATTACK is quickest but eats tyres and fuel.</p>
-
-        <div className="command-row">
-          <span className="command-label"><Zap size={13} /> ERS</span>
-          <div className="command-options three">
-            {(['HARVEST', 'BALANCED', 'DEPLOY'] as ErsMode[]).map((mode) => (
-              <button key={mode} className={driver.ersMode === mode ? 'active' : ''} onClick={() => setErs(mode)}>{mode === 'BALANCED' ? 'NEUTRAL' : mode}</button>
-            ))}
-          </div>
-        </div>
-        <p className="command-hint">Hybrid battery — HARVEST recharges it, DEPLOY spends it on extra speed.</p>
-
-        <div className="pit-command">
-          <div className="compound-choice">
-            {pitCompounds.map((compound) => (
-              <button key={compound} className={pitCompound === compound ? 'active' : ''} onClick={() => setPitCompound(compound)} title={compound}>
-                <TireBadge compound={compound} />
+              <button
+                key={mode}
+                className={`command-btn ${driver.paceMode === mode ? 'active' : ''} mode-${mode.toLowerCase()}`}
+                onClick={() => setPace(mode)}
+              >
+                {mode === 'CONSERVE' && '🐢 CONSERVE'}
+                {mode === 'BALANCED' && '⚖️ BALANCED'}
+                {mode === 'ATTACK' && '⚡ ATTACK'}
               </button>
             ))}
           </div>
-          <button className={`box-button ${driver.boxThisLap ? 'cancel' : ''}`} onClick={togglePit}>
-            <span>{driver.boxThisLap ? 'CANCEL CALL' : 'BOX THIS LAP'}</span>
-            <small>{driver.boxThisLap ? 'PIT WINDOW OPEN' : `FIT ${pitCompound} · ${driver.position === 1 ? 'REJOIN P4' : `REJOIN P${Math.min(20, driver.position + 3)}`}`}</small>
+        </div>
+
+        {/* ERS Deployment Mode */}
+        <div className="command-section">
+          <div className="command-section-label">ERS DEPLOYMENT</div>
+          <div className="segmented-command-buttons">
+            {(['HARVEST', 'BALANCED', 'DEPLOY'] as ErsMode[]).map((mode) => (
+              <button
+                key={mode}
+                className={`command-btn ${driver.ersMode === mode ? 'active' : ''} ers-${mode.toLowerCase()}`}
+                onClick={() => setErs(mode)}
+              >
+                {mode === 'HARVEST' && '🔋 HARVEST'}
+                {mode === 'BALANCED' && '⚖️ BALANCED'}
+                {mode === 'DEPLOY' && '🚀 OVERTAKE'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Pit Stop Call */}
+        <div className="command-section pit-section">
+          <div className="command-section-label">PIT STOP TARGET COMPOUND</div>
+          <div className="compound-selector-row">
+            {pitCompounds.map((compound) => (
+              <button
+                key={compound}
+                className={`compound-pill-btn ${pitCompound === compound ? 'active' : ''}`}
+                onClick={() => setPitCompound(compound)}
+              >
+                <TireBadge compound={compound} small />
+                <span>{compound}</span>
+              </button>
+            ))}
+          </div>
+
+          <button
+            className={`box-action-button ${driver.boxThisLap ? 'cancel-mode' : 'confirm-mode'}`}
+            onClick={togglePit}
+          >
+            <div className="box-btn-main">
+              <strong>{driver.boxThisLap ? '❌ CANCEL PIT STOP' : '🏎️ BOX THIS LAP'}</strong>
+              <small>{driver.boxThisLap ? 'CAR WILL STAY OUT' : `FIT NEW ${pitCompound} TYRES`}</small>
+            </div>
           </button>
         </div>
-        <p className="command-hint pit-hint">Pick a tyre colour, then BOX THIS LAP schedules the stop. Soft is fast but wears fast — hard lasts.</p>
       </div>
     </aside>
   )
