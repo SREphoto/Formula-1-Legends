@@ -91,6 +91,7 @@ This manifest tracks the repository directory tree, active source modules, docum
 
 | File | Purpose | Status |
 | :--- | :--- | :--- |
+| [`.github/workflows/deploy.yml`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.github/workflows/deploy.yml) | GitHub Actions workflow deploying production bundle to GitHub Pages | Active |
 | [`package.json`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/package.json) | NPM scripts, dependencies (React, Three.js, Lucide) | Active |
 | [`vite.config.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/vite.config.ts) | Vite bundler config with `/docs` output directory | Active |
 | [`tsconfig.json`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/tsconfig.json) | TypeScript root configuration | Active |
