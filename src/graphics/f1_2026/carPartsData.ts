@@ -381,4 +381,18 @@ export const F1_2026_CAR_PARTS: CarPartMetadata[] = [
     keyFeatures: ['<3 millisecond hydraulic response latency', 'Seamless MGU-K regen and friction torque blending', 'Triple-redundant hydraulic backup circuit'],
     meshName: 'part_brake_by_wire_bbw_actuator',
   },
+  {
+    id: 'aero_rake_pitot_rig',
+    name: '3D Pitot-Tube Kiel Probe Aero-Rake Grid Array',
+    category: 'AERO',
+    subsystem: 'Boundary Layer Aerodynamic Instrumentation',
+    material: 'Grade 5 Titanium Tubular Lattice / Carbon Fiber Mounts / Multi-Port Kiel Probes',
+    massKg: 4.2,
+    dimensionsMm: '420 x 360 x 180 (x2 Arrays)',
+    fiaArticle: 'FIA 2026 Art. 3.4 & 3.5 (Aerodynamic Testing & Pressure Instrumentation)',
+    description: 'Precision aerodynamic boundary layer measurement rig mounted directly behind the front tyres. Dual 4x5 Kiel probe matrix arrays map front wheel wake turbulence, boundary layer vorticity, and total pressure loss (Pt/P0) at 100 Hz.',
+    keyFeatures: ['Dual 4x5 Kiel probe matrix (40 dynamic pressure transducers)', 'True total-pressure recovery insensitive to ±30° yaw', 'Real-time 3D boundary layer wake gradient mapping'],
+    meshName: 'part_aero_rake_pitot_rig',
+  },
 ]
+

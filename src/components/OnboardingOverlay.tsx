@@ -1,4 +1,4 @@
-import { CalendarClock, Eye, SlidersHorizontal, Wrench } from 'lucide-react'
+import { CalendarClock, Eye, Flag, SlidersHorizontal, Wrench } from 'lucide-react'
 
 interface OnboardingOverlayProps {
   onClose: () => void
@@ -29,20 +29,50 @@ const STEPS = [
 
 export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
   return (
-    <div className="onboarding-overlay" role="dialog" aria-modal="true" aria-label="How to play">
+    <div className="onboarding-backdrop" role="dialog" aria-modal="true" aria-label="How to play">
       <div className="onboarding-card">
-        <span className="eyebrow">F1 LEGENDS · RACE COMMAND</span>
-        <h2>You are the race engineer</h2>
-        <p>A driver and car are selected for you. Keep the pace up, keep the tyres alive, and call the pit stop on the right lap — that is the whole game.</p>
-        <ol className="onboarding-steps">
-          {STEPS.map(({ icon: Icon, title, text }) => (
-            <li key={title}>
-              <span className="onboarding-step-icon"><Icon size={18} /></span>
-              <div><b>{title}</b><span>{text}</span></div>
-            </li>
+
+        {/* Hero Banner */}
+        <div className="onboarding-hero">
+          <div className="onboarding-hero-inner">
+            <div className="onboarding-hero-flag">
+              <Flag size={28} className="hero-flag-icon" />
+            </div>
+            <div className="onboarding-hero-text">
+              <span className="onboarding-eyebrow">F1 LEGENDS · RACE COMMAND</span>
+              <h2 className="onboarding-title">You are the race engineer</h2>
+              <p className="onboarding-subtitle">
+                A driver and car are selected for you. Keep the pace up, keep the tyres alive,
+                and call the pit stop on the right lap — that is the whole game.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Step Cards */}
+        <div className="onboarding-body">
+          {STEPS.map(({ icon: Icon, title, text }, idx) => (
+            <div key={title} className="guide-step">
+              <div className="step-num">{idx + 1}</div>
+              <div className="step-icon-wrap">
+                <Icon size={16} />
+              </div>
+              <div className="step-content">
+                <b className="step-title">{title}</b>
+                <span className="step-desc">{text}</span>
+              </div>
+            </div>
           ))}
-        </ol>
-        <button className="onboarding-cta" onClick={onClose} autoFocus>START WATCHING THE RACE</button>
+        </div>
+
+        {/* Footer CTA */}
+        <div className="onboarding-footer">
+          <button className="got-it-btn" onClick={onClose} autoFocus>
+            <Flag size={14} />
+            START WATCHING THE RACE
+          </button>
+        </div>
+
       </div>
     </div>
   )

@@ -552,30 +552,23 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
 
         {/* Center Column: 3D Modular CAD Showroom & Part Inspector */}
         <section className="panel center-showroom-panel">
-          <div className="card-panel-header">
+          {/* Row 1: Title + status */}
+          <div className="cad-panel-title-row">
             <div className="header-text">
               <span className="eyebrow">3D MODULAR CAD SHOWROOM</span>
               <h2>2026 Vehicle Geometry &amp; Exploded View</h2>
             </div>
-            <div className="cad-header-tools">
-              <select
-                className="part-selector-dropdown"
-                value={selectedPart?.id ?? ''}
-                onChange={(e) => {
-                  const found = F1_2026_CAR_PARTS.find((p) => p.id === e.target.value)
-                  setSelectedPart(found ?? null)
-                }}
-              >
-                <option value="">INSPECT PART (30+ CAD COMPONENTS)...</option>
-                {F1_2026_CAR_PARTS.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    [{p.category}] {p.name}
-                  </option>
-                ))}
-              </select>
+            <div className="cad-spec-badges">
+              <span className="cad-spec-badge">FIA 2026</span>
+              <span className="cad-spec-badge papaya">30+ PARTS</span>
+            </div>
+          </div>
 
+          {/* Row 2: Tool buttons */}
+          <div className="cad-tool-row">
+            <div className="cad-tool-group">
               <button
-                className={`cfd-toggle-btn ${cfdHeatmapMode ? 'active' : ''}`}
+                className={`cad-tool-btn ${cfdHeatmapMode ? 'active' : ''}`}
                 onClick={() => {
                   setCfdHeatmapMode(!cfdHeatmapMode)
                   setFlirMode(false)
@@ -589,11 +582,11 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 }}
                 title="Toggle CFD Surface Pressure Heatmap"
               >
-                <Palette size={14} /> {cfdHeatmapMode ? 'CFD ACTIVE' : 'CFD HEATMAP'}
+                <Palette size={13} />
+                <span>CFD</span>
               </button>
-
               <button
-                className={`flir-toggle-btn ${flirMode ? 'active' : ''}`}
+                className={`cad-tool-btn ${flirMode ? 'active thermal' : ''}`}
                 onClick={() => {
                   setFlirMode(!flirMode)
                   setCfdHeatmapMode(false)
@@ -607,11 +600,19 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 }}
                 title="Toggle FLIR Thermal Infrared Imaging"
               >
-                <Thermometer size={14} /> {flirMode ? 'FLIR ON' : 'FLIR IR'}
+                <Thermometer size={13} />
+                <span>FLIR</span>
               </button>
-
               <button
-                className={`audio-toggle-btn ${isWindAudioActive ? 'active' : ''}`}
+                className={`cad-tool-btn ${wireframeMode ? 'active' : ''}`}
+                onClick={() => setWireframeMode(!wireframeMode)}
+                title="Toggle X-Ray Wireframe Mode"
+              >
+                <Eye size={13} />
+                <span>X-RAY</span>
+              </button>
+              <button
+                className={`cad-tool-btn ${isWindAudioActive ? 'active' : ''}`}
                 onClick={() => {
                   if (!soundEngine.getIsRunning()) soundEngine.start()
                   setIsWindAudioActive(!isWindAudioActive)
@@ -625,37 +626,50 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 }}
                 title="Toggle Aeroacoustic Wind Tunnel Audio"
               >
-                {isWindAudioActive ? <Volume2 size={14} /> : <VolumeX size={14} />}
-                <span>{isWindAudioActive ? 'WIND ON' : 'WIND AUDIO'}</span>
-              </button>
-
-              <button
-                className={`wireframe-toggle-btn ${wireframeMode ? 'active' : ''}`}
-                onClick={() => setWireframeMode(!wireframeMode)}
-                title="Toggle X-Ray Wireframe Mode"
-              >
-                <Eye size={14} /> {wireframeMode ? 'SOLID' : 'X-RAY'}
+                {isWindAudioActive ? <Volume2 size={13} /> : <VolumeX size={13} />}
+                <span>WIND</span>
               </button>
             </div>
           </div>
 
+          {/* Part Inspector Search Bar */}
+          <div className="cad-search-bar">
+            <select
+              className="part-selector-dropdown"
+              value={selectedPart?.id ?? ''}
+              onChange={(e) => {
+                const found = F1_2026_CAR_PARTS.find((p) => p.id === e.target.value)
+                setSelectedPart(found ?? null)
+              }}
+            >
+              <option value="">🔍  INSPECT PART — 30+ CAD COMPONENTS...</option>
+              {F1_2026_CAR_PARTS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  [{p.category}] {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Camera Viewport Director Bar */}
           <div className="camera-director-bar">
-            <span className="camera-director-label"><Camera size={13} /> VIEWPORT (KEYS 1-5):</span>
+            <span className="camera-director-label"><Camera size={12} /> CAM:</span>
             {(
               [
-                { key: 'ORBIT', label: '5: 360° ORBIT' },
-                { key: 'FRONT_WING', label: '1: FRONT WING' },
-                { key: 'COCKPIT', label: '2: COCKPIT' },
-                { key: 'POWERTRAIN', label: '3: POWER UNIT' },
-                { key: 'DIFFUSER', label: '4: DIFFUSER' },
+                { key: 'ORBIT', label: 'ORBIT', kbd: '5' },
+                { key: 'FRONT_WING', label: 'NOSE', kbd: '1' },
+                { key: 'COCKPIT', label: 'COCKPIT', kbd: '2' },
+                { key: 'POWERTRAIN', label: 'PU', kbd: '3' },
+                { key: 'DIFFUSER', label: 'DIFF', kbd: '4' },
               ] as const
             ).map((cam) => (
               <button
                 key={cam.key}
                 className={`cam-director-pill ${cameraPreset === cam.key ? 'active' : ''}`}
                 onClick={() => setCameraPreset(cam.key)}
+                title={`Camera: ${cam.label} (Key ${cam.kbd})`}
               >
+                <span className="cam-kbd">{cam.kbd}</span>
                 {cam.label}
               </button>
             ))}
@@ -944,26 +958,27 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
 
             {/* Live Calculated Aero & Telemetry Ribbon */}
             <div className="aero-metrics-ribbon">
+              <div className="aero-stat aero-mode-stat">
+                <span className="stat-label">AERO MODE</span>
+                <strong className={`stat-mode-badge ${activeAeroMode === 'CORNER' ? 'corner' : 'straight'}`}>
+                  {activeAeroMode === 'CORNER' ? 'Z-MODE' : 'X-MODE'}
+                </strong>
+                <span className="stat-mode-sub">{activeAeroMode === 'CORNER' ? 'HIGH DF' : '-45% DRAG'}</span>
+              </div>
               <div className="aero-stat">
-                <span className="stat-label">TOTAL DOWNFORCE</span>
+                <span className="stat-label">DOWNFORCE</span>
                 <strong className="stat-value">{(aero.downforceN / 1000).toFixed(1)} <small>kN</small></strong>
               </div>
               <div className="aero-stat">
-                <span className="stat-label">DRAG COEFFICIENT</span>
+                <span className="stat-label">DRAG Cd</span>
                 <strong className="stat-value">{aero.cdTotal.toFixed(2)} <small>Cd</small></strong>
               </div>
               <div className="aero-stat">
-                <span className="stat-label">DRAG SHEDDING</span>
-                <strong className={`stat-value ${activeAeroMode === 'STRAIGHT' ? 'highlight-green' : ''}`}>
-                  {activeAeroMode === 'STRAIGHT' ? `-${aero.dragReductionPercent.toFixed(1)}%` : '0.0%'}
-                </strong>
+                <span className="stat-label">TOP SPEED</span>
+                <strong className="stat-value highlight">{aero.topSpeedEstimateKmh.toFixed(0)} <small>km/h</small></strong>
               </div>
               <div className="aero-stat">
-                <span className="stat-label">EST. TOP SPEED</span>
-                <strong className="stat-value highlight">{aero.topSpeedEstimateKmh.toFixed(0)} <small>KM/H</small></strong>
-              </div>
-              <div className="aero-stat">
-                <span className="stat-label">AERO BALANCE</span>
+                <span className="stat-label">BALANCE</span>
                 <strong className="stat-value">{aero.frontBalancePercent.toFixed(1)}% <small>FRONT</small></strong>
               </div>
             </div>
