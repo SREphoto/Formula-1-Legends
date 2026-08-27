@@ -4,6 +4,32 @@ All notable project changes, releases, revisions, and architecture updates are d
 
 ---
 
+## [Build R19 / UI/UX Cohesion Overhaul — Design Flow, Graphics & Layout Fix] — 2026-08-27
+
+### 08-27O Added & Fixed
+
+- **Onboarding Overlay Root-Cause Fix & Visual Redesign ([src/components/OnboardingOverlay.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/OnboardingOverlay.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - **Fixed critical CSS class mismatch**: component used `onboarding-overlay` but CSS defined `onboarding-backdrop` — causing the entire Race Guide modal to render as an unstyled, unconstrained text wall covering the race view.
+  - Added branded F1 hero banner with papaya gradient icon, radial glow, and orange accent underline stripe.
+  - Rebuilt step cards using all existing CSS classes (`.guide-step`, `.step-num`, `.onboarding-body`, `.onboarding-footer`, `.got-it-btn`) that were defined but never connected.
+  - Added `.step-icon-wrap` papaya-tinted icon containers alongside numbered circles for visual hierarchy.
+  - Added `.step-title` / `.step-desc` typography hierarchy replacing bare `<b><span>` pairs.
+  - Upgraded CTA button to full-width gradient with lift-on-hover animation and glow shadow.
+- **Car Lab Center Panel 2-Row Header Restructure ([src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Split the single overloaded header row (title + dropdown + 5 buttons) into three clean zones: **Title Row** (eyebrow + h2 + FIA 2026 / 30+ PARTS spec badges), **Tool Row** (CFD / FLIR / X-RAY / WIND as compact icon-pills), and **Search Bar** (full-width part inspector dropdown).
+  - Added `.cad-panel-title-row`, `.cad-spec-badges`, `.cad-spec-badge`, `.cad-tool-row`, `.cad-tool-group`, `.cad-tool-btn`, `.cad-search-bar` CSS classes.
+  - `cad-tool-btn.active.thermal` variant: red glow for FLIR mode to distinguish from papaya CFD mode.
+- **Camera Director Bar — Compact Pill Format**:
+  - Replaced verbose full labels (`5: 360° ORBIT`, `1: FRONT WING`) with compact `ORBIT / NOSE / COCKPIT / PU / DIFF` labels with keyboard shortcut badge (`.cam-kbd`) inside each pill.
+  - Adds `title` tooltip on each pill showing full label + keyboard shortcut.
+- **Aero Metrics Ribbon Upgrade**:
+  - Added 5th column **AERO MODE** stat showing `Z-MODE` (green) or `X-MODE` (papaya) with sub-label `HIGH DF` / `-45% DRAG`.
+  - Ribbon now uses divider-line column layout (`border-right`) instead of gap grid for a cleaner dashboard look.
+  - Added `.aero-mode-stat`, `.stat-mode-badge.corner`, `.stat-mode-badge.straight`, `.stat-mode-sub` CSS classes.
+  - Fixed missing `.stat-value.highlight-green` class (was referenced in JSX but undefined in CSS).
+
+---
+
 ## [Build R18 / Broadcast-Quality Natural Team Radio Voices & VHF Audio DSP Overhaul] — 2026-08-27
 
 ### 08-27N Added & Enhanced

@@ -372,8 +372,11 @@ export function RaceScene3D({
       return
     }
 
+    const initW = container.clientWidth || 800
+    const initH = container.clientHeight || 500
+
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
-    renderer.setSize(container.clientWidth, container.clientHeight)
+    renderer.setSize(initW, initH)
     renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
     renderer.toneMappingExposure = 1.12
@@ -388,7 +391,7 @@ export function RaceScene3D({
     scene.background = new THREE.Color('#94bcdb')
     scene.fog = new THREE.FogExp2('#a8cbfa', 0.0025)
 
-    const camera = new THREE.PerspectiveCamera(46, container.clientWidth / Math.max(1, container.clientHeight), 0.1, 360)
+    const camera = new THREE.PerspectiveCamera(46, initW / Math.max(1, initH), 0.1, 360)
     camera.position.set(0, 48, 66)
 
     const hemisphere = new THREE.HemisphereLight('#f0f7ff', '#3d6c44', 1.15)
@@ -648,11 +651,16 @@ export function RaceScene3D({
 
     const handleResize = () => {
       if (!container) return
-      camera.aspect = container.clientWidth / Math.max(1, container.clientHeight)
+      const w = container.clientWidth || 800
+      const h = container.clientHeight || 500
+      camera.aspect = w / Math.max(1, h)
       camera.updateProjectionMatrix()
-      renderer.setSize(container.clientWidth, container.clientHeight)
+      renderer.setSize(w, h)
     }
     window.addEventListener('resize', handleResize)
+
+    const resizeObserver = new ResizeObserver(handleResize)
+    resizeObserver.observe(container)
 
     const animate = () => {
       animationFrame = requestAnimationFrame(animate)
@@ -935,6 +943,8 @@ export function RaceScene3D({
       rainMat.dispose()
       radarMat.dispose()
 
+      window.removeEventListener('resize', handleResize)
+      resizeObserver.disconnect()
       renderer.dispose()
       if (renderer.domElement.parentElement === container) {
         container.removeChild(renderer.domElement)

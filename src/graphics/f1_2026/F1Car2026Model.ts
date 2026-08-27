@@ -1,6 +1,19 @@
 import * as THREE from 'three'
 import { F1_2026_CAR_PARTS, type CarPartMetadata, type SubsystemCategory } from './carPartsData'
 
+export type CarbonFinish = 'gloss' | 'matte' | 'forged' | 'satin'
+
+export interface LiveryConfig {
+  primaryColor: string
+  accentColor: string
+  carbonFinish: CarbonFinish
+  sponsorNose: string
+  sponsorSidepods: string
+  sponsorSharkFin: string
+  sponsorRearWing: string
+  driverNumber: number
+}
+
 export interface F1Car2026Controller {
   root: THREE.Group
   setAeroMode: (mode: 'CORNER' | 'STRAIGHT') => void
@@ -13,6 +26,8 @@ export interface F1Car2026Controller {
   setEnergyFlow: (mode: 'DEPLOY' | 'HARVEST' | 'NEUTRAL', powerKw?: number) => void
   setSuspensionCompression: (heaveFrontM: number, heaveRearM: number) => void
   spinWheels: (radDelta: number) => void
+  setAeroRakeMode: (enabled: boolean) => void
+  updateLivery: (config: LiveryConfig) => void
   update: (deltaSeconds: number) => void
   dispose: () => void
   partMeshes: Map<string, THREE.Mesh | THREE.Group>
@@ -45,7 +60,172 @@ function makeStrut(from: THREE.Vector3, to: THREE.Vector3, radius = 0.016): THRE
   return geom
 }
 
-export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f6f8'): F1Car2026Controller {
+function createCarbonTexture(finish: CarbonFinish): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 128
+  canvas.height = 128
+  const ctx = canvas.getContext('2d')!
+
+  if (finish === 'forged') {
+    ctx.fillStyle = '#111418'
+    ctx.fillRect(0, 0, 128, 128)
+    const flakeColors = ['#1a1f26', '#222933', '#151920', '#2a323d', '#0e1115']
+    for (let i = 0; i < 90; i++) {
+      ctx.fillStyle = flakeColors[i % flakeColors.length]
+      ctx.beginPath()
+      const x = Math.random() * 128
+      const y = Math.random() * 128
+      const size = 6 + Math.random() * 14
+      ctx.moveTo(x, y)
+      ctx.lineTo(x + size * (Math.random() - 0.5) * 2, y + size)
+      ctx.lineTo(x + size, y + size * 0.5)
+      ctx.closePath()
+      ctx.fill()
+    }
+  } else if (finish === 'matte') {
+    ctx.fillStyle = '#14171b'
+    ctx.fillRect(0, 0, 128, 128)
+    ctx.fillStyle = 'rgba(255,255,255,0.03)'
+    for (let x = 0; x < 128; x += 2) {
+      for (let y = 0; y < 128; y += 2) {
+        if ((x + y) % 4 === 0) ctx.fillRect(x, y, 1, 1)
+      }
+    }
+  } else {
+    ctx.fillStyle = '#0f1115'
+    ctx.fillRect(0, 0, 128, 128)
+    ctx.fillStyle = '#222831'
+    const step = 8
+    for (let x = 0; x < 128; x += step) {
+      for (let y = 0; y < 128; y += step) {
+        if ((Math.floor(x / step) + Math.floor(y / step)) % 2 === 0) {
+          ctx.fillRect(x, y, step, step / 2)
+          ctx.fillRect(x + step / 2, y + step / 2, step / 2, step / 2)
+        }
+      }
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.wrapS = THREE.RepeatWrapping
+  texture.wrapT = THREE.RepeatWrapping
+  texture.repeat.set(8, 8)
+  return texture
+}
+
+function createSponsorCanvasTexture(
+  type: 'sidepod' | 'nose' | 'shark_fin' | 'rear_wing',
+  config: LiveryConfig,
+): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 1024
+  canvas.height = 512
+  const ctx = canvas.getContext('2d')!
+
+  ctx.fillStyle = config.primaryColor
+  ctx.fillRect(0, 0, 1024, 512)
+
+  ctx.fillStyle = config.accentColor
+  if (type === 'sidepod') {
+    ctx.beginPath()
+    ctx.moveTo(0, 420)
+    ctx.lineTo(580, 100)
+    ctx.lineTo(660, 100)
+    ctx.lineTo(80, 420)
+    ctx.closePath()
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.moveTo(150, 480)
+    ctx.lineTo(780, 160)
+    ctx.lineTo(820, 160)
+    ctx.lineTo(190, 480)
+    ctx.closePath()
+    ctx.fill()
+
+    const sponsor = (config.sponsorSidepods || 'PIRELLI').toUpperCase()
+    ctx.save()
+    ctx.translate(460, 280)
+    ctx.rotate(-0.06)
+    ctx.font = '900 italic 74px "Barlow Condensed", "Arial Black", sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'
+    ctx.fillText(sponsor, 4, 4)
+    ctx.fillStyle = '#ffffff'
+    ctx.fillText(sponsor, 0, 0)
+
+    ctx.font = '800 22px "Inter", sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'
+    ctx.fillText('FIA 2026 AERODYNAMIC PARTNER', 0, 58)
+    ctx.restore()
+  } else if (type === 'nose') {
+    ctx.fillStyle = '#ffffff'
+    ctx.beginPath()
+    ctx.arc(512, 170, 110, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.lineWidth = 12
+    ctx.strokeStyle = config.accentColor
+    ctx.stroke()
+
+    ctx.font = '900 130px "Barlow Condensed", sans-serif'
+    ctx.fillStyle = '#0a0d14'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(String(config.driverNumber || 1), 512, 170)
+
+    const sponsor = (config.sponsorNose || 'ORACLE').toUpperCase()
+    ctx.font = '900 52px "Barlow Condensed", sans-serif'
+    ctx.fillStyle = '#ffffff'
+    ctx.fillText(sponsor, 512, 360)
+
+    ctx.fillStyle = config.accentColor
+    ctx.fillRect(360, 420, 304, 12)
+  } else if (type === 'shark_fin') {
+    ctx.beginPath()
+    ctx.moveTo(0, 0)
+    ctx.lineTo(1024, 0)
+    ctx.lineTo(512, 512)
+    ctx.closePath()
+    ctx.fillStyle = config.accentColor
+    ctx.fill()
+
+    const sponsor = (config.sponsorSharkFin || 'TAG HEUER').toUpperCase()
+    ctx.font = '900 italic 68px "Barlow Condensed", sans-serif'
+    ctx.fillStyle = '#ffffff'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(sponsor, 512, 210)
+
+    ctx.font = '800 26px "Inter", sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'
+    ctx.fillText('350kW MGU-K · SUSTAINABLE E-FUEL', 512, 290)
+  } else if (type === 'rear_wing') {
+    ctx.fillStyle = '#0a0c10'
+    ctx.fillRect(0, 0, 1024, 512)
+
+    ctx.fillStyle = config.accentColor
+    ctx.fillRect(0, 0, 1024, 40)
+    ctx.fillRect(0, 472, 1024, 40)
+
+    const sponsor = (config.sponsorRearWing || 'MOBIL 1').toUpperCase()
+    ctx.font = '900 84px "Barlow Condensed", sans-serif'
+    ctx.fillStyle = '#ffffff'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(sponsor, 512, 256)
+  }
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
+export function createF1Car2026(
+  primaryColor = '#ff1801',
+  secondaryColor = '#f4f6f8',
+  initialLivery?: Partial<LiveryConfig>,
+): F1Car2026Controller {
   const root = new THREE.Group()
   root.name = 'F1_2026_Racecar_Root'
 
@@ -429,6 +609,135 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   registerPart('rear_wing_3element_active', rwGroup, 'AERO', new THREE.Vector3(0, 0.75, -1.7))
 
   // ==========================================
+  // 3D PITOT-TUBE KIEL PROBE AERO-RAKE RIG
+  // ==========================================
+  const aeroRakeGroup = new THREE.Group()
+  aeroRakeGroup.name = 'part_aero_rake_pitot_rig'
+
+  interface ProbeNode {
+    mesh: THREE.Mesh
+    row: number
+    col: number
+    isLeft: boolean
+    basePos: THREE.Vector3
+  }
+  const probeNodes: ProbeNode[] = []
+
+  const rakePositions: [number, boolean][] = [
+    [-0.78, true],
+    [0.78, false],
+  ]
+
+  const rakeFrameMat = titaniumMat
+  const rakeMountMat = carbonGlossMat
+
+  rakePositions.forEach(([xCenter, isLeft]) => {
+    const singleRake = new THREE.Group()
+    singleRake.position.set(xCenter, 0.32, 0.98)
+
+    // Structural Carbon Mounting Arm to Chassis & Upright
+    const mountArm1 = makeStrut(
+      new THREE.Vector3(isLeft ? 0.35 : -0.35, 0.12, -0.3),
+      new THREE.Vector3(0, 0, 0),
+      0.016,
+    )
+    const mountArm2 = makeStrut(
+      new THREE.Vector3(isLeft ? 0.35 : -0.35, -0.15, -0.15),
+      new THREE.Vector3(0, -0.12, 0),
+      0.014,
+    )
+    const mMesh1 = new THREE.Mesh(mountArm1, rakeMountMat)
+    const mMesh2 = new THREE.Mesh(mountArm2, rakeMountMat)
+    singleRake.add(mMesh1, mMesh2)
+
+    // Titanium Perimeter Frame (0.34m wide x 0.36m high)
+    const frameW = 0.34
+    const frameH = 0.36
+    const fTop = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, frameW, 8), rakeFrameMat)
+    fTop.rotation.z = Math.PI / 2
+    fTop.position.set(0, frameH / 2, 0)
+    const fBottom = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, frameW, 8), rakeFrameMat)
+    fBottom.rotation.z = Math.PI / 2
+    fBottom.position.set(0, -frameH / 2, 0)
+    const fLeft = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, frameH, 8), rakeFrameMat)
+    fLeft.position.set(-frameW / 2, 0, 0)
+    const fRight = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, frameH, 8), rakeFrameMat)
+    fRight.position.set(frameW / 2, 0, 0)
+    singleRake.add(fTop, fBottom, fLeft, fRight)
+
+    // 4 Horizontal Lattice Wire Struts
+    for (let r = 1; r <= 3; r++) {
+      const y = -frameH / 2 + (r * frameH) / 4
+      const hStrut = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, frameW, 6), rakeFrameMat)
+      hStrut.rotation.z = Math.PI / 2
+      hStrut.position.set(0, y, 0)
+      singleRake.add(hStrut)
+    }
+
+    // 5 Vertical Lattice Wire Struts
+    for (let c = 1; c <= 4; c++) {
+      const x = -frameW / 2 + (c * frameW) / 5
+      const vStrut = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, frameH, 6), rakeFrameMat)
+      vStrut.position.set(x, 0, 0)
+      singleRake.add(vStrut)
+    }
+
+    // 4x5 Array of Forward-Facing Kiel Probes (20 Probes per side = 40 total)
+    const rows = 4
+    const cols = 5
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const px = -frameW / 2 + 0.035 + (c * (frameW - 0.07)) / (cols - 1)
+        const py = -frameH / 2 + 0.035 + (r * (frameH - 0.07)) / (rows - 1)
+
+        const probeGroup = new THREE.Group()
+        probeGroup.position.set(px, py, 0)
+
+        // Forward stem tube
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.0035, 0.0035, 0.055, 6), rakeFrameMat)
+        stem.rotation.x = Math.PI / 2
+        stem.position.set(0, 0, 0.028)
+
+        // Kiel probe flared aerodynamic shroud
+        const shroud = new THREE.Mesh(new THREE.ConeGeometry(0.009, 0.018, 8, 1, true), rakeFrameMat)
+        shroud.rotation.x = -Math.PI / 2
+        shroud.position.set(0, 0, 0.055)
+
+        // Pressure Sensor Tip with Dynamic Emissive Shading
+        const tipGeo = new THREE.SphereGeometry(0.0055, 8, 6)
+        const tipMat = new THREE.MeshStandardMaterial({
+          color: '#38bdf8',
+          emissive: '#0284c7',
+          emissiveIntensity: 1.2,
+          roughness: 0.2,
+          metalness: 0.8,
+        })
+        disposables.push(tipGeo, tipMat)
+        const tip = new THREE.Mesh(tipGeo, tipMat)
+        tip.position.set(0, 0, 0.062)
+
+        probeGroup.add(stem, shroud, tip)
+        singleRake.add(probeGroup)
+
+        probeNodes.push({
+          mesh: tip,
+          row: r,
+          col: c,
+          isLeft,
+          basePos: new THREE.Vector3(xCenter + px, 0.32 + py, 0.98 + 0.062),
+        })
+      }
+    }
+
+    aeroRakeGroup.add(singleRake)
+  })
+
+  // Start with Aero-Rake hidden unless toggled
+  aeroRakeGroup.visible = false
+  registerPart('aero_rake_pitot_rig', aeroRakeGroup, 'AERO', new THREE.Vector3(0, 0.2, 0.4))
+
+
+  // ==========================================
   // 2. POWERTRAIN & HYBRID ENERGY STORE
   // ==========================================
   const iceGroup = new THREE.Group()
@@ -694,12 +1003,176 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   registerPart('brake_by_wire_bbw_actuator', bbwGroup, 'SUSPENSION', new THREE.Vector3(0, 0.2, -0.8))
 
   // ==========================================
+  // LIVERY & DECAL ENGINE
+  // ==========================================
+  let currentLiveryConfig: LiveryConfig = {
+    primaryColor,
+    accentColor: secondaryColor,
+    carbonFinish: 'gloss',
+    sponsorNose: 'ORACLE',
+    sponsorSidepods: 'PIRELLI',
+    sponsorSharkFin: 'TAG HEUER',
+    sponsorRearWing: 'MOBIL 1',
+    driverNumber: 1,
+    ...initialLivery,
+  }
+
+  let sidepodDecalTex: THREE.CanvasTexture | null = null
+  let noseDecalTex: THREE.CanvasTexture | null = null
+  let sharkFinDecalTex: THREE.CanvasTexture | null = null
+  let rearWingDecalTex: THREE.CanvasTexture | null = null
+  let carbonTexture: THREE.CanvasTexture | null = null
+
+  const updateLivery = (config: LiveryConfig) => {
+    currentLiveryConfig = { ...config }
+    paintMat.color.set(config.primaryColor)
+    secondaryPaintMat.color.set(config.accentColor)
+
+    // Update carbon weave finish
+    if (carbonTexture) carbonTexture.dispose()
+    carbonTexture = createCarbonTexture(config.carbonFinish)
+    disposables.push(carbonTexture)
+
+    if (config.carbonFinish === 'gloss') {
+      carbonMat.roughness = 0.45
+      carbonMat.metalness = 0.35
+      carbonGlossMat.roughness = 0.14
+      carbonGlossMat.metalness = 0.55
+      carbonMat.map = carbonTexture
+      carbonGlossMat.map = carbonTexture
+    } else if (config.carbonFinish === 'matte') {
+      carbonMat.roughness = 0.85
+      carbonMat.metalness = 0.08
+      carbonGlossMat.roughness = 0.72
+      carbonGlossMat.metalness = 0.12
+      carbonMat.map = carbonTexture
+      carbonGlossMat.map = carbonTexture
+    } else if (config.carbonFinish === 'forged') {
+      carbonMat.roughness = 0.38
+      carbonMat.metalness = 0.45
+      carbonGlossMat.roughness = 0.22
+      carbonGlossMat.metalness = 0.65
+      carbonMat.map = carbonTexture
+      carbonGlossMat.map = carbonTexture
+    } else {
+      // Satin
+      carbonMat.roughness = 0.55
+      carbonMat.metalness = 0.28
+      carbonGlossMat.roughness = 0.32
+      carbonGlossMat.metalness = 0.4
+      carbonMat.map = carbonTexture
+      carbonGlossMat.map = carbonTexture
+    }
+    carbonMat.needsUpdate = true
+    carbonGlossMat.needsUpdate = true
+
+    // Generate custom decal textures
+    if (sidepodDecalTex) sidepodDecalTex.dispose()
+    if (noseDecalTex) noseDecalTex.dispose()
+    if (sharkFinDecalTex) sharkFinDecalTex.dispose()
+    if (rearWingDecalTex) rearWingDecalTex.dispose()
+
+    sidepodDecalTex = createSponsorCanvasTexture('sidepod', config)
+    noseDecalTex = createSponsorCanvasTexture('nose', config)
+    sharkFinDecalTex = createSponsorCanvasTexture('shark_fin', config)
+    rearWingDecalTex = createSponsorCanvasTexture('rear_wing', config)
+    disposables.push(sidepodDecalTex, noseDecalTex, sharkFinDecalTex, rearWingDecalTex)
+
+    const sidepodDecalMat = new THREE.MeshStandardMaterial({
+      map: sidepodDecalTex,
+      roughness: 0.28,
+      metalness: 0.65,
+      side: THREE.DoubleSide,
+    })
+    const noseDecalMat = new THREE.MeshStandardMaterial({
+      map: noseDecalTex,
+      roughness: 0.28,
+      metalness: 0.65,
+      side: THREE.DoubleSide,
+    })
+    const sharkFinDecalMat = new THREE.MeshStandardMaterial({
+      map: sharkFinDecalTex,
+      roughness: 0.28,
+      metalness: 0.65,
+      side: THREE.DoubleSide,
+    })
+    const rearWingDecalMat = new THREE.MeshStandardMaterial({
+      map: rearWingDecalTex,
+      roughness: 0.28,
+      metalness: 0.65,
+      side: THREE.DoubleSide,
+    })
+
+    disposables.push(sidepodDecalMat, noseDecalMat, sharkFinDecalMat, rearWingDecalMat)
+
+    spL.material = sidepodDecalMat
+    spR.material = sidepodDecalMat
+    nose.material = noseDecalMat
+    sharkFin.material = sharkFinDecalMat
+    rwActiveFlap.material = rearWingDecalMat
+    rwEndL.material = rearWingDecalMat
+    rwEndR.material = rearWingDecalMat
+
+    spL.userData.originalMaterial = sidepodDecalMat
+    spR.userData.originalMaterial = sidepodDecalMat
+    nose.userData.originalMaterial = noseDecalMat
+    sharkFin.userData.originalMaterial = sharkFinDecalMat
+    rwActiveFlap.userData.originalMaterial = rearWingDecalMat
+    rwEndL.userData.originalMaterial = rearWingDecalMat
+    rwEndR.userData.originalMaterial = rearWingDecalMat
+  }
+
+  // Initialize livery materials with decals
+  updateLivery(currentLiveryConfig)
+
+  // ==========================================
   // CONTROLLER LOGIC & TRANSFORMS
   // ==========================================
   let targetFlapFront = 0
   let targetFlapRear = 0
   let activeAeroState: 'CORNER' | 'STRAIGHT' = 'CORNER'
   let isCfdHeatmapActive = false
+
+  const updateAeroRakePressures = (speedKmh = 180, frontWingAngle = 32, aeroMode = activeAeroState) => {
+    if (!aeroRakeGroup.visible) return
+
+    probeNodes.forEach((node) => {
+      const isOutboard = node.isLeft ? node.col > 2 : node.col < 2
+      const heightFactor = node.row / 3
+
+      let cp = 0.65
+      if (heightFactor > 0.5 && isOutboard) {
+        cp = -0.65 - (frontWingAngle / 50) * 0.3
+      } else if (!isOutboard && heightFactor < 0.4) {
+        cp = 0.85 + (aeroMode === 'STRAIGHT' ? 0.15 : 0.0)
+      } else {
+        cp = 0.15 + Math.sin(node.row * 1.5 + node.col * 2.1) * 0.25
+      }
+
+      const tipMat = node.mesh.material as THREE.MeshStandardMaterial
+      if (cp > 0.6) {
+        tipMat.color.set('#ff3b30')
+        tipMat.emissive.set('#991100')
+      } else if (cp >= 0.1) {
+        tipMat.color.set('#ffd60a')
+        tipMat.emissive.set('#886600')
+      } else if (cp >= -0.4) {
+        tipMat.color.set('#38bdf8')
+        tipMat.emissive.set('#0369a1')
+      } else {
+        tipMat.color.set('#bf5af2')
+        tipMat.emissive.set('#6b21a8')
+      }
+      tipMat.emissiveIntensity = 1.0 + Math.abs(cp) * 0.8
+    })
+  }
+
+  const setAeroRakeMode = (enabled: boolean) => {
+    aeroRakeGroup.visible = enabled
+    if (enabled) {
+      updateAeroRakePressures(180, 32, activeAeroState)
+    }
+  }
 
   const setAeroMode = (mode: 'CORNER' | 'STRAIGHT') => {
     activeAeroState = mode
@@ -712,6 +1185,9 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
     }
     if (isCfdHeatmapActive) {
       setCfdHeatmapMode(true, mode)
+    }
+    if (aeroRakeGroup.visible) {
+      updateAeroRakePressures(180, 32, mode)
     }
   }
 
@@ -846,7 +1322,6 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
 
   // Dynamic Suspension Heave / Aerodynamic Squish
   const setSuspensionCompression = (heaveFrontM: number, heaveRearM: number) => {
-    // Compress chassis nodes vertically relative to fixed wheel hubs
     componentNodes.forEach((node) => {
       if (node.category !== 'SUSPENSION' || node.id.includes('suspension_wishbones')) {
         const isFront = node.basePos.z > 0
@@ -902,9 +1377,12 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
     setEnergyFlow,
     setSuspensionCompression,
     spinWheels,
+    setAeroRakeMode,
+    updateLivery,
     update,
     dispose,
     partMeshes,
     getPartById,
   }
 }
+

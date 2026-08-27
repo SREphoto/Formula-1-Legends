@@ -114,6 +114,124 @@ function createGripTexture(): THREE.CanvasTexture {
   return texture
 }
 
+// Generate laser-etched button cap face decal
+function createButtonDecalTexture(label: string, borderColorHex: string, textColor = '#ffffff'): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 256
+  canvas.height = 256
+  const ctx = canvas.getContext('2d')!
+
+  // Tactile concave dish background
+  const grad = ctx.createRadialGradient(128, 128, 12, 128, 128, 124)
+  grad.addColorStop(0, '#242a34')
+  grad.addColorStop(0.65, '#14171d')
+  grad.addColorStop(1, '#080a0d')
+  ctx.fillStyle = grad
+  ctx.beginPath()
+  ctx.arc(128, 128, 124, 0, Math.PI * 2)
+  ctx.fill()
+
+  // High-contrast outer color ring
+  ctx.strokeStyle = borderColorHex
+  ctx.lineWidth = 16
+  ctx.beginPath()
+  ctx.arc(128, 128, 112, 0, Math.PI * 2)
+  ctx.stroke()
+
+  // Inner subtle metallic chamfer
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.32)'
+  ctx.lineWidth = 3.5
+  ctx.beginPath()
+  ctx.arc(128, 128, 98, 0, Math.PI * 2)
+  ctx.stroke()
+
+  // Laser-etched typography
+  ctx.fillStyle = textColor
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const fontSize = label.length >= 4 ? 54 : label.length === 3 ? 66 : 82
+  ctx.font = `900 ${fontSize}px "Barlow Condensed", Inter, sans-serif`
+
+  // Glow / shadow
+  ctx.shadowColor = 'rgba(0,0,0,0.85)'
+  ctx.shadowBlur = 6
+  ctx.shadowOffsetY = 2
+  ctx.fillText(label, 128, 128)
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
+// Generate laser-etched paddle decal (+ / -)
+function createPaddleDecalTexture(symbol: string, color: string): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 256
+  canvas.height = 256
+  const ctx = canvas.getContext('2d')!
+
+  ctx.fillStyle = 'rgba(0, 0, 0, 0)'
+  ctx.fillRect(0, 0, 256, 256)
+
+  ctx.fillStyle = color
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.font = '900 140px "Barlow Condensed", Inter, sans-serif'
+  ctx.shadowColor = 'rgba(0,0,0,0.9)'
+  ctx.shadowBlur = 8
+  ctx.fillText(symbol, 128, 128)
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
+// Generate rotary dial scale index
+function createDialScaleTexture(options: string[], color: string): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 256
+  canvas.height = 256
+  const ctx = canvas.getContext('2d')!
+
+  ctx.fillStyle = 'rgba(0, 0, 0, 0)'
+  ctx.fillRect(0, 0, 256, 256)
+
+  // Outer scale ring
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  ctx.arc(128, 128, 114, 0, Math.PI * 2)
+  ctx.stroke()
+
+  const count = options.length
+  options.forEach((opt, idx) => {
+    const angle = (idx / count) * Math.PI * 1.6 + Math.PI * 0.7
+    const rx = 128 + Math.cos(angle) * 88
+    const ry = 128 + Math.sin(angle) * 88
+
+    ctx.fillStyle = color
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.font = 'bold 24px "Barlow Condensed", Inter, sans-serif'
+    ctx.fillText(opt, rx, ry)
+
+    const tx1 = 128 + Math.cos(angle) * 106
+    const ty1 = 128 + Math.sin(angle) * 106
+    const tx2 = 128 + Math.cos(angle) * 118
+    const ty2 = 128 + Math.sin(angle) * 118
+    ctx.strokeStyle = color
+    ctx.lineWidth = 3
+    ctx.beginPath()
+    ctx.moveTo(tx1, ty1)
+    ctx.lineTo(tx2, ty2)
+    ctx.stroke()
+  })
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
 export function createF1SteeringWheel(): F1SteeringWheelController {
   const root = new THREE.Group()
   root.name = 'F1_SteeringWheel_Root'
@@ -717,109 +835,219 @@ export function createF1SteeringWheel(): F1SteeringWheelController {
     root.add(bolt)
   })
 
-  // --- 3.6 Push Buttons with Safety Collars ---
-  // Button positions & color mapping matching authentic F1 ergonomics
-  const buttonConfigs: { id: string; x: number; y: number; color: number; label: string }[] = [
+  // --- 3.6 Push Buttons with Raised Protective Collars & Silkscreen Decals ---
+  const buttonConfigs: { id: string; x: number; y: number; colorHex: string; colorNum: number; label: string }[] = [
     // Top Row
-    { id: 'btn_drs', x: -0.092, y: 0.056, color: 0x00ff66, label: 'DRS' },
-    { id: 'btn_radio', x: -0.072, y: 0.068, color: 0xffd000, label: 'RAD' },
-    { id: 'btn_marshal_ack', x: 0, y: 0.076, color: 0xffffff, label: 'ACK' },
-    { id: 'btn_pit_limiter', x: 0.072, y: 0.068, color: 0xff2222, label: 'PL' },
-    { id: 'btn_overtake', x: 0.092, y: 0.056, color: 0xb026ff, label: 'OT' },
+    { id: 'btn_drs', x: -0.092, y: 0.056, colorHex: '#00ff66', colorNum: 0x00ff66, label: 'DRS' },
+    { id: 'btn_radio', x: -0.072, y: 0.068, colorHex: '#ffd000', colorNum: 0xffd000, label: 'RAD' },
+    { id: 'btn_marshal_ack', x: 0, y: 0.076, colorHex: '#ffffff', colorNum: 0xffffff, label: 'ACK' },
+    { id: 'btn_pit_limiter', x: 0.072, y: 0.068, colorHex: '#ff2222', colorNum: 0xff2222, label: 'PL' },
+    { id: 'btn_overtake', x: 0.092, y: 0.056, colorHex: '#c026d3', colorNum: 0xc026d3, label: 'OT' },
 
     // Middle Row / Thumb Clusters
-    { id: 'btn_neutral', x: -0.088, y: 0.032, color: 0x00dd55, label: 'N' },
-    { id: 'btn_reverse', x: 0.088, y: 0.032, color: 0xff9900, label: 'R' },
-    { id: 'btn_soc_harvest', x: -0.092, y: 0.008, color: 0x00e5ff, label: 'SOC' },
-    { id: 'btn_pass_pace', x: 0.092, y: 0.008, color: 0xff5500, label: 'PASS' },
+    { id: 'btn_neutral', x: -0.088, y: 0.032, colorHex: '#00dd55', colorNum: 0x00dd55, label: 'N' },
+    { id: 'btn_reverse', x: 0.088, y: 0.032, colorHex: '#ff9900', colorNum: 0xff9900, label: 'R' },
+    { id: 'btn_soc_harvest', x: -0.092, y: 0.008, colorHex: '#00e5ff', colorNum: 0x00e5ff, label: 'SOC' },
+    { id: 'btn_pass_pace', x: 0.092, y: 0.008, colorHex: '#ff5500', colorNum: 0xff5500, label: 'PASS' },
 
     // Brake Balance & Engine Braking Rockers
-    { id: 'btn_eb_plus', x: -0.078, y: -0.016, color: 0x3b82f6, label: 'EB+' },
-    { id: 'btn_eb_minus', x: -0.078, y: -0.038, color: 0x3b82f6, label: 'EB-' },
-    { id: 'btn_bb_plus', x: 0.078, y: -0.016, color: 0xf43f5e, label: 'BB+' },
-    { id: 'btn_bb_minus', x: 0.078, y: -0.038, color: 0xf43f5e, label: 'BB-' },
+    { id: 'btn_eb_plus', x: -0.078, y: -0.016, colorHex: '#3b82f6', colorNum: 0x3b82f6, label: 'EB+' },
+    { id: 'btn_eb_minus', x: -0.078, y: -0.038, colorHex: '#3b82f6', colorNum: 0x3b82f6, label: 'EB-' },
+    { id: 'btn_bb_plus', x: 0.078, y: -0.016, colorHex: '#f43f5e', colorNum: 0xf43f5e, label: 'BB+' },
+    { id: 'btn_bb_minus', x: 0.078, y: -0.038, colorHex: '#f43f5e', colorNum: 0xf43f5e, label: 'BB-' },
 
     // Lower Buttons
-    { id: 'btn_drink', x: -0.092, y: -0.06, color: 0x0088ff, label: 'DRK' },
-    { id: 'btn_page_next', x: -0.048, y: -0.024, color: 0xffffff, label: 'P+' },
-    { id: 'btn_page_prev', x: 0.048, y: -0.024, color: 0xffffff, label: 'P-' },
+    { id: 'btn_drink', x: -0.092, y: -0.06, colorHex: '#0088ff', colorNum: 0x0088ff, label: 'DRK' },
+    { id: 'btn_page_next', x: -0.048, y: -0.024, colorHex: '#ffffff', colorNum: 0xffffff, label: 'P+' },
+    { id: 'btn_page_prev', x: 0.048, y: -0.024, colorHex: '#ffffff', colorNum: 0xffffff, label: 'P-' },
   ]
 
-  const collarGeom = new THREE.CylinderGeometry(0.0075, 0.008, 0.006, 16)
-  collarGeom.rotateX(Math.PI / 2)
-  disposables.push(collarGeom)
+  // Shared Geometries for Buttons
+  const outerCollarGeom = new THREE.CylinderGeometry(0.0082, 0.0088, 0.006, 20)
+  outerCollarGeom.rotateX(Math.PI / 2)
+  disposables.push(outerCollarGeom)
 
-  const buttonCapGeom = new THREE.CylinderGeometry(0.0058, 0.0058, 0.008, 16)
-  buttonCapGeom.rotateX(Math.PI / 2)
-  disposables.push(buttonCapGeom)
+  const innerBezelGeom = new THREE.TorusGeometry(0.0078, 0.0007, 6, 20)
+  disposables.push(innerBezelGeom)
+
+  const buttonPlungerGeom = new THREE.CylinderGeometry(0.0062, 0.0062, 0.0075, 20)
+  buttonPlungerGeom.rotateX(Math.PI / 2)
+  disposables.push(buttonPlungerGeom)
+
+  const buttonDecalGeom = new THREE.PlaneGeometry(0.0122, 0.0122)
+  disposables.push(buttonDecalGeom)
 
   buttonConfigs.forEach((cfg) => {
-    // Safety Collar / Bezel
-    const collar = new THREE.Mesh(collarGeom, anodizedBlackMat)
+    // 1. Raised CNC Anodized Aluminum Safety Collar
+    const collar = new THREE.Mesh(outerCollarGeom, anodizedBlackMat)
     collar.position.set(cfg.x, cfg.y, 0.014)
     root.add(collar)
 
-    // Interactive Button Cap
+    // 2. Titanium Chamfer Accent Ring
+    const bezel = new THREE.Mesh(innerBezelGeom, titaniumMat)
+    bezel.position.set(cfg.x, cfg.y, 0.017)
+    root.add(bezel)
+
+    // 3. Moving Button Assembly (Group)
+    const buttonGroup = new THREE.Group()
+    buttonGroup.position.set(cfg.x, cfg.y, 0.0185)
+
+    // Tactile Plunger Body
     const capMat = new THREE.MeshStandardMaterial({
-      color: cfg.color,
-      roughness: 0.25,
+      color: 0x141820,
+      roughness: 0.35,
       metalness: 0.4,
-      emissive: cfg.color,
-      emissiveIntensity: 0.1,
+      emissive: cfg.colorNum,
+      emissiveIntensity: 0.08,
     })
     disposables.push(capMat)
 
-    const capMesh = new THREE.Mesh(buttonCapGeom, capMat)
-    capMesh.position.set(cfg.x, cfg.y, 0.018)
-    capMesh.name = cfg.id
-    capMesh.userData = { controlId: cfg.id, type: 'BUTTON' }
-    interactiveMeshes.push(capMesh)
-    controlMeshMap.set(cfg.id, capMesh)
-    root.add(capMesh)
+    const plungerMesh = new THREE.Mesh(buttonPlungerGeom, capMat)
+    buttonGroup.add(plungerMesh)
+
+    // High-Resolution Laser-Etched Decal Face
+    const decalTex = createButtonDecalTexture(cfg.label, cfg.colorHex)
+    disposables.push(decalTex)
+
+    const decalMat = new THREE.MeshBasicMaterial({
+      map: decalTex,
+      transparent: true,
+      depthWrite: true,
+    })
+    disposables.push(decalMat)
+
+    const decalMesh = new THREE.Mesh(buttonDecalGeom, decalMat)
+    decalMesh.position.set(0, 0, 0.0039)
+    buttonGroup.add(decalMesh)
+
+    buttonGroup.name = cfg.id
+    buttonGroup.userData = { controlId: cfg.id, type: 'BUTTON' }
+    plungerMesh.userData = { controlId: cfg.id, type: 'BUTTON' }
+    decalMesh.userData = { controlId: cfg.id, type: 'BUTTON' }
+
+    interactiveMeshes.push(plungerMesh, decalMesh)
+    controlMeshMap.set(cfg.id, plungerMesh)
+    root.add(buttonGroup)
 
     animatedParts.set(cfg.id, {
-      mesh: capMesh,
+      mesh: buttonGroup,
       type: 'BUTTON',
-      initialPos: capMesh.position.clone(),
-      initialRot: capMesh.rotation.clone(),
+      initialPos: buttonGroup.position.clone(),
+      initialRot: buttonGroup.rotation.clone(),
       currentOffset: 0,
       targetOffset: 0,
       rotAngle: 0,
     })
   })
 
-  // --- 3.7 Rotary Dials & Thumb Wheels ---
-  const rotaryConfigs: { id: string; x: number; y: number; color: number; label: string; isThumb?: boolean }[] = [
+  // --- 3.7 Rotary Dials & Thumb Wheels with Laser-Etched Scales ---
+  const rotaryConfigs: {
+    id: string
+    x: number
+    y: number
+    colorHex: string
+    colorNum: number
+    label: string
+    options: string[]
+    isThumb?: boolean
+  }[] = [
     // Left & Right Thumb Wheels on grips
-    { id: 'rot_diff_entry', x: -0.114, y: 0.038, color: 0xffcc00, label: 'DIFF IN', isThumb: true },
-    { id: 'rot_diff_exit', x: 0.114, y: 0.038, color: 0xff9900, label: 'DIFF OUT', isThumb: true },
+    {
+      id: 'rot_diff_entry',
+      x: -0.114,
+      y: 0.038,
+      colorHex: '#ffcc00',
+      colorNum: 0xffcc00,
+      label: 'DIFF IN',
+      options: ['48%', '50%', '52%', '54%', '56%', '58%', '60%'],
+      isThumb: true,
+    },
+    {
+      id: 'rot_diff_exit',
+      x: 0.114,
+      y: 0.038,
+      colorHex: '#ff9900',
+      colorNum: 0xff9900,
+      label: 'DIFF OUT',
+      options: ['52%', '54%', '56%', '58%', '60%', '62%', '64%'],
+      isThumb: true,
+    },
 
     // Lower Center 4 Rotary Dials
-    { id: 'rot_strat_mode', x: -0.052, y: -0.056, color: 0xef4444, label: 'STRAT' },
-    { id: 'rot_tire_selector', x: -0.018, y: -0.056, color: 0xffffff, label: 'TYRE' },
-    { id: 'rot_multifunction', x: 0.018, y: -0.056, color: 0x06b6d4, label: 'MF' },
-    { id: 'rot_bite_point', x: 0.052, y: -0.056, color: 0xa855f7, label: 'CLUTCH' },
+    {
+      id: 'rot_strat_mode',
+      x: -0.052,
+      y: -0.056,
+      colorHex: '#ef4444',
+      colorNum: 0xef4444,
+      label: 'STRAT',
+      options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+    },
+    {
+      id: 'rot_tire_selector',
+      x: -0.018,
+      y: -0.056,
+      colorHex: '#ffffff',
+      colorNum: 0xffffff,
+      label: 'TYRE',
+      options: ['SFT', 'MED', 'HRD', 'INT', 'WET'],
+    },
+    {
+      id: 'rot_multifunction',
+      x: 0.018,
+      y: -0.056,
+      colorHex: '#06b6d4',
+      colorNum: 0x06b6d4,
+      label: 'MF',
+      options: ['ENG', 'MGU', 'BRK', 'AERO', 'RADIO', 'SYS'],
+    },
+    {
+      id: 'rot_bite_point',
+      x: 0.052,
+      y: -0.056,
+      colorHex: '#a855f7',
+      colorNum: 0xa855f7,
+      label: 'CLUTCH',
+      options: ['1', '2', '3', '4', '5', '6', '7', '8'],
+    },
   ]
 
-  const dialKnobGeom = new THREE.CylinderGeometry(0.011, 0.0115, 0.012, 18)
+  const dialKnobGeom = new THREE.CylinderGeometry(0.0112, 0.0118, 0.012, 28)
   dialKnobGeom.rotateX(Math.PI / 2)
   disposables.push(dialKnobGeom)
 
-  const thumbDialGeom = new THREE.CylinderGeometry(0.009, 0.009, 0.018, 16)
+  const thumbDialGeom = new THREE.CylinderGeometry(0.0092, 0.0092, 0.018, 20)
   thumbDialGeom.rotateZ(Math.PI / 2)
   disposables.push(thumbDialGeom)
 
-  const dialPointerGeom = new THREE.BoxGeometry(0.002, 0.008, 0.003)
+  const dialPointerGeom = new THREE.BoxGeometry(0.0022, 0.009, 0.0035)
   disposables.push(dialPointerGeom)
 
+  const dialScaleGeom = new THREE.PlaneGeometry(0.026, 0.026)
+  disposables.push(dialScaleGeom)
+
   rotaryConfigs.forEach((rc) => {
+    // 1. Dial Base Scale Plate (for faceplate rotaries)
+    if (!rc.isThumb) {
+      const scaleTex = createDialScaleTexture(rc.options, rc.colorHex)
+      disposables.push(scaleTex)
+
+      const scaleMat = new THREE.MeshBasicMaterial({ map: scaleTex, transparent: true, depthWrite: false })
+      disposables.push(scaleMat)
+
+      const scaleMesh = new THREE.Mesh(dialScaleGeom, scaleMat)
+      scaleMesh.position.set(rc.x, rc.y, 0.0145)
+      root.add(scaleMesh)
+    }
+
+    // 2. Rotary Knob Group
     const dialGroup = new THREE.Group()
-    dialGroup.position.set(rc.x, rc.y, rc.isThumb ? 0.012 : 0.018)
+    dialGroup.position.set(rc.x, rc.y, rc.isThumb ? 0.012 : 0.019)
 
     const dialMat = new THREE.MeshStandardMaterial({
-      color: 0x22262d,
-      metalness: 0.85,
-      roughness: 0.3,
+      color: 0x1e2229,
+      metalness: 0.9,
+      roughness: 0.25,
     })
     disposables.push(dialMat)
 
@@ -827,19 +1055,19 @@ export function createF1SteeringWheel(): F1SteeringWheelController {
     const knobMesh = new THREE.Mesh(geom, dialMat)
     dialGroup.add(knobMesh)
 
-    // Pointer notch / indicator line
-    const pointerMat = new THREE.MeshBasicMaterial({ color: rc.color })
+    // Pointer notch / laser-etched indicator line
+    const pointerMat = new THREE.MeshBasicMaterial({ color: rc.colorNum })
     disposables.push(pointerMat)
 
     const pointerMesh = new THREE.Mesh(dialPointerGeom, pointerMat)
-    pointerMesh.position.set(0, 0.006, 0.006)
+    pointerMesh.position.set(0, 0.006, 0.0062)
     dialGroup.add(pointerMesh)
 
     dialGroup.name = rc.id
     dialGroup.userData = { controlId: rc.id, type: 'ROTARY' }
 
-    // Add invisible hit bounding box for smooth raycasting
-    const hitBoxGeom = new THREE.BoxGeometry(0.026, 0.026, 0.02)
+    // Hit box for raycasting
+    const hitBoxGeom = new THREE.BoxGeometry(0.028, 0.028, 0.022)
     const hitBoxMat = new THREE.MeshBasicMaterial({ visible: false })
     disposables.push(hitBoxGeom, hitBoxMat)
     const hitBox = new THREE.Mesh(hitBoxGeom, hitBoxMat)
@@ -861,7 +1089,7 @@ export function createF1SteeringWheel(): F1SteeringWheelController {
     })
   })
 
-  // --- 3.8 Rear Assembly: Quick Release Boss & Paddle Shifters ---
+  // --- 3.8 Rear Assembly: Quick Release Boss & High-Contrast Paddle Shifters ---
   // Rear Quick Release Hub Boss
   const qrHubGeom = new THREE.CylinderGeometry(0.032, 0.038, 0.045, 24)
   qrHubGeom.rotateX(Math.PI / 2)
@@ -871,38 +1099,74 @@ export function createF1SteeringWheel(): F1SteeringWheelController {
   qrHubMesh.position.set(0, 0.01, -0.035)
   root.add(qrHubMesh)
 
-  // Splined aluminum quick-release locking ring
+  // Splined aluminum quick-release locking collar with red safety accents
   const qrRingGeom = new THREE.TorusGeometry(0.035, 0.006, 8, 24)
   disposables.push(qrRingGeom)
-  const qrRingMesh = new THREE.Mesh(qrRingGeom, titaniumMat)
+  const qrRingMat = new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.8, roughness: 0.25 })
+  disposables.push(qrRingMat)
+  const qrRingMesh = new THREE.Mesh(qrRingGeom, qrRingMat)
   qrRingMesh.position.set(0, 0.01, -0.048)
   root.add(qrRingMesh)
+
+  // High-Contrast Paddle Material (glossy clearcoat carbon weave)
+  const paddleCarbonMat = new THREE.MeshStandardMaterial({
+    map: carbonTex,
+    color: 0x3a424e,
+    roughness: 0.22,
+    metalness: 0.5,
+  })
+  disposables.push(paddleCarbonMat)
 
   // Carbon Paddle Shifters (Upshift & Downshift)
   function makePaddle(isUpshift: boolean): THREE.Group {
     const paddleGroup = new THREE.Group()
     const sign = isUpshift ? 1 : -1
+    const symbol = isUpshift ? '+' : '−'
+    const symColor = isUpshift ? '#00ff66' : '#ff2222'
 
     // Carbon lever blade
     const paddleShape = new THREE.Shape()
-    paddleShape.moveTo(0, -0.045)
-    paddleShape.lineTo(sign * 0.038, -0.035)
-    paddleShape.lineTo(sign * 0.045, 0.035)
-    paddleShape.lineTo(0, 0.045)
+    paddleShape.moveTo(0, -0.048)
+    paddleShape.lineTo(sign * 0.042, -0.038)
+    paddleShape.lineTo(sign * 0.048, 0.038)
+    paddleShape.lineTo(0, 0.048)
     paddleShape.closePath()
 
-    const paddleGeom = new THREE.ExtrudeGeometry(paddleShape, { depth: 0.003, bevelEnabled: true, bevelThickness: 0.001, bevelSize: 0.001 })
+    const paddleGeom = new THREE.ExtrudeGeometry(paddleShape, { depth: 0.0032, bevelEnabled: true, bevelThickness: 0.0012, bevelSize: 0.0012 })
     disposables.push(paddleGeom)
 
-    const paddleMesh = new THREE.Mesh(paddleGeom, carbonGlossMat)
+    const paddleMesh = new THREE.Mesh(paddleGeom, paddleCarbonMat)
     paddleGroup.add(paddleMesh)
 
-    // Pivot mount bracket & titanium hinge
-    const pivotGeom = new THREE.BoxGeometry(0.012, 0.018, 0.022)
+    // Laser-etched + / − decal on paddle face
+    const paddleDecalTex = createPaddleDecalTexture(symbol, symColor)
+    disposables.push(paddleDecalTex)
+
+    const pDecalMat = new THREE.MeshBasicMaterial({ map: paddleDecalTex, transparent: true, depthWrite: false })
+    disposables.push(pDecalMat)
+
+    const pDecalGeom = new THREE.PlaneGeometry(0.028, 0.028)
+    disposables.push(pDecalGeom)
+
+    const pDecalMesh = new THREE.Mesh(pDecalGeom, pDecalMat)
+    pDecalMesh.position.set(sign * 0.022, 0, -0.001)
+    pDecalMesh.rotation.y = Math.PI // Facing back toward camera
+    paddleGroup.add(pDecalMesh)
+
+    // Pivot mount bracket & bright titanium hinge
+    const pivotGeom = new THREE.BoxGeometry(0.014, 0.02, 0.024)
     disposables.push(pivotGeom)
     const pivotMesh = new THREE.Mesh(pivotGeom, titaniumMat)
     pivotMesh.position.set(sign * -0.008, 0, 0.01)
     paddleGroup.add(pivotMesh)
+
+    // Neodymium magnetic switch cylinder
+    const magnetGeom = new THREE.CylinderGeometry(0.0042, 0.0042, 0.012, 16)
+    magnetGeom.rotateX(Math.PI / 2)
+    disposables.push(magnetGeom)
+    const magnetMesh = new THREE.Mesh(magnetGeom, titaniumMat)
+    magnetMesh.position.set(sign * 0.006, 0.012, 0.008)
+    paddleGroup.add(magnetMesh)
 
     const id = isUpshift ? 'paddle_upshift' : 'paddle_downshift'
     paddleGroup.name = id
@@ -910,7 +1174,7 @@ export function createF1SteeringWheel(): F1SteeringWheelController {
     paddleGroup.position.set(sign * 0.092, 0.02, -0.022)
 
     // Hit box for raycasting
-    const hitBoxGeom = new THREE.BoxGeometry(0.06, 0.09, 0.02)
+    const hitBoxGeom = new THREE.BoxGeometry(0.065, 0.095, 0.024)
     const hitBoxMat = new THREE.MeshBasicMaterial({ visible: false })
     disposables.push(hitBoxGeom, hitBoxMat)
     const hitBox = new THREE.Mesh(hitBoxGeom, hitBoxMat)
@@ -938,23 +1202,32 @@ export function createF1SteeringWheel(): F1SteeringWheelController {
   makePaddle(false) // Downshift (Left)
   makePaddle(true)  // Upshift (Right)
 
-  // Lower Dual Launch Clutch Paddles
+  // Lower Dual Launch Clutch Paddles with Aluminum Finish
   function makeClutchPaddle(isRight: boolean) {
     const sign = isRight ? 1 : -1
     const id = isRight ? 'paddle_clutch_right' : 'paddle_clutch_left'
 
     const clutchGroup = new THREE.Group()
-    const clutchGeom = new THREE.BoxGeometry(0.042, 0.024, 0.003)
+    const clutchGeom = new THREE.BoxGeometry(0.046, 0.024, 0.0035)
     disposables.push(clutchGeom)
 
-    const clutchMesh = new THREE.Mesh(clutchGeom, carbonMat)
+    const clutchMesh = new THREE.Mesh(clutchGeom, titaniumMat)
     clutchGroup.add(clutchMesh)
+
+    // Grip ridges on clutch lever
+    for (let r = -2; r <= 2; r++) {
+      const ridgeGeom = new THREE.BoxGeometry(0.003, 0.018, 0.001)
+      disposables.push(ridgeGeom)
+      const ridge = new THREE.Mesh(ridgeGeom, anodizedBlackMat)
+      ridge.position.set(r * 0.008, 0, -0.002)
+      clutchGroup.add(ridge)
+    }
 
     clutchGroup.position.set(sign * 0.075, -0.05, -0.02)
     clutchGroup.name = id
     clutchGroup.userData = { controlId: id, type: 'PADDLE' }
 
-    const hitBoxGeom = new THREE.BoxGeometry(0.05, 0.035, 0.02)
+    const hitBoxGeom = new THREE.BoxGeometry(0.055, 0.038, 0.022)
     const hitBoxMat = new THREE.MeshBasicMaterial({ visible: false })
     disposables.push(hitBoxGeom, hitBoxMat)
     const hitBox = new THREE.Mesh(hitBoxGeom, hitBoxMat)

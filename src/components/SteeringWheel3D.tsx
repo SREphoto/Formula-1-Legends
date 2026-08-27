@@ -60,9 +60,9 @@ const CAMERA_PRESET_TARGETS: Record<CameraPreset, { pos: THREE.Vector3; lookAt: 
     fov: 35,
   },
   paddles: {
-    pos: new THREE.Vector3(0, 0.02, -0.32),
-    lookAt: new THREE.Vector3(0, 0, 0),
-    fov: 42,
+    pos: new THREE.Vector3(0, 0.03, -0.34),
+    lookAt: new THREE.Vector3(0, 0.01, -0.01),
+    fov: 38,
   },
   free: {
     pos: new THREE.Vector3(0.12, 0.1, 0.36),
@@ -148,24 +148,49 @@ export function SteeringWheel3D({
     renderer.setSize(width, height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.15
+    renderer.toneMappingExposure = 1.25
     container.appendChild(renderer.domElement)
 
-    // Lighting setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, nightMode ? 0.35 : 0.85)
+    // High-Fidelity Studio Lighting (Front + Rear 360° Illumination)
+    const ambientLight = new THREE.AmbientLight(0xffffff, nightMode ? 0.45 : 1.1)
     scene.add(ambientLight)
 
-    const mainKeyLight = new THREE.DirectionalLight(0xffffff, nightMode ? 1.2 : 2.4)
+    // Front Main Key Light (high-contrast reflections on faceplate)
+    const mainKeyLight = new THREE.DirectionalLight(0xffffff, nightMode ? 1.4 : 2.6)
     mainKeyLight.position.set(0.4, 0.8, 0.7)
     scene.add(mainKeyLight)
 
-    const rimLight = new THREE.DirectionalLight(0x00f0ff, nightMode ? 1.5 : 1.0)
-    rimLight.position.set(-0.6, -0.4, -0.5)
-    scene.add(rimLight)
+    // Front Left Fill Light
+    const frontFillLight = new THREE.DirectionalLight(0xd4e8ff, nightMode ? 0.9 : 1.5)
+    frontFillLight.position.set(-0.5, 0.3, 0.6)
+    scene.add(frontFillLight)
 
-    const topFill = new THREE.DirectionalLight(0xffffff, 0.6)
-    topFill.position.set(0, 0.8, 0.2)
+    // Top Rim Light
+    const topFill = new THREE.DirectionalLight(0xffffff, 0.8)
+    topFill.position.set(0, 0.9, 0.2)
     scene.add(topFill)
+
+    // --- REAR PADDLE & HUB LIGHTS (Brightly illuminates shifters & quick release) ---
+    const rearKeyLight = new THREE.DirectionalLight(0xffffff, nightMode ? 1.8 : 2.8)
+    rearKeyLight.position.set(0.35, 0.65, -0.75)
+    scene.add(rearKeyLight)
+
+    const rearFillLight = new THREE.DirectionalLight(0xbad7ff, nightMode ? 1.5 : 2.4)
+    rearFillLight.position.set(-0.45, 0.45, -0.65)
+    scene.add(rearFillLight)
+
+    const rearBottomLight = new THREE.DirectionalLight(0xffffff, 1.2)
+    rearBottomLight.position.set(0, -0.5, -0.5)
+    scene.add(rearBottomLight)
+
+    // Dedicated Point Lights behind Left & Right Paddle Shifters
+    const leftPaddlePoint = new THREE.PointLight(0x00f0ff, 0.9, 0.35)
+    leftPaddlePoint.position.set(-0.09, 0.02, -0.04)
+    scene.add(leftPaddlePoint)
+
+    const rightPaddlePoint = new THREE.PointLight(0x30d158, 0.9, 0.35)
+    rightPaddlePoint.position.set(0.09, 0.02, -0.04)
+    scene.add(rightPaddlePoint)
 
     // Create 3D Steering Wheel Model
     const controller = createF1SteeringWheel()
