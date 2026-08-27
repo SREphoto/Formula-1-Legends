@@ -35,6 +35,8 @@ export function TimingTower({
   onToggleCollapse,
 }: TimingTowerProps) {
   const [gapMode, setGapMode] = useState<'leader' | 'interval'>('leader')
+  const [session, setSession] = useState<'Race' | 'Qualifying' | 'Practice'>('Race')
+  const [showSessionMenu, setShowSessionMenu] = useState(false)
 
   if (collapsed) {
     return (
@@ -55,9 +57,57 @@ export function TimingTower({
           <h2>Timing tower</h2>
         </div>
         <div className="timing-title-actions">
-          <button className="mini-select">
-            <span>Race</span><ChevronDown size={12} />
-          </button>
+          <div style={{ position: 'relative' }}>
+            <button
+              className="mini-select"
+              onClick={() => setShowSessionMenu(!showSessionMenu)}
+              title="Switch Session View"
+            >
+              <span>{session}</span>
+              <ChevronDown size={12} />
+            </button>
+            {showSessionMenu && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '4px',
+                  background: '#131822',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '6px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.7)',
+                  zIndex: 100,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  minWidth: '110px',
+                  overflow: 'hidden',
+                }}
+              >
+                {(['Race', 'Qualifying', 'Practice'] as const).map((s) => (
+                  <button
+                    key={s}
+                    style={{
+                      padding: '8px 12px',
+                      background: session === s ? 'rgba(255,128,0,0.15)' : 'none',
+                      border: 'none',
+                      color: session === s ? 'var(--papaya)' : '#fff',
+                      textAlign: 'left',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => {
+                      setSession(s)
+                      setShowSessionMenu(false)
+                    }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           {onToggleCollapse && (
             <button className="panel-collapse-trigger" onClick={onToggleCollapse} title="Collapse timing tower">
               <Minimize2 size={13} />

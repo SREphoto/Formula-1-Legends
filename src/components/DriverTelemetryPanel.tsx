@@ -201,6 +201,8 @@ export function DriverTelemetryPanel({
     <aside className="panel telemetry-panel">
       {/* Driver Identity Card & Panel Controls */}
       <div className="driver-hero" style={{ '--team-color': driver.teamColor } as React.CSSProperties}>
+        <div className="driver-hero-watermark">{driver.number}</div>
+        <div className="driver-hero-stripe" />
         <div className="driver-number-badge">#{driver.number}</div>
         <div className="driver-hero-details">
           <div className="driver-team-line">

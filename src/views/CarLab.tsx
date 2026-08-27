@@ -7,8 +7,10 @@ import {
   Cpu,
   Eye,
   Layers,
+  Palette,
   RotateCcw,
   Save,
+  Scissors,
   ShieldCheck,
   Sliders,
   Wind,
@@ -100,11 +102,15 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
   const [preset, setPreset] = useState<'balanced' | 'downforce' | 'low-drag'>('balanced')
   const [saved, setSaved] = useState(true)
 
-  // 2026 CAD & Simulation Controls
+  // 2026 CAD & Advanced Simulation Controls
   const [activeAeroMode, setActiveAeroMode] = useState<'CORNER' | 'STRAIGHT'>('CORNER')
   const [explodedRatio, setExplodedRatio] = useState<number>(0)
+  const [explodeTarget, setExplodeTarget] = useState<'ALL' | SubsystemCategory>('ALL')
   const [subsystemFilter, setSubsystemFilter] = useState<'ALL' | SubsystemCategory>('ALL')
   const [wireframeMode, setWireframeMode] = useState(false)
+  const [clippingAxis, setClippingAxis] = useState<'NONE' | 'X' | 'Y' | 'Z'>('NONE')
+  const [clippingOffset, setClippingOffset] = useState<number>(0)
+  const [cfdHeatmapMode, setCfdHeatmapMode] = useState(false)
   const [selectedPart, setSelectedPart] = useState<CarPartMetadata | null>(null)
   const [manualOverrideActive, setManualOverrideActive] = useState(false)
 
@@ -184,8 +190,11 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               setSetup(DEFAULT_SETUP)
               setPreset('balanced')
               setExplodedRatio(0)
+              setExplodeTarget('ALL')
               setSubsystemFilter('ALL')
               setActiveAeroMode('CORNER')
+              setClippingAxis('NONE')
+              setCfdHeatmapMode(false)
               setSaved(false)
             }}
           >
@@ -352,6 +361,22 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 ))}
               </select>
               <button
+                className={`cfd-toggle-btn ${cfdHeatmapMode ? 'active' : ''}`}
+                onClick={() => {
+                  setCfdHeatmapMode(!cfdHeatmapMode)
+                  onNotify(
+                    'CFD HEATMAP',
+                    !cfdHeatmapMode
+                      ? 'CFD Surface Pressure Heatmap engaged (+Cp Red Stagnation / -Cp Purple Suction).'
+                      : 'Standard livery rendering restored.',
+                    'success',
+                  )
+                }}
+                title="Toggle CFD Surface Pressure Heatmap"
+              >
+                <Palette size={14} /> {cfdHeatmapMode ? 'CFD ACTIVE' : 'CFD HEATMAP'}
+              </button>
+              <button
                 className={`wireframe-toggle-btn ${wireframeMode ? 'active' : ''}`}
                 onClick={() => setWireframeMode(!wireframeMode)}
                 title="Toggle X-Ray Wireframe Mode"
@@ -382,12 +407,32 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
             ))}
           </div>
 
-          {/* Exploded View CAD Slider Control */}
+          {/* Multi-Axis Targeted Exploded View & Clipping Plane Toolbar */}
           <div className="cad-exploded-toolbar">
             <div className="exploded-label-row">
-              <span><Layers size={14} /> EXPLODED CAD VIEW:</span>
+              <div className="explode-target-deck">
+                <span><Layers size={14} /> EXPLODE TARGET:</span>
+                {(
+                  [
+                    { key: 'ALL', label: 'ALL' },
+                    { key: 'AERO', label: 'AERO' },
+                    { key: 'POWERTRAIN', label: 'PU' },
+                    { key: 'CHASSIS', label: 'CHASSIS' },
+                    { key: 'SUSPENSION', label: 'SUSP' },
+                  ] as const
+                ).map((item) => (
+                  <button
+                    key={item.key}
+                    className={`explode-target-pill ${explodeTarget === item.key ? 'active' : ''}`}
+                    onClick={() => setExplodeTarget(item.key)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
               <strong>{Math.round(explodedRatio * 100)}% DISASSEMBLY</strong>
             </div>
+
             <div className="exploded-slider-row">
               <button className="ratio-quick-pill" onClick={() => setExplodedRatio(0)}>0% (ASSEMBLED)</button>
               <input
@@ -401,6 +446,50 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               />
               <button className="ratio-quick-pill" onClick={() => setExplodedRatio(0.5)}>50% (INSPECT)</button>
               <button className="ratio-quick-pill" onClick={() => setExplodedRatio(1.0)}>100% (EXPLODE)</button>
+            </div>
+
+            {/* Interactive Cross-Section CAD Clipping Plane Controls */}
+            <div className="clipping-controls-deck">
+              <div className="clipping-axis-buttons">
+                <span className="clipping-label"><Scissors size={13} /> CROSS-SECTION CUT:</span>
+                {(
+                  [
+                    { key: 'NONE', label: 'OFF' },
+                    { key: 'X', label: 'X: SAGITTAL' },
+                    { key: 'Y', label: 'Y: FLOOR/TOP' },
+                    { key: 'Z', label: 'Z: TRANSVERSE' },
+                  ] as const
+                ).map((axis) => (
+                  <button
+                    key={axis.key}
+                    className={`clipping-axis-pill ${clippingAxis === axis.key ? 'active' : ''}`}
+                    onClick={() => {
+                      setClippingAxis(axis.key)
+                      if (axis.key === 'NONE') setClippingOffset(0)
+                    }}
+                  >
+                    {axis.label}
+                  </button>
+                ))}
+              </div>
+
+              {clippingAxis !== 'NONE' && (
+                <div className="clipping-slider-deck">
+                  <span className="clipping-offset-badge">
+                    CUT OFFSET: {clippingOffset > 0 ? '+' : ''}{clippingOffset.toFixed(2)}m
+                  </span>
+                  <input
+                    type="range"
+                    min={clippingAxis === 'X' ? -1.2 : clippingAxis === 'Y' ? -0.4 : -2.4}
+                    max={clippingAxis === 'X' ? 1.2 : clippingAxis === 'Y' ? 1.4 : 2.4}
+                    step={0.02}
+                    value={clippingOffset}
+                    onChange={(e) => setClippingOffset(Number(e.target.value))}
+                    className="clipping-range-input"
+                  />
+                  <button className="ratio-quick-pill" onClick={() => setClippingOffset(0)}>CENTER (0.00m)</button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -421,12 +510,29 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 downforceKn={aero.downforceN / 1000}
                 porpoising={aero.porpoisingActive}
                 explodedRatio={explodedRatio}
+                explodeTarget={explodeTarget}
                 activeAeroMode={activeAeroMode}
                 subsystemFilter={subsystemFilter}
                 wireframeMode={wireframeMode}
+                clippingAxis={clippingAxis}
+                clippingOffset={clippingOffset}
+                cfdHeatmapMode={cfdHeatmapMode}
                 onSelectPart={(part) => setSelectedPart(part)}
               />
             </Suspense>
+
+            {/* CFD Pressure Heatmap Legend Bar */}
+            {cfdHeatmapMode && (
+              <div className="cfd-pressure-legend-bar">
+                <div className="legend-label">CFD PRESSURE GRADIENT (Cp)</div>
+                <div className="legend-gradient-strip" />
+                <div className="legend-bounds">
+                  <span>+1.0 (STAGNATION RED)</span>
+                  <span>0.0 (FREE STREAM)</span>
+                  <span>-2.5 (SUCTION PURPLE)</span>
+                </div>
+              </div>
+            )}
 
             {/* Selected Component Technical Drawer Modal */}
             {selectedPart && (

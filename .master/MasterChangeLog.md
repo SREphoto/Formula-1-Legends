@@ -4,6 +4,40 @@ All notable project changes, releases, revisions, and architecture updates are d
 
 ---
 
+## [Build R13 / 24-Track Extreme Detail Overhaul, Graphical Driver Cards & 3D Environment Polish] — 2026-08-27
+
+### 08-27I Added & Enhanced
+
+- **All 24 Grand Prix Circuits Extreme Precision Mapping ([src/data/circuitData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts), [src/components/CircuitMapPreview.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx))**:
+  - Engineered distinct, mathematically verified SVG path definitions, genuine corner counts, turn names, and multi-DRS zones for every track from Sakhir, Melbourne, and Monaco to Suzuka (Figure-8 with bridge/underpass), Spa, Monza, and Yas Marina.
+- **Interactive 24-Round Calendar Modal ([src/views/HQDashboard.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/HQDashboard.tsx))**:
+  - Enabled clicking any round on the 2026 World Championship calendar to open a modal displaying the full 2D interactive circuit map, telemetry statistics, lap records, and animated driver cars.
+- **Interactive Button & Workspace Audit**:
+  - **Track Map**: Added interactive zoom rail (`+` / `−` / reset scale state) and SVG zoom transform (`TrackMap.tsx`).
+  - **Timing Tower**: Added interactive session switcher dropdown (`Race`, `Qualifying`, `Practice`) with persistent state (`TimingTower.tsx`).
+  - **Factory Operations**: Added interactive factory facility upgrades (`Design HQ`, `Wind Tunnel`, `Composites Lab`) and project creation handlers (`HQDashboard.tsx`).
+- **Rich Graphical Driver Cards ([src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css), [src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx))**:
+  - Added carbon-fiber weave composite textures, high-contrast team livery racing stripes, and giant translucent watermark driver numbers (`#4`, `#16`, `#1`, `#44`) in Barlow Condensed typography across all driver identity cards.
+- **3D Environment Polish & Runoff Safety Barriers ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**:
+  - Added trackside tire safety barriers on high-speed runoffs (Becketts, Stowe, Luffield, Abbey) and 150m/100m/50m distance marker boards approaching heavy braking zones.
+
+---
+
+## [Build R12 / Interactive CAD Cross-Section Clipping, CFD Pressure Heatmap & Targeted Subsystem Explode] — 2026-08-27
+
+### 08-27H Added & Enhanced
+
+- **Interactive Cross-Section CAD Clipping Planes ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Hardware-accelerated local clipping plane engine with selectable cut axes: **Axis X (Sagittal Side-Cut)** through ICE cylinders, MGU-K rotor and gearbox; **Axis Y (Horizontal Floor-Cut)** through lithium-NMC battery cells and diffuser channels; and **Axis Z (Transverse Front-to-Rear Cut)** through crash structures and radiator assemblies.
+  - Interactive continuous offset slider with center reset.
+- **CFD Surface Pressure Heatmap Shader & Mode ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Procedural CFD pressure mapping rendering stagnation high pressure ($+C_p$, red), free-stream neutral ($C_p \approx 0$, green), and deep suction low pressure ($-C_p$, purple) across all 30+ bodywork components.
+  - Dynamic Straight Mode (X-Mode) drag shedding transitions front and rear wing flaps to neutral pressure in real time with floating CFD gradient legend bar.
+- **Multi-Axis Targeted Subsystem Explode ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx))**:
+  - Subsystem explosion target filter (`ALL`, `AERO`, `PU`, `CHASSIS`, `SUSP`) enabling independent disassembly of individual assemblies (e.g. exploding only the 350kW Power Unit) while keeping the surrounding chassis intact.
+
+---
+
 ## [Build R11 / 2026 Formula 1 Racecar Part-by-Part Modular CAD Studio & Dynamics Deployment] — 2026-08-27
 
 ### 08-27G Added & Implemented

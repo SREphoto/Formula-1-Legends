@@ -15,16 +15,18 @@ import {
   Warehouse,
   Wind,
   Wrench,
+  X,
 } from 'lucide-react'
 import { useState } from 'react'
 import { TEAM_STANDINGS } from '../data/drivers'
 import { PaddockNewsWidget } from '../components/PaddockNewsWidget'
+import { CircuitMapPreview } from '../components/CircuitMapPreview'
 
 interface HQDashboardProps {
   onNotify: (title: string, message: string, tone?: 'success' | 'warning') => void
 }
 
-const RND_PROJECTS = [
+const RND_PROJECTS_INITIAL = [
   {
     id: 1,
     dept: 'aero',
@@ -61,25 +63,90 @@ const RND_PROJECTS = [
     spend: '$0.75M',
     color: '#e8002d',
   },
+  {
+    id: 4,
+    dept: 'powertrain',
+    type: 'HYBRID MGU-K',
+    name: 'PU-26 350kW High-RPM Stator Wrap',
+    phase: 'DYNO BENCHMARKING',
+    progress: 14,
+    days: 28,
+    gain: '+0.22s / lap',
+    spend: '$2.40M',
+    color: '#ff8000',
+  },
 ]
 
-const RACE_CALENDAR = [
-  { round: 10, flag: 'GBR', race: 'British Grand Prix', track: 'Silverstone', date: 'LIVE RACE', state: 'live' },
-  { round: 11, flag: 'BEL', race: 'Belgian Grand Prix', track: 'Spa-Francorchamps', date: '30 AUG', state: 'next' },
-  { round: 12, flag: 'NED', race: 'Dutch Grand Prix', track: 'Zandvoort', date: '06 SEP', state: 'upcoming' },
-  { round: 13, flag: 'ITA', race: 'Italian Grand Prix', track: 'Monza', date: '13 SEP', state: 'upcoming' },
+const FULL_RACE_CALENDAR = [
+  { round: 1, circuitKey: 63, flag: 'BHR', race: 'Bahrain Grand Prix', track: 'Sakhir', date: 'COMPLETED', state: 'past' },
+  { round: 2, circuitKey: 149, flag: 'SAU', race: 'Saudi Arabian Grand Prix', track: 'Jeddah', date: 'COMPLETED', state: 'past' },
+  { round: 3, circuitKey: 1, flag: 'AUS', race: 'Australian Grand Prix', track: 'Albert Park', date: 'COMPLETED', state: 'past' },
+  { round: 4, circuitKey: 46, flag: 'JPN', race: 'Japanese Grand Prix', track: 'Suzuka', date: 'COMPLETED', state: 'past' },
+  { round: 5, circuitKey: 11, flag: 'CHN', race: 'Chinese Grand Prix', track: 'Shanghai', date: 'COMPLETED', state: 'past' },
+  { round: 6, circuitKey: 151, flag: 'USA', race: 'Miami Grand Prix', track: 'Miami', date: 'COMPLETED', state: 'past' },
+  { round: 7, circuitKey: 6, flag: 'ITA', race: 'Emilia Romagna Grand Prix', track: 'Imola', date: 'COMPLETED', state: 'past' },
+  { round: 8, circuitKey: 22, flag: 'MON', race: 'Monaco Grand Prix', track: 'Monte Carlo', date: 'COMPLETED', state: 'past' },
+  { round: 9, circuitKey: 23, flag: 'CAN', race: 'Canadian Grand Prix', track: 'Montreal', date: 'COMPLETED', state: 'past' },
+  { round: 10, circuitKey: 15, flag: 'ESP', race: 'Spanish Grand Prix', track: 'Barcelona', date: 'COMPLETED', state: 'past' },
+  { round: 11, circuitKey: 19, flag: 'AUT', race: 'Austrian Grand Prix', track: 'Red Bull Ring', date: 'COMPLETED', state: 'past' },
+  { round: 12, circuitKey: 2, flag: 'GBR', race: 'British Grand Prix', track: 'Silverstone', date: 'LIVE ROUND', state: 'live' },
+  { round: 13, circuitKey: 4, flag: 'HUN', race: 'Hungarian Grand Prix', track: 'Hungaroring', date: 'NEXT ROUND', state: 'next' },
+  { round: 14, circuitKey: 7, flag: 'BEL', race: 'Belgian Grand Prix', track: 'Spa-Francorchamps', date: 'UPCOMING', state: 'upcoming' },
+  { round: 15, circuitKey: 55, flag: 'NED', race: 'Dutch Grand Prix', track: 'Zandvoort', date: 'UPCOMING', state: 'upcoming' },
+  { round: 16, circuitKey: 39, flag: 'ITA', race: 'Italian Grand Prix', track: 'Monza', date: 'UPCOMING', state: 'upcoming' },
+  { round: 17, circuitKey: 144, flag: 'AZE', race: 'Azerbaijan Grand Prix', track: 'Baku', date: 'UPCOMING', state: 'upcoming' },
+  { round: 18, circuitKey: 61, flag: 'SIN', race: 'Singapore Grand Prix', track: 'Marina Bay', date: 'UPCOMING', state: 'upcoming' },
+  { round: 19, circuitKey: 9, flag: 'USA', race: 'United States Grand Prix', track: 'COTA Austin', date: 'UPCOMING', state: 'upcoming' },
+  { round: 20, circuitKey: 65, flag: 'MEX', race: 'Mexico City Grand Prix', track: 'Hermanos Rodríguez', date: 'UPCOMING', state: 'upcoming' },
+  { round: 21, circuitKey: 14, flag: 'BRA', race: 'São Paulo Grand Prix', track: 'Interlagos', date: 'UPCOMING', state: 'upcoming' },
+  { round: 22, circuitKey: 152, flag: 'USA', race: 'Las Vegas Grand Prix', track: 'Las Vegas Strip', date: 'UPCOMING', state: 'upcoming' },
+  { round: 23, circuitKey: 150, flag: 'QAT', race: 'Qatar Grand Prix', track: 'Lusail', date: 'UPCOMING', state: 'upcoming' },
+  { round: 24, circuitKey: 70, flag: 'UAE', race: 'Abu Dhabi Grand Prix', track: 'Yas Marina', date: 'SEASON FINALE', state: 'upcoming' },
 ]
 
 export function HQDashboard({ onNotify }: HQDashboardProps) {
   const [department, setDepartment] = useState<'aero' | 'chassis' | 'powertrain'>('aero')
   const [atrAllocation, setAtrAllocation] = useState(64)
+  const [projects, setProjects] = useState(RND_PROJECTS_INITIAL)
+  const [selectedCalendarRace, setSelectedCalendarRace] = useState<(typeof FULL_RACE_CALENDAR)[0] | null>(null)
+  const [facilityLevels, setFacilityLevels] = useState({
+    designHq: 4,
+    windTunnel: 5,
+    compositesLab: 3,
+    factoryStaff: 184,
+  })
 
-  const filteredProjects =
-    department === 'aero'
-      ? RND_PROJECTS.filter((p) => p.dept === 'aero')
-      : department === 'chassis'
-        ? RND_PROJECTS.filter((p) => p.dept === 'chassis')
-        : []
+  const handleUpgradeFacility = (facilityKey: 'designHq' | 'windTunnel' | 'compositesLab') => {
+    setFacilityLevels((prev) => {
+      const current = prev[facilityKey]
+      if (current >= 5) {
+        onNotify('FACILITY AT MAXIMUM', 'This factory department is already at Level 5 Maximum Tier.', 'warning')
+        return prev
+      }
+      onNotify('FACILITY UPGRADED', `Factory department upgraded to Level ${current + 1}!`, 'success')
+      return { ...prev, [facilityKey]: current + 1 }
+    })
+  }
+
+  const handleCreateProject = () => {
+    const newId = projects.length + 1
+    const newProj = {
+      id: newId,
+      dept: department,
+      type: department === 'aero' ? 'REAR BEAM WING' : department === 'chassis' ? 'BRAKE DUCT' : 'MGU-K INVERTER',
+      name: `SPEC-3 2026 ${department.toUpperCase()} PACKAGE`,
+      phase: 'INITIAL CAD MODELING',
+      progress: 5,
+      days: 24,
+      gain: '+0.15s / lap',
+      spend: '$1.50M',
+      color: '#ff8000',
+    }
+    setProjects((prev) => [newProj, ...prev])
+    onNotify('R&D UPGRADE COMMISSIONED', `New ${department.toUpperCase()} project queued in factory manufacturing!`, 'success')
+  }
+
+  const filteredProjects = projects.filter((p) => p.dept === department)
 
   return (
     <main className="workspace hq-workspace">
@@ -155,7 +222,7 @@ export function HQDashboard({ onNotify }: HQDashboardProps) {
             </div>
             <button
               className="action-pill-btn"
-              onClick={() => onNotify('NEW R&D INITIATIVE', 'Select aerodynamic component to start CAD/CFD design phase.', 'success')}
+              onClick={handleCreateProject}
             >
               <Plus size={14} /> NEW UPGRADE
             </button>
@@ -167,19 +234,19 @@ export function HQDashboard({ onNotify }: HQDashboardProps) {
               className={`dept-tab ${department === 'aero' ? 'active' : ''}`}
               onClick={() => setDepartment('aero')}
             >
-              <Wind size={14} /> AERODYNAMICS <span className="tab-count">2</span>
+              <Wind size={14} /> AERODYNAMICS <span className="tab-count">{projects.filter(p => p.dept === 'aero').length}</span>
             </button>
             <button
               className={`dept-tab ${department === 'chassis' ? 'active' : ''}`}
               onClick={() => setDepartment('chassis')}
             >
-              <Wrench size={14} /> CHASSIS <span className="tab-count">1</span>
+              <Wrench size={14} /> CHASSIS <span className="tab-count">{projects.filter(p => p.dept === 'chassis').length}</span>
             </button>
             <button
               className={`dept-tab ${department === 'powertrain' ? 'active' : ''}`}
               onClick={() => setDepartment('powertrain')}
             >
-              <Cpu size={14} /> POWERTRAIN <span className="tab-count">0</span>
+              <Cpu size={14} /> POWERTRAIN <span className="tab-count">{projects.filter(p => p.dept === 'powertrain').length}</span>
             </button>
           </div>
 
@@ -189,7 +256,7 @@ export function HQDashboard({ onNotify }: HQDashboardProps) {
               <div className="empty-projects-state">
                 <Cpu size={24} />
                 <strong>No active projects in this department</strong>
-                <p>Click &quot;New Upgrade&quot; to queue a power unit upgrade package.</p>
+                <p>Click &quot;New Upgrade&quot; to queue a package in this department.</p>
               </div>
             ) : (
               filteredProjects.map((project) => (
@@ -347,15 +414,21 @@ export function HQDashboard({ onNotify }: HQDashboardProps) {
             ))}
           </div>
 
-          {/* Season Calendar */}
+          {/* Season Calendar with Clickable Previews */}
           <div className="calendar-subpanel">
             <div className="subpanel-title">
               <CalendarDays size={14} />
-              <span>2026 GRAND PRIX CALENDAR</span>
+              <span>2026 GRAND PRIX CALENDAR <small>(Click round to view track layout)</small></span>
             </div>
             <div className="calendar-events-list">
-              {RACE_CALENDAR.map((race) => (
-                <div key={race.round} className={`calendar-row ${race.state}`}>
+              {FULL_RACE_CALENDAR.map((race) => (
+                <div
+                  key={race.round}
+                  className={`calendar-row ${race.state}`}
+                  onClick={() => setSelectedCalendarRace(race)}
+                  style={{ cursor: 'pointer' }}
+                  title={`Click to preview ${race.race} layout`}
+                >
                   <span className="race-round">R{race.round}</span>
                   <span className="country-chip">{race.flag}</span>
                   <div className="race-details">
@@ -373,44 +446,90 @@ export function HQDashboard({ onNotify }: HQDashboardProps) {
       {/* Paddock News & Technical Media Center */}
       <PaddockNewsWidget onNotify={onNotify} />
 
-      {/* Bottom Factory Facilities Grid */}
+      {/* Bottom Factory Facilities Grid with Upgrade Controls */}
       <section className="hq-facilities-grid">
-        <div className="facility-card">
+        <div
+          className="facility-card"
+          onClick={() => handleUpgradeFacility('designHq')}
+          style={{ cursor: 'pointer' }}
+          title="Click to upgrade Design HQ"
+        >
           <Building2 size={22} className="facility-icon" />
           <div className="facility-info">
             <span className="facility-title">DESIGN HQ</span>
-            <strong>LEVEL 4</strong>
-            <small>100 CAD/CFD Workstations</small>
+            <strong>LEVEL {facilityLevels.designHq}</strong>
+            <small>{facilityLevels.designHq * 25} CAD/CFD Workstations (Click to Upgrade)</small>
           </div>
         </div>
 
-        <div className="facility-card">
+        <div
+          className="facility-card"
+          onClick={() => handleUpgradeFacility('windTunnel')}
+          style={{ cursor: 'pointer' }}
+          title="Click to upgrade Wind Tunnel"
+        >
           <FlaskConical size={22} className="facility-icon" />
           <div className="facility-info">
             <span className="facility-title">WIND TUNNEL</span>
-            <strong className="green-text">LEVEL 5 · MAX</strong>
-            <small>60% Scale Rolling Road</small>
+            <strong className={facilityLevels.windTunnel >= 5 ? 'green-text' : ''}>
+              LEVEL {facilityLevels.windTunnel} {facilityLevels.windTunnel >= 5 && '· MAX'}
+            </strong>
+            <small>60% Scale Rolling Road (Click to Upgrade)</small>
           </div>
         </div>
 
-        <div className="facility-card">
+        <div
+          className="facility-card"
+          onClick={() => handleUpgradeFacility('compositesLab')}
+          style={{ cursor: 'pointer' }}
+          title="Click to upgrade Composites Lab"
+        >
           <Warehouse size={22} className="facility-icon" />
           <div className="facility-info">
             <span className="facility-title">COMPOSITES LAB</span>
-            <strong>LEVEL 3</strong>
-            <small>Autoclave &amp; 3D Sintering</small>
+            <strong>LEVEL {facilityLevels.compositesLab}</strong>
+            <small>Autoclave &amp; 3D Sintering (Click to Upgrade)</small>
           </div>
         </div>
 
-        <div className="facility-card">
+        <div
+          className="facility-card"
+          onClick={() => onNotify('CREW RECRUITMENT', 'Staff recruitment active · Morale at peak.', 'success')}
+          style={{ cursor: 'pointer' }}
+        >
           <Users size={22} className="facility-icon" />
           <div className="facility-info">
             <span className="facility-title">FACTORY CREW</span>
-            <strong>184 / 200 STAFF</strong>
+            <strong>{facilityLevels.factoryStaff} / 200 STAFF</strong>
             <small>94% Team Morale</small>
           </div>
         </div>
       </section>
+
+      {/* Calendar Circuit Map Preview Modal */}
+      {selectedCalendarRace && (
+        <div className="command-modal-backdrop" onClick={() => setSelectedCalendarRace(null)}>
+          <div className="command-modal-card" style={{ maxWidth: '880px', width: '90%' }} onClick={(e) => e.stopPropagation()}>
+            <div className="command-modal-header">
+              <div className="modal-title">
+                <CalendarDays size={18} />
+                <span>Round {selectedCalendarRace.round} · {selectedCalendarRace.race}</span>
+              </div>
+              <button className="close-modal-btn" onClick={() => setSelectedCalendarRace(null)}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="command-modal-body" style={{ padding: '20px' }}>
+              <CircuitMapPreview
+                circuitKey={selectedCalendarRace.circuitKey}
+                meetingName={selectedCalendarRace.race}
+                location={selectedCalendarRace.track}
+                country={selectedCalendarRace.flag}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

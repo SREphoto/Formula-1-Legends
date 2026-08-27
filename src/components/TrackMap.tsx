@@ -25,6 +25,11 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
   const [viewMode, setViewMode] = useState<'3d' | 'map' | 'radar'>('3d')
   const [cameraMode, setCameraMode] = useState<'broadcast' | 'onboard'>('broadcast')
   const [radarOverlayActive, setRadarOverlayActive] = useState(true)
+  const [zoomScale, setZoomScale] = useState(1)
+
+  const handleZoomIn = () => setZoomScale((prev) => Math.min(2.5, +(prev + 0.25).toFixed(2)))
+  const handleZoomOut = () => setZoomScale((prev) => Math.max(0.75, +(prev - 0.25).toFixed(2)))
+  const handleZoomReset = () => setZoomScale(1)
 
   const getCarPoint = (progress: number) => {
     const path = pathRef.current
@@ -134,7 +139,17 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
             <div className="sector-label sector-two" style={{ left: '68%', top: '56%' }}>S2</div>
             <div className="sector-label sector-three" style={{ left: '26%', top: '78%' }}>S3</div>
 
-            <svg className="circuit-svg" viewBox="0 0 760 460" role="img" aria-label="Authentic Silverstone Grand Prix Circuit map">
+            <svg
+              className="circuit-svg"
+              viewBox="0 0 760 460"
+              role="img"
+              aria-label="Authentic Silverstone Grand Prix Circuit map"
+              style={{
+                transform: `scale(${zoomScale})`,
+                transformOrigin: 'center center',
+                transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+            >
               <defs>
                 <filter id="trackShadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7" /></filter>
                 <filter id="carGlow" x="-100%" y="-100%" width="300%" height="300%">
@@ -195,7 +210,11 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
                 )
               })}
             </svg>
-            <div className="track-zoom-rail"><button>+</button><span /><button>−</button></div>
+            <div className="track-zoom-rail">
+              <button onClick={handleZoomIn} title="Zoom In">+</button>
+              <span onClick={handleZoomReset} title="Reset Zoom" style={{ cursor: 'pointer' }}>{Math.round(zoomScale * 100)}%</span>
+              <button onClick={handleZoomOut} title="Zoom Out">−</button>
+            </div>
           </>
         )}
 

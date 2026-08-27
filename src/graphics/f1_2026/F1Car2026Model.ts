@@ -4,9 +4,11 @@ import { F1_2026_CAR_PARTS, type CarPartMetadata, type SubsystemCategory } from 
 export interface F1Car2026Controller {
   root: THREE.Group
   setAeroMode: (mode: 'CORNER' | 'STRAIGHT') => void
-  setExplodedRatio: (ratio: number) => void
+  setExplodedRatio: (ratio: number, targetCategory?: 'ALL' | SubsystemCategory) => void
   setSubsystemFilter: (category: 'ALL' | SubsystemCategory) => void
   setWireframeMode: (wireframe: boolean) => void
+  setClippingPlane: (axis: 'NONE' | 'X' | 'Y' | 'Z', offset: number) => void
+  setCfdHeatmapMode: (enabled: boolean, mode?: 'CORNER' | 'STRAIGHT') => void
   update: (deltaSeconds: number) => void
   dispose: () => void
   partMeshes: Map<string, THREE.Mesh | THREE.Group>
@@ -46,34 +48,41 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const disposables: (THREE.BufferGeometry | THREE.Material | THREE.Texture)[] = []
   const componentNodes: ComponentNode[] = []
   const partMeshes = new Map<string, THREE.Mesh | THREE.Group>()
+  const standardMaterials: THREE.Material[] = []
+  const cfdMaterials: THREE.Material[] = []
 
   // ==========================================
-  // MATERIALS PALETTE
+  // 1. STANDARD MATERIALS PALETTE
   // ==========================================
   const paintMat = new THREE.MeshStandardMaterial({
     color: primaryColor,
     metalness: 0.65,
     roughness: 0.28,
+    side: THREE.DoubleSide,
   })
   const secondaryPaintMat = new THREE.MeshStandardMaterial({
     color: secondaryColor,
     metalness: 0.6,
     roughness: 0.32,
+    side: THREE.DoubleSide,
   })
   const carbonMat = new THREE.MeshStandardMaterial({
     color: '#16191d',
     roughness: 0.55,
     metalness: 0.3,
+    side: THREE.DoubleSide,
   })
   const carbonGlossMat = new THREE.MeshStandardMaterial({
     color: '#0d0f12',
     roughness: 0.2,
     metalness: 0.45,
+    side: THREE.DoubleSide,
   })
   const titaniumMat = new THREE.MeshStandardMaterial({
     color: '#9aa0a6',
     roughness: 0.25,
     metalness: 0.88,
+    side: THREE.DoubleSide,
   })
   const goldHeatShieldMat = new THREE.MeshStandardMaterial({
     color: '#d4af37',
@@ -81,21 +90,25 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
     roughness: 0.18,
     emissive: '#473600',
     emissiveIntensity: 0.2,
+    side: THREE.DoubleSide,
   })
   const copperMat = new THREE.MeshStandardMaterial({
     color: '#b87333',
     metalness: 0.9,
     roughness: 0.35,
+    side: THREE.DoubleSide,
   })
   const batteryCellMat = new THREE.MeshStandardMaterial({
     color: '#00d26a',
     metalness: 0.4,
     roughness: 0.4,
+    side: THREE.DoubleSide,
   })
   const brakeDiscMat = new THREE.MeshStandardMaterial({
     color: '#2a2b2e',
     metalness: 0.4,
     roughness: 0.6,
+    side: THREE.DoubleSide,
   })
   const tireRubberMat = new THREE.MeshStandardMaterial({
     color: '#121417',
@@ -114,7 +127,7 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
     roughness: 0.2,
   })
 
-  disposables.push(
+  standardMaterials.push(
     paintMat,
     secondaryPaintMat,
     carbonMat,
@@ -128,6 +141,65 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
     rimMat,
     rainLedMat,
   )
+
+  // ==========================================
+  // 2. CFD SURFACE PRESSURE HEATMAP MATERIALS
+  // ==========================================
+  // High Pressure Stagnation (+Cp: Red / Orange)
+  const cfdHighPressureMat = new THREE.MeshStandardMaterial({
+    color: '#ff1b1b',
+    emissive: '#7a0505',
+    emissiveIntensity: 0.5,
+    roughness: 0.3,
+    metalness: 0.2,
+    side: THREE.DoubleSide,
+  })
+  // Moderate Positive Pressure (+Cp: Yellow)
+  const cfdMediumPressureMat = new THREE.MeshStandardMaterial({
+    color: '#ffd60a',
+    emissive: '#665200',
+    emissiveIntensity: 0.35,
+    roughness: 0.3,
+    metalness: 0.2,
+    side: THREE.DoubleSide,
+  })
+  // Neutral / Free Stream (Cp ~ 0: Green / Cyan)
+  const cfdNeutralMat = new THREE.MeshStandardMaterial({
+    color: '#30d158',
+    emissive: '#094717',
+    emissiveIntensity: 0.3,
+    roughness: 0.3,
+    metalness: 0.2,
+    side: THREE.DoubleSide,
+  })
+  // Low Pressure / Accelerated Boundary Layer (-Cp: Cyan / Blue)
+  const cfdLowPressureMat = new THREE.MeshStandardMaterial({
+    color: '#0a84ff',
+    emissive: '#002a66',
+    emissiveIntensity: 0.4,
+    roughness: 0.3,
+    metalness: 0.2,
+    side: THREE.DoubleSide,
+  })
+  // Deep Suction / High-Downforce Vortex Core (-Cp: Deep Purple / Indigo)
+  const cfdSuctionPeakMat = new THREE.MeshStandardMaterial({
+    color: '#bf5af2',
+    emissive: '#3e0959',
+    emissiveIntensity: 0.6,
+    roughness: 0.3,
+    metalness: 0.2,
+    side: THREE.DoubleSide,
+  })
+
+  cfdMaterials.push(
+    cfdHighPressureMat,
+    cfdMediumPressureMat,
+    cfdNeutralMat,
+    cfdLowPressureMat,
+    cfdSuctionPeakMat,
+  )
+
+  disposables.push(...standardMaterials, ...cfdMaterials)
 
   const registerPart = (
     partId: string,
@@ -147,6 +219,8 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
         child.receiveShadow = true
         child.userData = mesh.userData
         if (child.geometry) disposables.push(child.geometry)
+        // Store original standard material reference
+        child.userData.originalMaterial = child.material
       }
     })
 
@@ -171,14 +245,17 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const fwGroup = new THREE.Group()
   const fwMain = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.035, 0.48), carbonGlossMat)
   fwMain.position.set(0, 0.12, 1.95)
+  fwMain.userData.cfdMat = cfdHighPressureMat // Stagnation leading edge
   fwGroup.add(fwMain)
   // Inwash Endplates
   const fwLplate = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 0.54), paintMat)
   fwLplate.position.set(-0.95, 0.2, 1.95)
-  fwLplate.rotation.y = 0.08 // Inwash angle
+  fwLplate.rotation.y = 0.08
+  fwLplate.userData.cfdMat = cfdMediumPressureMat
   const fwRplate = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 0.54), paintMat)
   fwRplate.position.set(0.95, 0.2, 1.95)
   fwRplate.rotation.y = -0.08
+  fwRplate.userData.cfdMat = cfdMediumPressureMat
   fwGroup.add(fwLplate, fwRplate)
   registerPart('front_wing_mainplane', fwGroup, 'AERO', new THREE.Vector3(0, 0.2, 1.6))
 
@@ -187,9 +264,11 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const fwFlapL = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.025, 0.24), secondaryPaintMat)
   fwFlapL.position.set(-0.48, 0.21, 1.88)
   fwFlapL.rotation.x = -0.22
+  fwFlapL.userData.cfdMat = cfdHighPressureMat
   const fwFlapR = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.025, 0.24), secondaryPaintMat)
   fwFlapR.position.set(0.48, 0.21, 1.88)
   fwFlapR.rotation.x = -0.22
+  fwFlapR.userData.cfdMat = cfdHighPressureMat
   fwActiveGroup.add(fwFlapL, fwFlapR)
   registerPart('front_wing_active_flaps', fwActiveGroup, 'AERO', new THREE.Vector3(0, 0.45, 1.8))
 
@@ -198,9 +277,11 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const defL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.32, 0.24), carbonMat)
   defL.position.set(-0.76, 0.28, 0.95)
   defL.rotation.y = -0.15
+  defL.userData.cfdMat = cfdNeutralMat
   const defR = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.32, 0.24), carbonMat)
   defR.position.set(0.76, 0.28, 0.95)
   defR.rotation.y = 0.15
+  defR.userData.cfdMat = cfdNeutralMat
   deflectorGroup.add(defL, defR)
   registerPart('front_wheel_deflectors', deflectorGroup, 'AERO', new THREE.Vector3(0, 0.1, 0.6))
 
@@ -208,13 +289,16 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const floorGroup = new THREE.Group()
   const floorPlank = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.045, 3.1), carbonMat)
   floorPlank.position.set(0, 0.09, -0.05)
+  floorPlank.userData.cfdMat = cfdSuctionPeakMat // Intense underfloor ground suction
   // Stepped Diffuser
   const diffuserMesh = new THREE.Mesh(new THREE.BoxGeometry(1.22, 0.04, 0.55), carbonGlossMat)
   diffuserMesh.position.set(0, 0.14, -1.72)
   diffuserMesh.rotation.x = 0.24
+  diffuserMesh.userData.cfdMat = cfdSuctionPeakMat
   // Titanium skid blocks
   const skidMesh = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.015, 1.8), titaniumMat)
   skidMesh.position.set(0, 0.065, 0.1)
+  skidMesh.userData.cfdMat = cfdLowPressureMat
   floorGroup.add(floorPlank, diffuserMesh, skidMesh)
   registerPart('underfloor_diffuser', floorGroup, 'AERO', new THREE.Vector3(0, -0.85, 0))
 
@@ -222,13 +306,17 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const sidepodGroup = new THREE.Group()
   const spL = new THREE.Mesh(makePrism(0.24, 0.15, 1.35, 0.58), paintMat)
   spL.position.set(-0.46, 0.29, -0.25)
+  spL.userData.cfdMat = cfdLowPressureMat // Undercut accelerated flow
   const spR = new THREE.Mesh(makePrism(0.24, 0.15, 1.35, 0.58), paintMat)
   spR.position.set(0.46, 0.29, -0.25)
+  spR.userData.cfdMat = cfdLowPressureMat
   // Radiator Intake Inlets
   const inletL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.08), carbonMat)
   inletL.position.set(-0.46, 0.32, 0.44)
+  inletL.userData.cfdMat = cfdHighPressureMat
   const inletR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.08), carbonMat)
   inletR.position.set(0.46, 0.32, 0.44)
+  inletR.userData.cfdMat = cfdHighPressureMat
   sidepodGroup.add(spL, spR, inletL, inletR)
   registerPart('sidepods_cooling_louvres', sidepodGroup, 'AERO', new THREE.Vector3(0, 0.35, -0.2))
 
@@ -236,8 +324,10 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const engineCoverGroup = new THREE.Group()
   const spineMesh = new THREE.Mesh(makePrism(0.24, 0.08, 1.55, 0.55), paintMat)
   spineMesh.position.set(0, 0.52, -0.68)
+  spineMesh.userData.cfdMat = cfdNeutralMat
   const sharkFin = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.34, 0.88), secondaryPaintMat)
   sharkFin.position.set(0, 0.74, -1.24)
+  sharkFin.userData.cfdMat = cfdNeutralMat
   engineCoverGroup.add(spineMesh, sharkFin)
   registerPart('engine_cover_shark_fin', engineCoverGroup, 'AERO', new THREE.Vector3(0, 0.9, -0.5))
 
@@ -245,20 +335,25 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const rwGroup = new THREE.Group()
   const rwMain = new THREE.Mesh(new THREE.BoxGeometry(1.08, 0.04, 0.38), carbonGlossMat)
   rwMain.position.set(0, 0.88, -1.95)
+  rwMain.userData.cfdMat = cfdSuctionPeakMat
   // Upper Active Movable Flap
   const rwActiveFlap = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.035, 0.22), secondaryPaintMat)
   rwActiveFlap.position.set(0, 0.99, -1.98)
   rwActiveFlap.rotation.x = 0.24
   rwActiveFlap.name = 'rw_active_flap'
+  rwActiveFlap.userData.cfdMat = cfdHighPressureMat
   // Actuator Pod
   const rwActuator = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.18, 8), titaniumMat)
   rwActuator.rotation.x = Math.PI / 2
   rwActuator.position.set(0, 0.94, -1.86)
+  rwActuator.userData.cfdMat = cfdNeutralMat
   // 2026 Simplified Endplates & Lateral Safety Lights
   const rwEndL = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.44, 0.58), paintMat)
   rwEndL.position.set(-0.54, 0.86, -1.95)
+  rwEndL.userData.cfdMat = cfdLowPressureMat
   const rwEndR = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.44, 0.58), paintMat)
   rwEndR.position.set(0.54, 0.86, -1.95)
+  rwEndR.userData.cfdMat = cfdLowPressureMat
   // Endplate vertical LED strips
   const endLedL = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.26, 0.02), rainLedMat)
   endLedL.position.set(-0.56, 0.86, -2.22)
@@ -320,7 +415,6 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const batteryGroup = new THREE.Group()
   const battBox = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.12, 0.65), carbonMat)
   battBox.position.set(0, 0.16, -0.05)
-  // Battery internal cell visualization
   for (let x = -0.2; x <= 0.2; x += 0.1) {
     const cell = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.1, 8), batteryCellMat)
     cell.position.set(x, 0.16, -0.05)
@@ -353,6 +447,7 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const monoGroup = new THREE.Group()
   const monoMesh = new THREE.Mesh(makePrism(0.18, 0.3, 1.75, 0.55), paintMat)
   monoMesh.position.set(0, 0.3, 0.3)
+  monoMesh.userData.cfdMat = cfdNeutralMat
   monoGroup.add(monoMesh)
   registerPart('monocoque_survival_tub', monoGroup, 'CHASSIS', new THREE.Vector3(0, 0.25, 0.2))
 
@@ -362,8 +457,10 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   haloHoop.rotateX(Math.PI / 2)
   haloHoop.scale.set(1, 1, 1.2)
   haloHoop.position.set(0, 0.58, 0.28)
+  haloHoop.userData.cfdMat = cfdNeutralMat
   const haloPillar = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.045, 0.26, 8), titaniumMat)
   haloPillar.position.set(0, 0.47, 0.58)
+  haloPillar.userData.cfdMat = cfdMediumPressureMat
   haloGroup.add(haloHoop, haloPillar)
   registerPart('halo_safety_titanium', haloGroup, 'CHASSIS', new THREE.Vector3(0, 0.95, 0.3))
 
@@ -372,6 +469,7 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   const nose = new THREE.Mesh(new THREE.ConeGeometry(0.155, 1.25, 4, 1, false, Math.PI / 4), paintMat)
   nose.rotateX(Math.PI / 2)
   nose.position.set(0, 0.3, 1.55)
+  nose.userData.cfdMat = cfdHighPressureMat // Nose stagnation zone
   fisGroup.add(nose)
   registerPart('front_impact_structure_fis', fisGroup, 'CHASSIS', new THREE.Vector3(0, 0.3, 1.3))
 
@@ -399,6 +497,7 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   seatMesh.position.set(0, 0.32, 0.18)
   const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 12), secondaryPaintMat)
   helmet.position.set(0, 0.52, 0.18)
+  helmet.userData.cfdMat = cfdMediumPressureMat
   seatGroup.add(seatMesh, helmet)
   registerPart('cockpit_seat_harness', seatGroup, 'CHASSIS', new THREE.Vector3(0, 0.7, 0.2))
 
@@ -451,10 +550,10 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   // 18-Inch BBS Rims & 2026 Aero Covers
   const wheelsGroup = new THREE.Group()
   const wheelPositions: [number, number, number, boolean][] = [
-    [-0.82, 0.35, 1.34, false], // FL (280mm)
-    [0.82, 0.35, 1.34, false],  // FR
-    [-0.82, 0.36, -1.26, true], // RL (375mm)
-    [0.82, 0.36, -1.26, true],  // RR
+    [-0.82, 0.35, 1.34, false],
+    [0.82, 0.35, 1.34, false],
+    [-0.82, 0.36, -1.26, true],
+    [0.82, 0.36, -1.26, true],
   ]
 
   wheelPositions.forEach(([x, y, z, isRear]) => {
@@ -467,6 +566,7 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
     coverGeom.rotateY(x > 0 ? Math.PI / 2 : -Math.PI / 2)
     const cover = new THREE.Mesh(coverGeom, carbonGlossMat)
     cover.position.x = x > 0 ? 0.14 : -0.14
+    cover.userData.cfdMat = cfdNeutralMat
     hubGroup.add(rim, cover)
     wheelsGroup.add(hubGroup)
   })
@@ -479,6 +579,7 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
     tireGeom.rotateZ(Math.PI / 2)
     const tire = new THREE.Mesh(tireGeom, tireRubberMat)
     tire.position.set(x, y, z)
+    tire.userData.cfdMat = cfdMediumPressureMat
     tyresGroup.add(tire)
   })
   registerPart('pirelli_2026_spec_tyres', tyresGroup, 'SUSPENSION', new THREE.Vector3(0, 0, 0))
@@ -508,9 +609,11 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
   // ==========================================
   let targetFlapFront = 0
   let targetFlapRear = 0
-  let currentExplodedRatio = 0
+  let activeAeroState: 'CORNER' | 'STRAIGHT' = 'CORNER'
+  let isCfdHeatmapActive = false
 
   const setAeroMode = (mode: 'CORNER' | 'STRAIGHT') => {
+    activeAeroState = mode
     if (mode === 'STRAIGHT') {
       targetFlapFront = 0.25 // Rotate down (low alpha)
       targetFlapRear = -0.48 // Rotate open (low drag)
@@ -518,14 +621,22 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
       targetFlapFront = 0 // Closed (high downforce)
       targetFlapRear = 0
     }
+    if (isCfdHeatmapActive) {
+      setCfdHeatmapMode(true, mode)
+    }
   }
 
-  const setExplodedRatio = (ratio: number) => {
-    currentExplodedRatio = THREE.MathUtils.clamp(ratio, 0, 1)
+  const setExplodedRatio = (ratio: number, targetCategory: 'ALL' | SubsystemCategory = 'ALL') => {
+    const clamped = THREE.MathUtils.clamp(ratio, 0, 1)
     componentNodes.forEach((node) => {
-      // Scale displacement
-      const offset = node.explodeVector.clone().multiplyScalar(currentExplodedRatio)
-      node.mesh.position.copy(node.basePos).add(offset)
+      const match = targetCategory === 'ALL' || node.category === targetCategory
+      if (match) {
+        const offset = node.explodeVector.clone().multiplyScalar(clamped)
+        node.mesh.position.copy(node.basePos).add(offset)
+      } else {
+        // Keep non-targeted assemblies in base assembled positions
+        node.mesh.position.copy(node.basePos)
+      }
     })
   }
 
@@ -568,8 +679,53 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
     })
   }
 
+  // Cross-Section CAD Clipping Plane
+  const setClippingPlane = (axis: 'NONE' | 'X' | 'Y' | 'Z', offset: number) => {
+    let planes: THREE.Plane[] = []
+    if (axis === 'X') {
+      planes = [new THREE.Plane(new THREE.Vector3(1, 0, 0), -offset)]
+    } else if (axis === 'Y') {
+      planes = [new THREE.Plane(new THREE.Vector3(0, 1, 0), -offset)]
+    } else if (axis === 'Z') {
+      planes = [new THREE.Plane(new THREE.Vector3(0, 0, 1), -offset)]
+    }
+
+    const allMaterials = [...standardMaterials, ...cfdMaterials]
+    allMaterials.forEach((mat) => {
+      mat.clippingPlanes = planes
+      mat.clipShadows = true
+      mat.needsUpdate = true
+    })
+  }
+
+  // CFD Surface Pressure Heatmap Mode
+  const setCfdHeatmapMode = (enabled: boolean, mode: 'CORNER' | 'STRAIGHT' = activeAeroState) => {
+    isCfdHeatmapActive = enabled
+    componentNodes.forEach((node) => {
+      node.mesh.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          if (enabled) {
+            // Apply CFD pressure distribution
+            let cfdMat: THREE.Material = (child.userData.cfdMat as THREE.Material) || cfdNeutralMat
+            // In Straight Mode, shed high-drag rear wing pressure to neutral green/cyan
+            if (mode === 'STRAIGHT') {
+              if (child.name === 'rw_active_flap' || node.id === 'front_wing_active_flaps') {
+                cfdMat = cfdNeutralMat
+              } else if (node.id === 'rear_wing_3element_active') {
+                cfdMat = cfdLowPressureMat
+              }
+            }
+            child.material = cfdMat
+          } else {
+            // Restore original standard livery/carbon material
+            child.material = (child.userData.originalMaterial as THREE.Material) || paintMat
+          }
+        }
+      })
+    })
+  }
+
   const update = (deltaSeconds: number) => {
-    // Lerp active aero kinematics
     const rwActiveFlap = root.getObjectByName('rw_active_flap') as THREE.Mesh | undefined
     if (rwActiveFlap) {
       rwActiveFlap.rotation.x = THREE.MathUtils.lerp(rwActiveFlap.rotation.x, 0.24 + targetFlapRear, deltaSeconds * 8)
@@ -596,6 +752,8 @@ export function createF1Car2026(primaryColor = '#ff1801', secondaryColor = '#f4f
     setExplodedRatio,
     setSubsystemFilter,
     setWireframeMode,
+    setClippingPlane,
+    setCfdHeatmapMode,
     update,
     dispose,
     partMeshes,

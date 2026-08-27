@@ -61,6 +61,9 @@ This log tracks prospective features, 3D simulation enhancements, realism upgrad
 
 Completed items are moved here as they are deployed and verified:
 
+- ✅ **Interactive CAD Cross-Section Clipping Planes (X/Y/Z)**: Hardware-accelerated local clipping plane cutting through ICE cylinders, 350kW MGU-K, lithium-NMC battery cells, and underfloor diffuser with offset slider (`F1Car2026Model.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`).
+- ✅ **CFD Surface Pressure Heatmap Shader & Mode**: Real-time aerodynamic surface pressure distribution rendering (+Cp Stagnation Red -> Neutral Green -> -Cp Suction Purple) with dynamic Straight Mode (X-Mode) load shedding and floating legend (`F1Car2026Model.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`).
+- ✅ **Multi-Axis Targeted Subsystem Explode Orbit**: Subsystem-specific explosion target filters (`ALL`, `AERO`, `PU`, `CHASSIS`, `SUSP`) enabling isolated disassembly of individual component assemblies (`F1Car2026Model.ts`, `CarLab.tsx`).
 - ✅ **Modular 3D Part-by-Part 2026 F1 Racecar Architecture & CAD Studio**: 30+ inspectable procedural CAD components across Aero, Powertrain, Chassis & Suspension, continuous 0–100% exploded CAD slider, subsystem isolation filters, 3D raycast inspection overlay, Active Aero (Corner/Straight modes) kinematics, and 350kW MGU-K Hybrid Power Unit simulation (`F1Car2026Model.ts`, `carPartsData.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `AeroEngine.ts`, `PowertrainEngine.ts`).
 - ✅ **Authentic 18-Corner Silverstone & 24 Grand Prix Circuit Geometries**: Verified FIA turn sequences, accurate 2D SVG paths, and accurate 3D spline ribbons (`circuitData.ts`, `TrackMap.tsx`, `RaceScene3D.tsx`).
 - ✅ **100% Collision-Free 3D Track Scenery & Start Gantry**: Recalculated safe placement of grandstands, pit complexes, FIA starting lights gantry, and vegetation outside track and pit lane envelopes (`RaceScene3D.tsx`).

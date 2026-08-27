@@ -10,9 +10,13 @@ interface CarShowroom3DProps {
   downforceKn: number
   porpoising: boolean
   explodedRatio?: number
+  explodeTarget?: 'ALL' | SubsystemCategory
   activeAeroMode?: 'CORNER' | 'STRAIGHT'
   subsystemFilter?: 'ALL' | SubsystemCategory
   wireframeMode?: boolean
+  clippingAxis?: 'NONE' | 'X' | 'Y' | 'Z'
+  clippingOffset?: number
+  cfdHeatmapMode?: boolean
   onSelectPart?: (part: CarPartMetadata | null) => void
 }
 
@@ -23,9 +27,13 @@ export function CarShowroom3D({
   downforceKn,
   porpoising,
   explodedRatio = 0,
+  explodeTarget = 'ALL',
   activeAeroMode = 'CORNER',
   subsystemFilter = 'ALL',
   wireframeMode = false,
+  clippingAxis = 'NONE',
+  clippingOffset = 0,
+  cfdHeatmapMode = false,
   onSelectPart,
 }: CarShowroom3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -34,18 +42,26 @@ export function CarShowroom3D({
     downforceKn,
     porpoising,
     explodedRatio,
+    explodeTarget,
     activeAeroMode,
     subsystemFilter,
     wireframeMode,
+    clippingAxis,
+    clippingOffset,
+    cfdHeatmapMode,
   })
   valuesRef.current = {
     frontBalance,
     downforceKn,
     porpoising,
     explodedRatio,
+    explodeTarget,
     activeAeroMode,
     subsystemFilter,
     wireframeMode,
+    clippingAxis,
+    clippingOffset,
+    cfdHeatmapMode,
   }
 
   const carControllerRef = useRef<F1Car2026Controller | null>(null)
@@ -53,12 +69,23 @@ export function CarShowroom3D({
   // Sync prop changes to car controller
   useEffect(() => {
     if (carControllerRef.current) {
-      carControllerRef.current.setExplodedRatio(explodedRatio)
+      carControllerRef.current.setExplodedRatio(explodedRatio, explodeTarget)
       carControllerRef.current.setAeroMode(activeAeroMode)
       carControllerRef.current.setSubsystemFilter(subsystemFilter)
       carControllerRef.current.setWireframeMode(wireframeMode)
+      carControllerRef.current.setClippingPlane(clippingAxis, clippingOffset)
+      carControllerRef.current.setCfdHeatmapMode(cfdHeatmapMode, activeAeroMode)
     }
-  }, [explodedRatio, activeAeroMode, subsystemFilter, wireframeMode])
+  }, [
+    explodedRatio,
+    explodeTarget,
+    activeAeroMode,
+    subsystemFilter,
+    wireframeMode,
+    clippingAxis,
+    clippingOffset,
+    cfdHeatmapMode,
+  ])
 
   useEffect(() => {
     const container = containerRef.current
@@ -72,6 +99,7 @@ export function CarShowroom3D({
     renderer.toneMappingExposure = 1.25
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    renderer.localClippingEnabled = true // Enable CAD cross-section cutting planes
     renderer.domElement.className = 'showroom-3d-canvas'
     renderer.domElement.style.touchAction = 'none'
     container.appendChild(renderer.domElement)
@@ -123,10 +151,12 @@ export function CarShowroom3D({
     carPivot.add(car)
 
     // Apply initial state
-    carController.setExplodedRatio(valuesRef.current.explodedRatio)
+    carController.setExplodedRatio(valuesRef.current.explodedRatio, valuesRef.current.explodeTarget)
     carController.setAeroMode(valuesRef.current.activeAeroMode)
     carController.setSubsystemFilter(valuesRef.current.subsystemFilter)
     carController.setWireframeMode(valuesRef.current.wireframeMode)
+    carController.setClippingPlane(valuesRef.current.clippingAxis, valuesRef.current.clippingOffset)
+    carController.setCfdHeatmapMode(valuesRef.current.cfdHeatmapMode, valuesRef.current.activeAeroMode)
 
     const floorGlowMaterial = new THREE.MeshBasicMaterial({
       color: valuesRef.current.porpoising ? '#ff3f42' : primaryColor,
@@ -203,7 +233,6 @@ export function CarShowroom3D({
 
     const onPointerUp = (event: PointerEvent) => {
       dragging = false
-      // If user clicked without dragging, perform part raycasting
       if (!movedSinceDown && onSelectPart) {
         const rect = renderer.domElement.getBoundingClientRect()
         mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
@@ -238,7 +267,7 @@ export function CarShowroom3D({
       const delta = Math.min(0.04, clock.getDelta())
       const elapsed = clock.elapsedTime
 
-      if (!dragging && valuesRef.current.explodedRatio < 0.05) {
+      if (!dragging && valuesRef.current.explodedRatio < 0.05 && valuesRef.current.clippingAxis === 'NONE') {
         targetRotation += delta * 0.12
       }
       carPivot.rotation.y = THREE.MathUtils.lerp(carPivot.rotation.y, targetRotation, 0.08)
@@ -247,7 +276,7 @@ export function CarShowroom3D({
       floorGlowMaterial.opacity = valuesRef.current.porpoising ? 0.32 + Math.sin(elapsed * 10) * 0.08 : 0.14
       glowRing.rotation.z += delta * 0.18
 
-      // Update car internal active kinematics
+      // Update car internal kinematics
       carController.update(delta)
 
       // Aero load vectors
@@ -257,7 +286,7 @@ export function CarShowroom3D({
         arrow.position.y = 2.2 + Math.sin(elapsed * 2.4 + index) * 0.13
       })
 
-      // Airflow streamline speed scales with Straight Mode (low drag = higher speed)
+      // Airflow streamline speed scales with Straight Mode
       const flowSpeedMult = valuesRef.current.activeAeroMode === 'STRAIGHT' ? 1.45 : 1.0
       for (let index = 0; index < airflowCount; index += 1) {
         airflowPositions[index * 3 + 2] += airflowSpeeds[index] * flowSpeedMult * delta
@@ -312,7 +341,13 @@ export function CarShowroom3D({
         <span>2026 SPECIFICATION · MODULAR CAD</span>
         <b>FIA NIMBLE CAR ARCHITECTURE</b>
       </div>
-      <div className="showroom-help">DRAG TO ROTATE · SCROLL TO ZOOM · CLICK ANY PART TO INSPECT</div>
+      <div className="showroom-help">
+        {clippingAxis !== 'NONE'
+          ? `CROSS-SECTION CUT: AXIS ${clippingAxis} (${clippingOffset > 0 ? '+' : ''}${clippingOffset.toFixed(2)}m)`
+          : cfdHeatmapMode
+            ? 'CFD SURFACE PRESSURE DISTRIBUTION (+Cp RED / -Cp PURPLE)'
+            : 'DRAG TO ROTATE · SCROLL TO ZOOM · CLICK ANY PART TO INSPECT'}
+      </div>
       <div className="showroom-stat front">
         <small>AERO BALANCE</small>
         <b>{frontBalance.toFixed(1)}%</b>

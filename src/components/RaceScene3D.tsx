@@ -236,6 +236,53 @@ function addScenery(scene: THREE.Scene) {
   materials.push(standMat, gantryMat, redLightMat, greenLightMat)
   geometries.push(stand1Geo, stand2Geo, stand3Geo, stand4Geo, gantryPillarGeo, gantryBeamGeo, lightGeo)
 
+  // Trackside Tire Safety Barriers (Runoff zones)
+  const tireBarrierGeo = new THREE.BoxGeometry(1.2, 1.1, 14)
+  const tireBarrierMat = new THREE.MeshStandardMaterial({ color: '#16191f', roughness: 0.85 })
+  const barrierPositions: [number, number, number][] = [
+    [43, -12, 0.45], // Becketts runoff
+    [-1, 40, -0.6],  // Stowe runoff
+    [-35, -4, 1.2],  // Luffield runoff
+    [32, 28, -0.8],  // Abbey runoff
+  ]
+  barrierPositions.forEach(([bx, bz, rotY]) => {
+    const barrier = new THREE.Mesh(tireBarrierGeo, tireBarrierMat)
+    barrier.position.set(bx, 0.55, bz)
+    barrier.rotation.y = rotY
+    barrier.castShadow = true
+    barrier.receiveShadow = true
+    scene.add(barrier)
+  })
+
+  // Brake Distance Marker Boards (150m / 100m / 50m approaching heavy braking)
+  const boardGeo = new THREE.BoxGeometry(0.1, 1.4, 0.9)
+  const boardMat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.4 })
+  const boardStandGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6)
+  const boardStandMat = new THREE.MeshStandardMaterial({ color: '#2b323c' })
+
+  const brakeBoards: [number, number, number][] = [
+    [2, 38, -0.6],  // Stowe 150m
+    [0, 36, -0.6],  // Stowe 100m
+    [-2, 34, -0.6], // Stowe 50m
+    [-22, 24, 0],   // Village 100m
+    [-25, 24, 0],   // Village 50m
+  ]
+  brakeBoards.forEach(([px, pz, rotY]) => {
+    const boardGroup = new THREE.Group()
+    const board = new THREE.Mesh(boardGeo, boardMat)
+    board.position.y = 1.1
+    const stand = new THREE.Mesh(boardStandGeo, boardStandMat)
+    stand.position.y = 0.6
+    boardGroup.add(board, stand)
+    boardGroup.position.set(px, 0, pz)
+    boardGroup.rotation.y = rotY
+    boardGroup.castShadow = true
+    scene.add(boardGroup)
+  })
+
+  materials.push(tireBarrierMat, boardMat, boardStandMat)
+  geometries.push(tireBarrierGeo, boardGeo, boardStandGeo)
+
   // Verified safe tree placements (strictly outside circuit envelope)
   const trunkGeo = new THREE.CylinderGeometry(0.2, 0.35, 2.8, 6)
   const foliageGeo = new THREE.ConeGeometry(1.8, 4.5, 6)
