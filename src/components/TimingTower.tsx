@@ -1,4 +1,4 @@
-import { ChevronDown, Radio } from 'lucide-react'
+import { ChevronDown, ChevronLeft, Minimize2, Radio } from 'lucide-react'
 import { useState } from 'react'
 import type { DriverState } from '../types'
 import { formatGap } from '../utils/format'
@@ -7,6 +7,8 @@ interface TimingTowerProps {
   drivers: DriverState[]
   selectedDriverId: string
   onSelectDriver: (driverId: string) => void
+  collapsed?: boolean
+  onToggleCollapse?: () => void
 }
 
 const compoundLetter: Record<DriverState['tire'], string> = {
@@ -25,8 +27,25 @@ export function TireBadge({ compound, small = false }: { compound: DriverState['
   )
 }
 
-export function TimingTower({ drivers, selectedDriverId, onSelectDriver }: TimingTowerProps) {
+export function TimingTower({
+  drivers,
+  selectedDriverId,
+  onSelectDriver,
+  collapsed = false,
+  onToggleCollapse,
+}: TimingTowerProps) {
   const [gapMode, setGapMode] = useState<'leader' | 'interval'>('leader')
+
+  if (collapsed) {
+    return (
+      <div className="panel-collapsed-rail left-rail">
+        <button className="expand-rail-btn" onClick={onToggleCollapse} title="Expand Leaderboard & Timing Tower">
+          <ChevronLeft size={16} />
+          <span className="vertical-text">LEADERBOARD · P1 {drivers[0]?.code}</span>
+        </button>
+      </div>
+    )
+  }
 
   return (
     <aside className="panel timing-tower">
@@ -35,9 +54,16 @@ export function TimingTower({ drivers, selectedDriverId, onSelectDriver }: Timin
           <span className="eyebrow">LIVE CLASSIFICATION</span>
           <h2>Timing tower</h2>
         </div>
-        <button className="mini-select">
-          <span>Race</span><ChevronDown size={12} />
-        </button>
+        <div className="timing-title-actions">
+          <button className="mini-select">
+            <span>Race</span><ChevronDown size={12} />
+          </button>
+          {onToggleCollapse && (
+            <button className="panel-collapse-trigger" onClick={onToggleCollapse} title="Collapse timing tower">
+              <Minimize2 size={13} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="timing-toolbar">

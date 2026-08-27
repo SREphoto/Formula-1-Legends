@@ -2,28 +2,35 @@ import {
   Activity,
   Award,
   BatteryCharging,
+  ChevronRight,
   CircleDot,
   Flame,
   Fuel,
   Gauge,
   Headphones,
+  Minimize2,
+  Play,
   Radio,
   Send,
-  ShieldCheck,
   Sparkles,
+  Square,
   Thermometer,
-  TriangleAlert,
+  X,
   Zap,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { DriverState, ErsMode, PaceMode, TireCompound, WorkerCommand } from '../types'
 import { formatLapTime } from '../utils/format'
 import { TireBadge } from './TimingTower'
+import { getSampleTeamRadio } from '../services/openf1Service'
+import { radioAudioService } from '../services/radioAudioService'
 
 interface DriverTelemetryPanelProps {
   driver: DriverState
   sendCommand: (command: WorkerCommand) => void
   onNotify: (title: string, message: string, tone?: 'success' | 'warning') => void
+  collapsed?: boolean
+  onToggleCollapse?: () => void
 }
 
 const pitCompounds: TireCompound[] = ['SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE']
@@ -115,20 +122,32 @@ function TireCornerCard({
   )
 }
 
-export function DriverTelemetryPanel({ driver, sendCommand, onNotify }: DriverTelemetryPanelProps) {
+export function DriverTelemetryPanel({
+  driver,
+  sendCommand,
+  onNotify,
+  collapsed = false,
+  onToggleCollapse,
+}: DriverTelemetryPanelProps) {
   const [tab, setTab] = useState<'telemetry' | 'radio'>('telemetry')
   const [pitCompound, setPitCompound] = useState<TireCompound>('HARD')
+  const [showCommandModal, setShowCommandModal] = useState(false)
+  const [playingRadioId, setPlayingRadioId] = useState<string | null>(null)
+
+  useEffect(() => {
+    return radioAudioService.subscribe((isPlaying, id) => {
+      setPlayingRadioId(isPlaying ? id : null)
+    })
+  }, [])
 
   const rpm = Math.min(15000, Math.max(7200, 6800 + driver.speed * 22))
   const gear = Math.max(1, Math.min(8, Math.round(driver.speed / 43)))
   const throttle = Math.max(8, Math.min(100, 108 - (330 - driver.speed) * 0.78))
   const brake = Math.max(0, Math.min(100, 100 - throttle * 1.35))
 
-  const radioMessages = useMemo(() => [
-    { sender: 'PIT', time: '43:08', message: `Gap to ${driver.position === 1 ? 'car behind' : 'the car ahead'} is ${Math.max(0.8, driver.interval).toFixed(1)}s. Pace is on delta target.` },
-    { sender: driver.code, time: '42:31', message: 'Tire balance is stable through Becketts. Front left temps in the green.' },
-    { sender: 'PIT', time: '41:54', message: 'Copy that. Strat mode 6 available for turn 15 exit.' },
-  ], [driver.code, driver.interval, driver.position])
+  const radioMessages = useMemo(() => {
+    return getSampleTeamRadio(driver.number)
+  }, [driver.number])
 
   const setPace = (paceMode: PaceMode) => {
     sendCommand({ type: 'DRIVER_COMMAND', driverId: driver.id, paceMode })
@@ -150,13 +169,37 @@ export function DriverTelemetryPanel({ driver, sendCommand, onNotify }: DriverTe
     }
   }
 
-  // RPM Shift light calculation (8 LEDs)
+  const handlePlayRadio = (msg: { text: string; speaker: string; audioDurationSec: number }, index: number) => {
+    const id = `radio-${driver.id}-${index}`
+    if (playingRadioId === id) {
+      radioAudioService.stop()
+    } else {
+      radioAudioService.playRadioTransmission({
+        id,
+        text: msg.text,
+        speaker: msg.speaker,
+        durationSec: msg.audioDurationSec,
+      })
+    }
+  }
+
   const rpmPercent = Math.max(0, Math.min(1, (rpm - 7000) / 8000))
   const activeLeds = Math.round(rpmPercent * 8)
 
+  if (collapsed) {
+    return (
+      <div className="panel-collapsed-rail right-rail">
+        <button className="expand-rail-btn" onClick={onToggleCollapse} title="Expand Telemetry & Radio Panel">
+          <ChevronRight size={16} />
+          <span className="vertical-text">TELEMETRY · #{driver.number} {driver.code}</span>
+        </button>
+      </div>
+    )
+  }
+
   return (
     <aside className="panel telemetry-panel">
-      {/* Driver Identity Card */}
+      {/* Driver Identity Card & Panel Controls */}
       <div className="driver-hero" style={{ '--team-color': driver.teamColor } as React.CSSProperties}>
         <div className="driver-number-badge">#{driver.number}</div>
         <div className="driver-hero-details">
@@ -176,10 +219,17 @@ export function DriverTelemetryPanel({ driver, sendCommand, onNotify }: DriverTe
             </span>
           </div>
         </div>
-        <div className="driver-rating-badge">
-          <Award size={14} />
-          <span className="rating-num">{driver.rating}</span>
-          <small>OVR</small>
+        <div className="driver-hero-actions">
+          <div className="driver-rating-badge">
+            <Award size={14} />
+            <span className="rating-num">{driver.rating}</span>
+            <small>OVR</small>
+          </div>
+          {onToggleCollapse && (
+            <button className="panel-collapse-trigger" onClick={onToggleCollapse} title="Collapse telemetry panel">
+              <Minimize2 size={13} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -195,8 +245,8 @@ export function DriverTelemetryPanel({ driver, sendCommand, onNotify }: DriverTe
           className={`telemetry-tab-btn ${tab === 'radio' ? 'active' : ''}`}
           onClick={() => setTab('radio')}
         >
-          <Headphones size={14} /> PIT RADIO
-          <span className="radio-live-dot" />
+          <Headphones size={14} /> TEAM RADIO
+          <span className={`radio-live-dot ${playingRadioId ? 'pulsing' : ''}`} />
         </button>
       </div>
 
@@ -304,104 +354,147 @@ export function DriverTelemetryPanel({ driver, sendCommand, onNotify }: DriverTe
           <div className="radio-header">
             <div className="radio-tag">
               <Radio size={14} />
-              <span>CAR #{driver.number} · PIT WALL PRIVATE LINK</span>
+              <span>CAR #{driver.number} · PIT WALL TEAM RADIO</span>
             </div>
-            <span className="radio-live-indicator"><i /> ENCRYPTED</span>
+            <span className="radio-live-indicator"><i /> LIVE FEED</span>
           </div>
 
           <div className="radio-message-list">
-            {radioMessages.map((message, index) => (
-              <div className={`radio-bubble ${message.sender === driver.code ? 'from-driver' : 'from-pit'}`} key={index}>
-                <div className="bubble-header">
-                  <strong className="sender-tag">{message.sender}</strong>
-                  <time className="msg-time">{message.time}</time>
+            {radioMessages.map((msg, index) => {
+              const msgId = `radio-${driver.id}-${index}`
+              const isPlaying = playingRadioId === msgId
+              return (
+                <div className={`radio-card ${isPlaying ? 'playing' : ''}`} key={index}>
+                  <div className="radio-card-top">
+                    <span className="radio-speaker-badge">{msg.speaker}</span>
+                    <span className="radio-lap-tag">{msg.time}</span>
+                  </div>
+                  <p className="radio-transcript-quote">"{msg.text}"</p>
+                  <div className="radio-audio-controls">
+                    <button
+                      className={`radio-audio-play-btn ${isPlaying ? 'playing' : ''}`}
+                      onClick={() => handlePlayRadio(msg, index)}
+                    >
+                      {isPlaying ? <Square size={12} /> : <Play size={12} />}
+                      <span>{isPlaying ? 'STOP TRANSMISSION' : 'PLAY RADIO AUDIO'}</span>
+                    </button>
+                    {isPlaying && (
+                      <div className="radio-wave-bars">
+                        <span /><span /><span /><span /><span />
+                      </div>
+                    )}
+                    <span className="radio-duration">{msg.audioDurationSec}s</span>
+                  </div>
                 </div>
-                <p className="bubble-text">{message.message}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
-          <button className="radio-action-btn" onClick={() => onNotify('RADIO CHECK', 'Pit wall confirmation sent to car.', 'success')}>
-            <Send size={13} /> BROADCAST STRATEGY UPDATE
+          <button className="radio-action-btn" onClick={() => onNotify('RADIO CHECK', 'Pit wall strategy confirmation transmitted.', 'success')}>
+            <Send size={13} /> TRANSMIT STRATEGY DIRECTIVE
           </button>
         </div>
       )}
 
-      {/* Interactive Tactical Command Wall */}
-      <div className="tactical-command-wall">
-        <div className="command-wall-header">
-          <div className="command-title">
-            <span className="live-pulse-dot" />
-            <strong>RACE ENGINEER COMMAND DOCK</strong>
-          </div>
-          <span className="managed-status-tag">
-            {driver.isManaged ? <><ShieldCheck size={12} /> ACTIVE CONTROL</> : <><TriangleAlert size={12} /> SPECTATOR</>}
-          </span>
-        </div>
-
-        {/* Pace Mode Directive */}
-        <div className="command-section">
-          <div className="command-section-label">PACE DIRECTIVE</div>
-          <div className="segmented-command-buttons">
-            {(['CONSERVE', 'BALANCED', 'ATTACK'] as PaceMode[]).map((mode) => (
-              <button
-                key={mode}
-                className={`command-btn ${driver.paceMode === mode ? 'active' : ''} mode-${mode.toLowerCase()}`}
-                onClick={() => setPace(mode)}
-              >
-                {mode === 'CONSERVE' && '🐢 CONSERVE'}
-                {mode === 'BALANCED' && '⚖️ BALANCED'}
-                {mode === 'ATTACK' && '⚡ ATTACK'}
-              </button>
-            ))}
+      {/* Floating Tactical Command Bar & Modal Trigger */}
+      <div className="tactical-command-dock-bar">
+        <div className="command-bar-info">
+          <span className="command-bar-status-dot" />
+          <div>
+            <strong>PACE: {driver.paceMode} · ERS: {driver.ersMode}</strong>
+            <small>{driver.boxThisLap ? `BOX THIS LAP (${pitCompound})` : 'STRATEGY ON SCHEDULE'}</small>
           </div>
         </div>
-
-        {/* ERS Deployment Mode */}
-        <div className="command-section">
-          <div className="command-section-label">ERS DEPLOYMENT</div>
-          <div className="segmented-command-buttons">
-            {(['HARVEST', 'BALANCED', 'DEPLOY'] as ErsMode[]).map((mode) => (
-              <button
-                key={mode}
-                className={`command-btn ${driver.ersMode === mode ? 'active' : ''} ers-${mode.toLowerCase()}`}
-                onClick={() => setErs(mode)}
-              >
-                {mode === 'HARVEST' && '🔋 HARVEST'}
-                {mode === 'BALANCED' && '⚖️ BALANCED'}
-                {mode === 'DEPLOY' && '🚀 OVERTAKE'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Pit Stop Call */}
-        <div className="command-section pit-section">
-          <div className="command-section-label">PIT STOP TARGET COMPOUND</div>
-          <div className="compound-selector-row">
-            {pitCompounds.map((compound) => (
-              <button
-                key={compound}
-                className={`compound-pill-btn ${pitCompound === compound ? 'active' : ''}`}
-                onClick={() => setPitCompound(compound)}
-              >
-                <TireBadge compound={compound} small />
-                <span>{compound}</span>
-              </button>
-            ))}
-          </div>
-
-          <button
-            className={`box-action-button ${driver.boxThisLap ? 'cancel-mode' : 'confirm-mode'}`}
-            onClick={togglePit}
-          >
-            <div className="box-btn-main">
-              <strong>{driver.boxThisLap ? '❌ CANCEL PIT STOP' : '🏎️ BOX THIS LAP'}</strong>
-              <small>{driver.boxThisLap ? 'CAR WILL STAY OUT' : `FIT NEW ${pitCompound} TYRES`}</small>
-            </div>
-          </button>
-        </div>
+        <button
+          className="dock-command-trigger-btn"
+          onClick={() => setShowCommandModal(true)}
+        >
+          <Zap size={14} />
+          <span>⚡ RACE COMMAND</span>
+        </button>
       </div>
+
+      {/* Strategic Command Modal / Slide-Up Drawer */}
+      {showCommandModal && (
+        <div className="command-modal-backdrop" onClick={() => setShowCommandModal(false)}>
+          <div className="command-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="command-modal-header">
+              <div className="modal-title">
+                <span className="live-pulse-dot" />
+                <strong>RACE ENGINEER COMMAND DOCK</strong>
+              </div>
+              <button className="close-modal-btn" onClick={() => setShowCommandModal(false)}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="command-modal-body">
+              {/* Pace Mode Directive */}
+              <div className="command-section">
+                <div className="command-section-label">PACE DIRECTIVE</div>
+                <div className="segmented-command-buttons">
+                  {(['CONSERVE', 'BALANCED', 'ATTACK'] as PaceMode[]).map((mode) => (
+                    <button
+                      key={mode}
+                      className={`command-btn ${driver.paceMode === mode ? 'active' : ''} mode-${mode.toLowerCase()}`}
+                      onClick={() => setPace(mode)}
+                    >
+                      {mode === 'CONSERVE' && '🐢 CONSERVE'}
+                      {mode === 'BALANCED' && '⚖️ BALANCED'}
+                      {mode === 'ATTACK' && '⚡ ATTACK'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* ERS Deployment Mode */}
+              <div className="command-section">
+                <div className="command-section-label">ERS DEPLOYMENT PROGRAM</div>
+                <div className="segmented-command-buttons">
+                  {(['HARVEST', 'BALANCED', 'DEPLOY'] as ErsMode[]).map((mode) => (
+                    <button
+                      key={mode}
+                      className={`command-btn ${driver.ersMode === mode ? 'active' : ''} ers-${mode.toLowerCase()}`}
+                      onClick={() => setErs(mode)}
+                    >
+                      {mode === 'HARVEST' && '🔋 HARVEST'}
+                      {mode === 'BALANCED' && '⚖️ BALANCED'}
+                      {mode === 'DEPLOY' && '🚀 OVERTAKE'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pit Stop Call */}
+              <div className="command-section pit-section">
+                <div className="command-section-label">PIT STOP TARGET COMPOUND</div>
+                <div className="compound-selector-row">
+                  {pitCompounds.map((compound) => (
+                    <button
+                      key={compound}
+                      className={`compound-pill-btn ${pitCompound === compound ? 'active' : ''}`}
+                      onClick={() => setPitCompound(compound)}
+                    >
+                      <TireBadge compound={compound} small />
+                      <span>{compound}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  className={`box-action-button ${driver.boxThisLap ? 'cancel-mode' : 'confirm-mode'}`}
+                  onClick={togglePit}
+                >
+                  <div className="box-btn-main">
+                    <strong>{driver.boxThisLap ? '❌ CANCEL PIT STOP' : '🏎️ BOX THIS LAP'}</strong>
+                    <small>{driver.boxThisLap ? 'CAR WILL STAY OUT' : `FIT NEW ${pitCompound} TYRES`}</small>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   )
 }

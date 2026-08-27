@@ -1,15 +1,35 @@
-import { ArrowRight, CloudRain, GitCompareArrows, Sparkles } from 'lucide-react'
+import { ArrowRight, ChevronDown, ChevronUp, CloudRain, GitCompareArrows, Sparkles } from 'lucide-react'
 import type { DriverState, RaceSnapshot } from '../types'
 
 interface StrategyHorizonProps {
   snapshot: RaceSnapshot
   driver: DriverState
   onOpenStrategy: () => void
+  collapsed?: boolean
+  onToggleCollapse?: () => void
 }
 
-export function StrategyHorizon({ snapshot, driver, onOpenStrategy }: StrategyHorizonProps) {
+export function StrategyHorizon({
+  snapshot,
+  driver,
+  onOpenStrategy,
+  collapsed = false,
+  onToggleCollapse,
+}: StrategyHorizonProps) {
   const remaining = snapshot.totalLaps - snapshot.lap
   const pitLap = Math.min(snapshot.totalLaps - 3, snapshot.lap + 2)
+
+  if (collapsed) {
+    return (
+      <div className="strategy-horizon-collapsed-bar">
+        <button className="expand-horizon-btn" onClick={onToggleCollapse}>
+          <ChevronUp size={14} />
+          <span>STRATEGY HORIZON · RECOMMENDED BOX L{pitLap} (HARD)</span>
+          <span className="horizon-mini-stat">P1 · 42%</span>
+        </button>
+      </div>
+    )
+  }
 
   return (
     <section className="panel strategy-horizon">
@@ -22,7 +42,14 @@ export function StrategyHorizon({ snapshot, driver, onOpenStrategy }: StrategyHo
           <span className="ai-glyph"><Sparkles size={13} /></span>
           <div><small>RECOMMENDED WINDOW</small><b>BOX L{pitLap}–{pitLap + 1} · HARD</b></div>
         </div>
-        <button className="text-action" onClick={onOpenStrategy}>FULL STRATEGY <ArrowRight size={13} /></button>
+        <div className="strategy-header-actions">
+          <button className="text-action" onClick={onOpenStrategy}>FULL STRATEGY <ArrowRight size={13} /></button>
+          {onToggleCollapse && (
+            <button className="panel-collapse-trigger" onClick={onToggleCollapse} title="Collapse strategy horizon">
+              <ChevronDown size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="horizon-body">

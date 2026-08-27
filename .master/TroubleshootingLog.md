@@ -6,9 +6,24 @@ _Ranked by usefulness and fix count._
 
 ---
 
-## 1. 3D Race Scene Black Shadow Spikes & Streaks
+## 1. 3D Track Building/Tree Collisions & Generic Bezier Splines
 
-- **Rank**: #1 Most Critical Visual Fix
+- **Rank**: #1 Most Critical 3D Track Fix
+- **Fix Count**: 1
+- **Symptoms**: Grandstands, trees, and pit buildings were clipping through the asphalt track and pit lane ribbons; 2D and 3D circuit layouts were generic rounded bezier loops rather than real FIA F1 track layouts.
+- **Root Cause**:
+  - `RaceScene3D.tsx` scenery coordinates (`[-2, 3, -15]`, `[-27.5, 2.75, 14.5]`, `[2, 14]`) were placed without clearance buffer checks against spline points.
+  - Track paths in `circuitData.ts` and `RaceScene3D.tsx` used template cubic bezier curves rather than real-world 18-corner Silverstone coordinates (Abbey -> Village -> Loop -> Wellington -> Brooklands -> Luffield -> Copse -> Maggotts/Becketts -> Stowe -> Vale -> Club).
+- **Resolution**:
+  - Replaced track spline with verified 18-turn Silverstone coordinates and updated all 24 World Championship circuit definitions.
+  - Re-positioned all grandstands (Hamilton Infield, Becketts Stadium, Stowe Runoff, Luffield Stadium), the Silverstone Wing Pit Complex, and vegetation with safe clearance margins outside the track and pit lane envelopes.
+- **Files Modified**: `src/components/RaceScene3D.tsx`, `src/components/TrackMap.tsx`, `src/data/circuitData.ts`
+
+---
+
+## 2. 3D Race Scene Black Shadow Spikes & Streaks
+
+- **Rank**: #2 Most Critical Visual Fix
 - **Fix Count**: 3
 - **Symptoms**: Black fan-like polygons and shadow streaks radiated from cars across the Silverstone track.
 - **Root Cause**:

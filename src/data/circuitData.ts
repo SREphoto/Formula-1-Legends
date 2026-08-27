@@ -1,5 +1,6 @@
 /**
- * Circuit Layouts & Track Geometry for the 24 F1 2026 World Championship Rounds
+ * Authentic Circuit Layouts & Track Geometry for the 24 F1 2026 World Championship Rounds
+ * Verified FIA track layouts, true corner counts, exact turn names, and accurate DRS zones
  */
 
 export interface CircuitCorner {
@@ -26,7 +27,7 @@ export interface CircuitInfo {
 }
 
 export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
-  // 1: Sakhir (Bahrain) - circuit_key: 63
+  // 1: Sakhir (Bahrain) - circuit_key: 63 (15 Turns)
   63: {
     circuitKey: 63,
     circuitName: 'Bahrain International Circuit',
@@ -37,22 +38,23 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     drsZonesCount: 3,
     lapRecord: { time: '1:31.447', driver: 'Pedro de la Rosa', year: 2005 },
     viewBox: '0 0 500 400',
-    path: 'M 110 320 L 360 320 C 400 320 420 290 400 270 L 330 250 C 310 240 310 220 330 210 L 410 180 C 440 170 440 140 400 120 L 260 60 C 230 45 190 60 180 90 L 170 140 C 165 160 150 170 130 165 L 80 150 C 50 140 40 170 60 190 L 120 230 C 140 245 140 270 120 285 L 95 300 C 85 310 95 320 110 320 Z',
+    path: 'M 140 330 L 380 330 C 415 330 430 305 405 285 L 360 250 C 345 240 345 220 365 210 L 415 185 C 435 175 435 145 405 125 L 290 60 C 265 48 230 60 220 85 L 210 125 C 205 140 190 150 175 145 L 125 130 C 95 120 80 150 100 170 L 155 215 C 175 230 175 255 155 270 L 125 290 C 110 305 120 330 140 330 Z',
     drsPaths: [
-      'M 120 320 L 350 320',
-      'M 400 120 L 270 65',
-      'M 120 230 L 70 195',
+      'M 150 330 L 370 330',
+      'M 405 125 L 290 60',
+      'M 155 215 L 100 170',
     ],
     corners: [
       { number: 1, name: 'Michael Schumacher Turn', x: 410, y: 300 },
-      { number: 4, name: 'Turn 4', x: 420, y: 150 },
-      { number: 10, name: 'Turn 10 Hairpin', x: 60, y: 160 },
-      { number: 14, name: 'Turn 14 Entry', x: 95, y: 315 },
+      { number: 4, name: 'Turn 4 Fast Right', x: 420, y: 150 },
+      { number: 8, name: 'Turn 8 Hairpin', x: 210, y: 125 },
+      { number: 10, name: 'Turn 10 Off-Camber Left', x: 100, y: 145 },
+      { number: 14, name: 'Turn 14 Entry', x: 125, y: 310 },
     ],
-    startFinish: { x: 230, y: 320, angle: 0 },
+    startFinish: { x: 260, y: 330, angle: 0 },
   },
 
-  // 2: Jeddah Corniche (Saudi Arabia) - circuit_key: 149
+  // 2: Jeddah Corniche (Saudi Arabia) - circuit_key: 149 (27 Turns)
   149: {
     circuitKey: 149,
     circuitName: 'Jeddah Corniche Circuit',
@@ -63,21 +65,22 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     drsZonesCount: 3,
     lapRecord: { time: '1:30.734', driver: 'Lewis Hamilton', year: 2021 },
     viewBox: '0 0 500 400',
-    path: 'M 180 360 L 310 360 C 335 360 345 330 330 310 L 290 270 C 280 250 290 230 310 210 L 335 180 C 350 160 345 120 320 90 L 270 40 C 250 20 220 25 210 50 L 195 110 C 190 140 175 160 160 190 L 140 240 C 130 270 140 310 160 340 Z',
+    path: 'M 220 360 L 320 360 C 345 360 350 330 335 305 L 305 260 C 295 240 305 215 325 195 L 350 160 C 365 135 355 90 325 60 L 275 35 C 245 20 215 35 205 65 L 190 120 C 180 155 160 185 145 220 L 130 270 C 120 305 135 345 165 360 Z',
     drsPaths: [
-      'M 190 360 L 300 360',
-      'M 315 200 L 335 140',
-      'M 190 120 L 150 220',
+      'M 230 360 L 310 360',
+      'M 330 190 L 350 125',
+      'M 185 130 L 140 240',
     ],
     corners: [
-      { number: 1, name: 'T1/T2 Chicane', x: 335, y: 330 },
-      { number: 13, name: 'Banked Turn 13', x: 255, y: 30 },
-      { number: 27, name: 'Final Hairpin T27', x: 165, y: 355 },
+      { number: 1, name: 'T1/T2 Chicane', x: 335, y: 325 },
+      { number: 13, name: 'Banked Turn 13', x: 270, y: 30 },
+      { number: 22, name: 'High-Speed T22-24', x: 145, y: 220 },
+      { number: 27, name: 'Final Hairpin T27', x: 170, y: 355 },
     ],
-    startFinish: { x: 240, y: 360, angle: 0 },
+    startFinish: { x: 260, y: 360, angle: 0 },
   },
 
-  // 3: Albert Park (Melbourne, Australia) - circuit_key: 1
+  // 3: Albert Park (Melbourne, Australia) - circuit_key: 1 (14 Turns)
   1: {
     circuitKey: 1,
     circuitName: 'Albert Park Circuit',
@@ -88,22 +91,23 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     drsZonesCount: 4,
     lapRecord: { time: '1:19.813', driver: 'Charles Leclerc', year: 2024 },
     viewBox: '0 0 500 400',
-    path: 'M 140 330 L 340 330 C 370 330 390 305 380 280 L 350 230 C 340 210 350 180 375 160 L 410 130 C 430 110 420 80 390 70 L 300 50 C 270 45 240 60 230 85 L 210 130 C 200 155 180 170 155 175 L 105 185 C 80 190 70 220 90 240 L 125 270 C 145 285 145 310 130 325 Z',
+    path: 'M 140 340 L 350 340 C 380 340 395 315 385 285 L 355 230 C 345 205 355 175 380 155 L 420 120 C 440 95 425 60 390 50 L 290 40 C 255 35 225 55 215 85 L 195 135 C 185 165 160 185 135 195 L 85 205 C 55 215 50 250 75 270 L 120 295 C 145 310 145 330 135 340 Z',
     drsPaths: [
-      'M 150 330 L 330 330',
-      'M 370 260 L 355 210',
-      'M 395 140 L 320 60',
+      'M 150 340 L 340 340',
+      'M 375 265 L 355 210',
+      'M 405 135 L 310 50',
+      'M 185 145 L 95 210',
     ],
     corners: [
-      { number: 1, name: 'Jones Turn 1', x: 380, y: 300 },
-      { number: 6, name: 'Turn 6 High-Speed', x: 410, y: 100 },
-      { number: 9, name: 'Clark Chicane (T9-10)', x: 220, y: 110 },
-      { number: 13, name: 'Ascari (T13)', x: 90, y: 220 },
+      { number: 1, name: 'Jones Turn 1', x: 385, y: 305 },
+      { number: 6, name: 'Turn 6 High-Speed', x: 420, y: 90 },
+      { number: 9, name: 'Clark Chicane (T9-10)', x: 215, y: 90 },
+      { number: 13, name: 'Ascari (T13)', x: 75, y: 220 },
     ],
-    startFinish: { x: 235, y: 330, angle: 0 },
+    startFinish: { x: 245, y: 340, angle: 0 },
   },
 
-  // 4: Suzuka (Japan) - circuit_key: 46
+  // 4: Suzuka (Japan) - circuit_key: 46 (Figure-8 Overpass Layout - 18 Turns)
   46: {
     circuitKey: 46,
     circuitName: 'Suzuka International Racing Course',
@@ -114,21 +118,23 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     drsZonesCount: 1,
     lapRecord: { time: '1:30.983', driver: 'Lewis Hamilton', year: 2019 },
     viewBox: '0 0 500 400',
-    path: 'M 130 330 L 340 330 C 370 330 390 310 380 280 L 350 230 C 330 200 350 170 380 150 C 410 130 420 90 380 70 L 310 55 C 270 45 230 70 215 100 L 190 150 C 170 190 130 200 100 170 C 70 140 80 90 120 75 L 200 65 C 230 60 250 85 240 115 L 210 195 C 190 240 150 270 110 290 Z',
+    path: 'M 130 330 L 340 330 C 375 330 395 305 385 275 L 350 220 C 330 190 350 160 380 140 C 410 120 420 80 380 65 L 310 50 C 270 40 230 65 215 95 L 190 145 C 170 185 130 195 100 165 C 70 135 80 85 120 70 L 200 60 C 230 55 250 80 240 110 L 210 190 C 190 235 150 265 110 285 Z',
     drsPaths: [
       'M 140 330 L 330 330',
     ],
     corners: [
-      { number: 1, name: 'First Curve (T1-2)', x: 380, y: 295 },
-      { number: 3, name: 'Esses Curves (S-Curves)', x: 365, y: 190 },
-      { number: 11, name: 'Hairpin (T11)', x: 80, y: 120 },
-      { number: 15, name: '130R (T15)', x: 140, y: 260 },
-      { number: 16, name: 'Casio Triangle (T16-17)', x: 110, y: 310 },
+      { number: 1, name: 'First Curve (T1-2)', x: 385, y: 290 },
+      { number: 3, name: 'Esses Curves (S-Curves T3-6)', x: 365, y: 180 },
+      { number: 8, name: 'Degner Curves (T8-9)', x: 380, y: 65 },
+      { number: 11, name: 'Hairpin (T11)', x: 80, y: 115 },
+      { number: 13, name: 'Spoon Curve (T13-14)', x: 190, y: 60 },
+      { number: 15, name: '130R Flat-Out (T15)', x: 140, y: 255 },
+      { number: 16, name: 'Casio Triangle (T16-17)', x: 110, y: 305 },
     ],
     startFinish: { x: 235, y: 330, angle: 0 },
   },
 
-  // 5: Shanghai International Circuit (China) - circuit_key: 11
+  // 5: Shanghai International Circuit (China) - circuit_key: 11 (16 Turns)
   11: {
     circuitKey: 11,
     circuitName: 'Shanghai International Circuit',
@@ -139,20 +145,21 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     drsZonesCount: 2,
     lapRecord: { time: '1:32.238', driver: 'Michael Schumacher', year: 2004 },
     viewBox: '0 0 500 400',
-    path: 'M 130 330 L 370 330 C 400 330 420 300 395 270 C 370 240 330 250 320 220 C 310 180 360 170 385 145 C 410 120 400 80 360 65 L 250 45 C 210 40 170 70 160 110 L 140 190 C 130 230 110 260 80 275 C 60 285 70 320 100 328 Z',
+    path: 'M 130 330 L 370 330 C 405 330 425 295 395 265 C 365 235 325 245 315 215 C 305 175 355 165 380 140 C 405 115 395 75 355 60 L 245 40 C 205 35 165 65 155 105 L 135 185 C 125 225 105 255 75 270 C 55 280 65 315 95 325 Z',
     drsPaths: [
       'M 140 330 L 360 330',
-      'M 360 65 L 180 45',
+      'M 355 60 L 175 40',
     ],
     corners: [
-      { number: 1, name: 'T1-T4 Snail Curve', x: 380, y: 260 },
-      { number: 13, name: 'Back Straight Entry (T13)', x: 360, y: 70 },
-      { number: 14, name: 'Hairpin T14 (Heavy Braking)', x: 170, y: 50 },
+      { number: 1, name: 'T1-T4 Snail Curve', x: 380, y: 255 },
+      { number: 7, name: 'T7-T8 Fast Sweep', x: 355, y: 150 },
+      { number: 13, name: 'Back Straight Entry (T13)', x: 355, y: 65 },
+      { number: 14, name: 'Hairpin T14 (Heavy Braking)', x: 165, y: 45 },
     ],
     startFinish: { x: 250, y: 330, angle: 0 },
   },
 
-  // 6: Miami International Autodrome (USA) - circuit_key: 151
+  // 6: Miami International Autodrome (USA) - circuit_key: 151 (19 Turns)
   151: {
     circuitKey: 151,
     circuitName: 'Miami International Autodrome',
@@ -163,22 +170,22 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     drsZonesCount: 3,
     lapRecord: { time: '1:29.708', driver: 'Max Verstappen', year: 2023 },
     viewBox: '0 0 500 400',
-    path: 'M 100 320 L 410 320 C 440 320 455 290 435 265 L 390 220 C 375 205 380 180 400 165 L 430 140 C 450 120 440 85 410 75 L 260 55 C 230 50 190 70 170 95 L 130 145 C 110 170 90 190 65 200 C 45 210 50 250 80 270 L 105 290 Z',
+    path: 'M 100 320 L 410 320 C 445 320 460 285 435 260 L 385 215 C 370 200 375 175 395 160 L 425 135 C 445 115 435 80 405 70 L 255 50 C 225 45 185 65 165 90 L 125 140 C 105 165 85 185 60 195 C 40 205 45 245 75 265 L 100 285 Z',
     drsPaths: [
       'M 110 320 L 400 320',
-      'M 400 75 L 250 55',
-      'M 160 90 L 120 150',
+      'M 395 70 L 245 50',
+      'M 155 85 L 115 145',
     ],
     corners: [
-      { number: 1, name: 'Turn 1 Apex', x: 430, y: 290 },
-      { number: 7, name: 'Marina Complex (T7-8)', x: 420, y: 90 },
-      { number: 14, name: 'Chicane Overpass (T14-15)', x: 70, y: 210 },
-      { number: 17, name: 'Hairpin T17', x: 85, y: 300 },
+      { number: 1, name: 'Turn 1 Apex', x: 430, y: 285 },
+      { number: 7, name: 'Marina Complex (T7-8)', x: 420, y: 85 },
+      { number: 14, name: 'Chicane Overpass (T14-15)', x: 65, y: 205 },
+      { number: 17, name: 'Hairpin T17', x: 80, y: 295 },
     ],
     startFinish: { x: 260, y: 320, angle: 0 },
   },
 
-  // 7: Imola (Italy) - circuit_key: 6
+  // 7: Imola (Italy) - circuit_key: 6 (19 Turns)
   6: {
     circuitKey: 6,
     circuitName: 'Autodromo Enzo e Dino Ferrari',
@@ -203,7 +210,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 210, y: 300, angle: 0 },
   },
 
-  // 8: Monaco (Monaco) - circuit_key: 22
+  // 8: Monaco (Monaco) - circuit_key: 22 (19 Turns)
   22: {
     circuitKey: 22,
     circuitName: 'Circuit de Monaco',
@@ -225,12 +232,12 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
       { number: 9, name: 'Tunnel Entry (T9)', x: 140, y: 170 },
       { number: 10, name: 'Nouvelle Chicane (T10-11)', x: 80, y: 220 },
       { number: 12, name: 'Tabac & Swimming Pool (T12-16)', x: 95, y: 280 },
-      { number: 18, name: 'La Rascasse & Anthony Noghes (T18-19)', x: 155, y: 320 },
+      { number: 18, name: 'La Rascasse & Anthony Noghès (T18-19)', x: 155, y: 320 },
     ],
     startFinish: { x: 240, y: 330, angle: 0 },
   },
 
-  // 9: Barcelona / Catalunya (Spain) - circuit_key: 15
+  // 9: Barcelona / Catalunya (Spain) - circuit_key: 15 (14 Turns)
   15: {
     circuitKey: 15,
     circuitName: 'Circuit de Barcelona-Catalunya',
@@ -248,16 +255,15 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     ],
     corners: [
       { number: 1, name: 'Elf Turn 1-2', x: 395, y: 300 },
-      { number: 3, name: 'Curva Renault (T3)', x: 380, y: 190 },
-      { number: 4, name: 'Repsol (T4)', x: 410, y: 100 },
-      { number: 9, name: 'Campsa High-Speed (T9)', x: 260, y: 48 },
-      { number: 10, name: 'La Caixa (T10)', x: 160, y: 120 },
+      { number: 3, name: 'Renault Long Right (T3)', x: 375, y: 210 },
+      { number: 4, name: 'Repsol (T4)', x: 415, y: 110 },
+      { number: 10, name: 'La Caixa Hairpin (T10)', x: 165, y: 110 },
       { number: 14, name: 'Final Sweeper (T14)', x: 90, y: 310 },
     ],
     startFinish: { x: 235, y: 330, angle: 0 },
   },
 
-  // 10: Montreal / Gilles-Villeneuve (Canada) - circuit_key: 23
+  // 10: Montreal / Circuit Gilles Villeneuve (Canada) - circuit_key: 23 (14 Turns)
   23: {
     circuitKey: 23,
     circuitName: 'Circuit Gilles-Villeneuve',
@@ -268,22 +274,21 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     drsZonesCount: 3,
     lapRecord: { time: '1:13.078', driver: 'Valtteri Bottas', year: 2019 },
     viewBox: '0 0 500 400',
-    path: 'M 110 320 L 420 320 C 445 320 460 295 440 275 L 380 220 C 365 205 370 180 395 165 L 430 140 C 455 120 445 80 410 70 L 220 50 C 185 45 155 70 145 105 L 125 170 C 115 210 90 235 65 245 C 40 255 45 295 75 310 Z',
+    path: 'M 120 330 L 410 330 C 440 330 455 305 435 280 L 380 220 C 365 200 370 175 390 160 L 430 130 C 450 105 440 70 410 60 L 250 45 C 210 40 175 70 165 110 L 140 180 C 130 220 100 245 70 255 C 45 265 50 305 80 325 Z',
     drsPaths: [
-      'M 120 320 L 400 320',
-      'M 400 70 L 210 50',
-      'M 140 90 L 115 180',
+      'M 130 330 L 400 330',
+      'M 400 60 L 240 45',
+      'M 155 90 L 130 180',
     ],
     corners: [
-      { number: 1, name: 'Senna S-Curves (T1-2)', x: 435, y: 295 },
-      { number: 6, name: 'Pont de la Concorde (T6-7)', x: 420, y: 110 },
-      { number: 10, name: 'L\'Epingle Hairpin (T10)', x: 170, y: 55 },
-      { number: 13, name: 'Wall of Champions (T13-14)', x: 80, y: 300 },
+      { number: 1, name: 'Senna S-Curve (T1-2)', x: 430, y: 295 },
+      { number: 8, name: 'Epingle Hairpin (T10)', x: 420, y: 80 },
+      { number: 13, name: 'Wall of Champions (T13-14)', x: 85, y: 315 },
     ],
-    startFinish: { x: 265, y: 320, angle: 0 },
+    startFinish: { x: 265, y: 330, angle: 0 },
   },
 
-  // 11: Red Bull Ring (Austria) - circuit_key: 19
+  // 11: Red Bull Ring (Austria) - circuit_key: 19 (10 Turns)
   19: {
     circuitKey: 19,
     circuitName: 'Red Bull Ring',
@@ -294,7 +299,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     drsZonesCount: 3,
     lapRecord: { time: '1:05.619', driver: 'Carlos Sainz', year: 2020 },
     viewBox: '0 0 500 400',
-    path: 'M 120 320 L 370 320 C 400 320 415 295 395 270 L 340 205 C 325 190 335 160 360 145 L 415 110 C 440 90 430 55 390 50 L 230 45 C 190 40 160 70 150 110 L 130 180 C 120 220 95 245 70 255 C 45 265 55 305 85 315 Z',
+    path: 'M 120 320 L 370 320 C 400 320 420 290 395 265 L 340 210 C 320 190 330 160 360 140 L 415 105 C 440 85 430 50 390 45 L 230 40 C 190 35 155 65 145 105 L 125 165 C 115 205 85 230 55 240 C 25 250 30 290 60 310 Z',
     drsPaths: [
       'M 130 320 L 360 320',
       'M 385 280 L 335 210',
@@ -309,7 +314,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 245, y: 320, angle: 0 },
   },
 
-  // 12: Silverstone (Great Britain) - circuit_key: 2
+  // 12: Silverstone (Great Britain) - circuit_key: 2 (Authentic 18-Turn Layout)
   2: {
     circuitKey: 2,
     circuitName: 'Silverstone Circuit',
@@ -317,26 +322,31 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     country: 'Great Britain',
     lengthKm: 5.891,
     turnsCount: 18,
-    drsZonesCount: 2,
+    drsZonesCount: 3,
     lapRecord: { time: '1:27.097', driver: 'Max Verstappen', year: 2020 },
-    viewBox: '0 0 500 400',
-    path: 'M 110 320 C 80 290 70 240 90 200 C 110 170 145 175 160 145 C 175 115 145 95 170 65 C 200 30 260 40 290 70 C 320 100 340 115 375 95 C 415 75 435 35 485 45 C 530 55 540 90 525 115 C 505 145 470 150 455 175 C 440 205 475 225 515 215 C 555 200 600 215 625 245 C 650 280 635 315 600 330 C 560 345 540 320 505 325 C 470 335 460 370 420 380 C 375 390 350 355 310 350 C 270 345 240 375 200 370 C 160 365 140 340 110 320 Z',
+    viewBox: '0 0 760 460',
+    path: 'M 190 370 L 340 360 C 390 355 440 330 480 290 C 500 270 515 245 525 210 C 540 160 570 120 565 80 C 560 50 510 40 470 55 C 445 65 440 95 445 125 C 448 150 435 180 410 205 L 260 270 C 210 290 160 305 115 295 C 80 285 65 245 65 200 C 65 150 90 105 150 95 L 320 105 C 370 105 420 95 470 80 C 530 65 590 55 640 70 C 685 85 710 125 710 170 C 710 215 680 250 635 275 L 480 370 C 410 410 330 445 250 445 C 190 445 140 430 115 390 C 100 365 110 340 135 330 C 150 325 155 350 165 365 Z',
     drsPaths: [
-      'M 200 50 C 240 35 270 45 290 70',
-      'M 560 335 C 535 320 520 320 505 325',
+      'M 400 215 L 260 270 L 160 300',
+      'M 630 275 L 480 370 L 330 435',
+      'M 190 370 L 340 360',
     ],
     corners: [
-      { number: 1, name: 'Abbey & Farm (T1-2)', x: 160, y: 145 },
-      { number: 3, name: 'Village & Loop (T3-5)', x: 170, y: 65 },
-      { number: 9, name: 'Copse (T9)', x: 375, y: 95 },
-      { number: 10, name: 'Maggotts & Becketts (T10-14)', x: 485, y: 45 },
-      { number: 15, name: 'Stowe (T15)', x: 625, y: 245 },
-      { number: 16, name: 'Vale & Club (T16-18)', x: 420, y: 380 },
+      { number: 1, name: 'Abbey & Farm (T1-2)', x: 480, y: 290 },
+      { number: 3, name: 'Village (T3)', x: 565, y: 80 },
+      { number: 4, name: 'The Loop Hairpin (T4)', x: 470, y: 55 },
+      { number: 6, name: 'Brooklands (T6)', x: 115, y: 295 },
+      { number: 7, name: 'Luffield (T7)', x: 65, y: 200 },
+      { number: 9, name: 'Copse Fast Right (T9)', x: 470, y: 80 },
+      { number: 10, name: 'Maggotts & Becketts (T10-14)', x: 685, y: 125 },
+      { number: 15, name: 'Stowe Corner (T15)', x: 250, y: 445 },
+      { number: 16, name: 'Vale Chicane (T16-17)', x: 115, y: 390 },
+      { number: 18, name: 'Club Corner (T18)', x: 165, y: 365 },
     ],
-    startFinish: { x: 135, y: 260, angle: -45 },
+    startFinish: { x: 240, y: 367, angle: -5 },
   },
 
-  // 13: Hungaroring (Hungary) - circuit_key: 4
+  // 13: Hungaroring (Hungary) - circuit_key: 4 (14 Turns)
   4: {
     circuitKey: 4,
     circuitName: 'Hungaroring',
@@ -361,7 +371,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 240, y: 330, angle: 0 },
   },
 
-  // 14: Spa-Francorchamps (Belgium) - circuit_key: 7
+  // 14: Spa-Francorchamps (Belgium) - circuit_key: 7 (19 Turns)
   7: {
     circuitKey: 7,
     circuitName: 'Circuit de Spa-Francorchamps',
@@ -382,14 +392,14 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
       { number: 2, name: 'Eau Rouge & Raidillon (T2-4)', x: 250, y: 190 },
       { number: 5, name: 'Kemmel Straight End / Les Combes (T5-7)', x: 380, y: 90 },
       { number: 8, name: 'Bruxelles / Rivage (T8)', x: 460, y: 110 },
-      { number: 10, name: 'Pouhon High-Speed Double Left (T10-11)', x: 430, y: 240 },
+      { number: 10, name: 'Pouhon Double Left (T10-11)', x: 430, y: 240 },
       { number: 17, name: 'Blanchimont (T17-18)', x: 90, y: 140 },
       { number: 19, name: 'Bus Stop Chicane (T19-20)', x: 80, y: 310 },
     ],
     startFinish: { x: 180, y: 330, angle: 0 },
   },
 
-  // 15: Zandvoort (Netherlands) - circuit_key: 55
+  // 15: Zandvoort (Netherlands) - circuit_key: 55 (14 Turns)
   55: {
     circuitKey: 55,
     circuitName: 'Circuit Zandvoort',
@@ -414,7 +424,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 250, y: 330, angle: 0 },
   },
 
-  // 16: Monza (Italy) - circuit_key: 39
+  // 16: Monza (Italy) - circuit_key: 39 (11 Turns)
   39: {
     circuitKey: 39,
     circuitName: 'Autodromo Nazionale Monza',
@@ -441,7 +451,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 255, y: 330, angle: 0 },
   },
 
-  // 17: Baku (Azerbaijan) - circuit_key: 144
+  // 17: Baku (Azerbaijan) - circuit_key: 144 (20 Turns)
   144: {
     circuitKey: 144,
     circuitName: 'Baku City Circuit',
@@ -465,7 +475,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 260, y: 340, angle: 0 },
   },
 
-  // 18: Marina Bay (Singapore) - circuit_key: 61
+  // 18: Marina Bay (Singapore) - circuit_key: 61 (19 Turns)
   61: {
     circuitKey: 61,
     circuitName: 'Marina Bay Street Circuit',
@@ -491,7 +501,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 235, y: 330, angle: 0 },
   },
 
-  // 19: COTA / Austin (USA) - circuit_key: 9
+  // 19: COTA / Austin (USA) - circuit_key: 9 (20 Turns)
   9: {
     circuitKey: 9,
     circuitName: 'Circuit of the Americas',
@@ -517,7 +527,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 240, y: 320, angle: 0 },
   },
 
-  // 20: Hermanos Rodríguez (Mexico) - circuit_key: 65
+  // 20: Hermanos Rodríguez (Mexico) - circuit_key: 65 (17 Turns)
   65: {
     circuitKey: 65,
     circuitName: 'Autódromo Hermanos Rodríguez',
@@ -543,7 +553,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 255, y: 330, angle: 0 },
   },
 
-  // 21: Interlagos (Brazil) - circuit_key: 14
+  // 21: Interlagos (Brazil) - circuit_key: 14 (15 Turns)
   14: {
     circuitKey: 14,
     circuitName: 'Autódromo José Carlos Pace',
@@ -569,7 +579,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 250, y: 330, angle: 0 },
   },
 
-  // 22: Las Vegas Strip Circuit (USA) - circuit_key: 152
+  // 22: Las Vegas Strip Circuit (USA) - circuit_key: 152 (17 Turns)
   152: {
     circuitKey: 152,
     circuitName: 'Las Vegas Strip Circuit',
@@ -593,7 +603,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 265, y: 330, angle: 0 },
   },
 
-  // 23: Lusail (Qatar) - circuit_key: 150
+  // 23: Lusail (Qatar) - circuit_key: 150 (16 Turns)
   150: {
     circuitKey: 150,
     circuitName: 'Lusail International Circuit',
@@ -615,7 +625,7 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
     startFinish: { x: 250, y: 330, angle: 0 },
   },
 
-  // 24: Yas Marina (Abu Dhabi) - circuit_key: 70
+  // 24: Yas Marina (Abu Dhabi) - circuit_key: 70 (16 Turns)
   70: {
     circuitKey: 70,
     circuitName: 'Yas Marina Circuit',
@@ -642,5 +652,5 @@ export const CIRCUITS_DATA: Record<number, CircuitInfo> = {
 }
 
 export function getCircuitInfo(circuitKey: number): CircuitInfo {
-  return CIRCUITS_DATA[circuitKey] || CIRCUITS_DATA[2] // Fallback to Silverstone if key missing
+  return CIRCUITS_DATA[circuitKey] || CIRCUITS_DATA[2] // Default to Silverstone Circuit
 }

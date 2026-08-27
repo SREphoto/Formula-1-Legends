@@ -13,7 +13,11 @@ interface TrackMapProps {
   sendCommand?: (command: WorkerCommand) => void
 }
 
-const CIRCUIT_PATH = 'M 128 316 C 91 286 77 237 101 200 C 120 171 155 174 171 143 C 185 115 154 94 179 64 C 209 30 272 41 302 73 C 329 102 353 117 389 98 C 430 77 450 36 500 45 C 547 53 558 90 542 116 C 524 145 485 149 472 177 C 458 207 493 224 532 213 C 575 201 621 214 645 246 C 669 279 653 317 616 330 C 579 344 558 317 522 325 C 486 334 476 373 434 380 C 391 388 364 354 324 348 C 283 342 255 374 213 370 C 170 366 151 338 128 316 Z'
+/**
+ * Authentic Silverstone Grand Prix Circuit 2D Geometry (ViewBox 0 0 760 460)
+ * 18 Verified Corners: Abbey -> Village -> Loop -> Wellington -> Brooklands -> Luffield -> Copse -> Maggotts/Becketts -> Stowe -> Vale -> Club
+ */
+const CIRCUIT_PATH = 'M 190 370 L 340 360 C 390 355 440 330 480 290 C 500 270 515 245 525 210 C 540 160 570 120 565 80 C 560 50 510 40 470 55 C 445 65 440 95 445 125 C 448 150 435 180 410 205 L 260 270 C 210 290 160 305 115 295 C 80 285 65 245 65 200 C 65 150 90 105 150 95 L 320 105 C 370 105 420 95 470 80 C 530 65 590 55 640 70 C 685 85 710 125 710 170 C 710 215 680 250 635 275 L 480 370 C 410 410 330 445 250 445 C 190 445 140 430 115 390 C 100 365 110 340 135 330 C 150 325 155 350 165 365 Z'
 
 export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrategy, sendCommand }: TrackMapProps) {
   const pathRef = useRef<SVGPathElement>(null)
@@ -24,7 +28,7 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
 
   const getCarPoint = (progress: number) => {
     const path = pathRef.current
-    if (!path) return { x: 128, y: 316 }
+    if (!path) return { x: 190, y: 370 }
     const length = path.getTotalLength()
     const point = path.getPointAtLength((((progress % 1) + 1) % 1) * length)
     return { x: point.x, y: point.y }
@@ -40,8 +44,8 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
     <section className={`panel track-panel view-${viewMode} camera-${cameraMode}`}>
       <div className="track-panel-header">
         <div>
-          <span className="eyebrow">INTERACTIVE RACE WORLD</span>
-          <h2>Silverstone <small>LIVE · 5.891 KM</small></h2>
+          <span className="eyebrow">AUTHENTIC FIA GRAND PRIX CIRCUIT</span>
+          <h2>Silverstone <small>LIVE · 5.891 KM · 18 TURNS</small></h2>
         </div>
         <div className="track-controls">
           <div className="segment-control view-selector">
@@ -119,15 +123,18 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
             )}
 
             <div className="track-grid" />
-            <div className="track-location-label label-stowe">STOWE</div>
-            <div className="track-location-label label-copse">COPSE</div>
-            <div className="track-location-label label-maggotts">MAGGOTTS<br />&amp; BECKETTS</div>
-            <div className="track-location-label label-club">CLUB</div>
-            <div className="sector-label sector-one">S1</div>
-            <div className="sector-label sector-two">S2</div>
-            <div className="sector-label sector-three">S3</div>
+            <div className="track-location-label label-stowe" style={{ left: '38%', top: '88%' }}>STOWE (T15)</div>
+            <div className="track-location-label label-copse" style={{ left: '46%', top: '14%' }}>COPSE (T9)</div>
+            <div className="track-location-label label-maggotts" style={{ left: '76%', top: '24%' }}>MAGGOTTS<br />&amp; BECKETTS (T10-14)</div>
+            <div className="track-location-label label-club" style={{ left: '16%', top: '74%' }}>VALE &amp; CLUB (T16-18)</div>
+            <div className="track-location-label label-brooklands" style={{ left: '6%', top: '42%' }}>LUFFIELD (T7)</div>
+            <div className="track-location-label label-loop" style={{ left: '65%', top: '10%' }}>VILLAGE &amp; THE LOOP (T3-4)</div>
 
-            <svg className="circuit-svg" viewBox="0 0 760 430" role="img" aria-label="Live Silverstone circuit map">
+            <div className="sector-label sector-one" style={{ left: '45%', top: '48%' }}>S1</div>
+            <div className="sector-label sector-two" style={{ left: '68%', top: '56%' }}>S2</div>
+            <div className="sector-label sector-three" style={{ left: '26%', top: '78%' }}>S3</div>
+
+            <svg className="circuit-svg" viewBox="0 0 760 460" role="img" aria-label="Authentic Silverstone Grand Prix Circuit map">
               <defs>
                 <filter id="trackShadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7" /></filter>
                 <filter id="carGlow" x="-100%" y="-100%" width="300%" height="300%">
@@ -139,6 +146,7 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
                 </linearGradient>
               </defs>
 
+              {/* Asphalt Runoffs & Track Width */}
               <path d={CIRCUIT_PATH} fill="none" stroke="#000" strokeOpacity="0.8" strokeWidth="38" filter="url(#trackShadow)" />
               <path d={CIRCUIT_PATH} fill="none" stroke="#676d75" strokeOpacity="0.42" strokeWidth="31" />
               <path d={CIRCUIT_PATH} fill="none" stroke="#eceff2" strokeOpacity="0.38" strokeWidth="27" strokeDasharray="2 10" />
@@ -146,18 +154,30 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
               <path d={CIRCUIT_PATH} fill="none" stroke="#090b0e" strokeOpacity="0.48" strokeWidth="4" />
               <path d={CIRCUIT_PATH} fill="none" stroke="#f54646" strokeOpacity="0.68" strokeWidth="2.2" strokeDasharray="88 550" strokeDashoffset="-405" />
 
-              <g className="start-finish-line" transform="translate(119 307) rotate(-43)">
+              {/* Hamilton Straight Start / Finish Line */}
+              <g className="start-finish-line" transform="translate(240 367) rotate(-5)">
                 <rect x="-2" y="-16" width="4" height="32" fill="#f3f4f5" />
-                <rect x="-2" y="-16" width="4" height="5" fill="#15181c" /><rect x="-2" y="-6" width="4" height="5" fill="#15181c" /><rect x="-2" y="4" width="4" height="5" fill="#15181c" />
+                <rect x="-2" y="-16" width="4" height="5" fill="#15181c" />
+                <rect x="-2" y="-6" width="4" height="5" fill="#15181c" />
+                <rect x="-2" y="4" width="4" height="5" fill="#15181c" />
               </g>
 
-              <g className="drs-zone" opacity="0.85">
-                <path d="M 207 52 C 243 37 279 48 302 73" fill="none" stroke="#32d6a0" strokeWidth="3" strokeLinecap="round" />
-                <text x="230" y="29" fill="#45e0ad" fontSize="9" fontWeight="700" letterSpacing="1.4">DRS 1</text>
-                <path d="M 576 337 C 552 323 537 321 522 325" fill="none" stroke="#32d6a0" strokeWidth="3" strokeLinecap="round" />
-                <text x="562" y="363" fill="#45e0ad" fontSize="9" fontWeight="700" letterSpacing="1.4">DRS 2</text>
+              {/* DRS Zones */}
+              <g className="drs-zone" opacity="0.88">
+                {/* DRS 1: Wellington Straight */}
+                <path d="M 400 215 L 260 270 L 160 300" fill="none" stroke="#32d6a0" strokeWidth="3.2" strokeLinecap="round" />
+                <text x="275" y="250" fill="#45e0ad" fontSize="9" fontWeight="700" letterSpacing="1.4">DRS 1 · WELLINGTON</text>
+
+                {/* DRS 2: Hangar Straight */}
+                <path d="M 630 275 L 480 370 L 330 435" fill="none" stroke="#32d6a0" strokeWidth="3.2" strokeLinecap="round" />
+                <text x="495" y="340" fill="#45e0ad" fontSize="9" fontWeight="700" letterSpacing="1.4">DRS 2 · HANGAR</text>
+
+                {/* DRS 3: Hamilton Straight */}
+                <path d="M 190 370 L 340 360" fill="none" stroke="#32d6a0" strokeWidth="3.2" strokeLinecap="round" />
+                <text x="235" y="395" fill="#45e0ad" fontSize="9" fontWeight="700" letterSpacing="1.4">DRS 3 · PIT STRAIGHT</text>
               </g>
 
+              {/* Real Cars on Circuit */}
               {snapshot.drivers.slice().reverse().map((driver) => {
                 const point = getCarPoint(driver.progress)
                 const isSelected = driver.id === selectedDriver.id

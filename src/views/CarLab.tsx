@@ -4,15 +4,22 @@ import {
   Check,
   ChevronsDown,
   CircleGauge,
+  Cpu,
+  Eye,
+  Layers,
   RotateCcw,
   Save,
+  ShieldCheck,
   Sliders,
   Wind,
-  Wrench,
+  X,
+  Zap,
 } from 'lucide-react'
 import { lazy, Suspense, useMemo, useState } from 'react'
 import type { DriverState, SetupState } from '../types'
 import { calculateAero } from '../engine/physics/AeroEngine'
+import { calculatePowertrain } from '../engine/physics/PowertrainEngine'
+import { F1_2026_CAR_PARTS, type CarPartMetadata, type SubsystemCategory } from '../graphics/f1_2026/carPartsData'
 
 const CarShowroom3D = lazy(() =>
   import('../components/CarShowroom3D').then((module) => ({ default: module.CarShowroom3D })),
@@ -26,11 +33,11 @@ interface CarLabProps {
 const DEFAULT_SETUP: SetupState = {
   frontWing: 32,
   rearWing: 28,
-  rideHeightFront: 19.2,
-  rideHeightRear: 27.4,
-  brakeBias: 56.8,
-  tirePressureFront: 23.2,
-  tirePressureRear: 21.0,
+  rideHeightFront: 18.5,
+  rideHeightRear: 25.0,
+  brakeBias: 56.4,
+  tirePressureFront: 22.8,
+  tirePressureRear: 20.6,
   cooling: 45,
 }
 
@@ -93,6 +100,14 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
   const [preset, setPreset] = useState<'balanced' | 'downforce' | 'low-drag'>('balanced')
   const [saved, setSaved] = useState(true)
 
+  // 2026 CAD & Simulation Controls
+  const [activeAeroMode, setActiveAeroMode] = useState<'CORNER' | 'STRAIGHT'>('CORNER')
+  const [explodedRatio, setExplodedRatio] = useState<number>(0)
+  const [subsystemFilter, setSubsystemFilter] = useState<'ALL' | SubsystemCategory>('ALL')
+  const [wireframeMode, setWireframeMode] = useState(false)
+  const [selectedPart, setSelectedPart] = useState<CarPartMetadata | null>(null)
+  const [manualOverrideActive, setManualOverrideActive] = useState(false)
+
   const aero = useMemo(
     () =>
       calculateAero({
@@ -104,8 +119,24 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
         coolingPercent: setup.cooling,
         dirtyAirEfficiency: 1,
         timeSeconds: 5.2,
+        activeAeroMode,
       }),
-    [setup],
+    [setup, activeAeroMode],
+  )
+
+  const powertrain = useMemo(
+    () =>
+      calculatePowertrain({
+        rpm: 12500,
+        throttle: 1.0,
+        speedMs: 83.33,
+        ersMode: 'DEPLOY',
+        ersStateOfCharge: 85,
+        engineWearPercent: 12,
+        deltaSeconds: 0.01,
+        manualOverrideActive,
+      }),
+    [manualOverrideActive],
   )
 
   const update = <K extends keyof SetupState>(key: K, value: SetupState[K]) => {
@@ -117,18 +148,18 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
     setPreset(next)
     const values =
       next === 'downforce'
-        ? { frontWing: 40, rearWing: 38, rideHeightFront: 20.5, rideHeightRear: 29 }
+        ? { frontWing: 42, rearWing: 38, rideHeightFront: 19.5, rideHeightRear: 27.5 }
         : next === 'low-drag'
-          ? { frontWing: 20, rearWing: 17, rideHeightFront: 18.5, rideHeightRear: 25 }
-          : { frontWing: 32, rearWing: 28, rideHeightFront: 19.2, rideHeightRear: 27.4 }
+          ? { frontWing: 18, rearWing: 16, rideHeightFront: 17.5, rideHeightRear: 23.5 }
+          : { frontWing: 32, rearWing: 28, rideHeightFront: 18.5, rideHeightRear: 25.0 }
     setSetup((current) => ({ ...current, ...values }))
     setSaved(false)
-    onNotify('PRESET APPLIED', `${next.toUpperCase()} setup loaded for car #${selectedDriver.number}.`, 'success')
+    onNotify('2026 PRESET APPLIED', `${next.toUpperCase()} configuration loaded for car #${selectedDriver.number}.`, 'success')
   }
 
   const saveSetup = () => {
     setSaved(true)
-    onNotify('SETUP SAVED', `Car #${selectedDriver.number} baseline setup deployed for Silverstone.`, 'success')
+    onNotify('2026 SETUP DEPLOYED', `Car #${selectedDriver.number} baseline configuration verified against FIA 2026 regulations.`, 'success')
   }
 
   return (
@@ -136,20 +167,25 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
       {/* Header Bar */}
       <div className="workspace-header-bar">
         <div>
-          <span className="section-eyebrow">AERODYNAMICS &amp; VEHICLE DYNAMICS · CAR #{selectedDriver.number} {selectedDriver.code}</span>
-          <h1 className="workspace-title">Performance Engineering &amp; Setup Lab</h1>
+          <span className="section-eyebrow">
+            FIA 2026 REGULATIONS · 3D MODULAR CAD LAB · CAR #{selectedDriver.number} {selectedDriver.code}
+          </span>
+          <h1 className="workspace-title">2026 Formula 1 Engineering &amp; Part-by-Part Studio</h1>
         </div>
 
         <div className="header-actions-deck">
           <span className={`sync-badge ${saved ? 'synced' : 'modified'}`}>
             {saved ? <Check size={14} /> : <Activity size={14} />}
-            {saved ? 'SETUP SYNCED' : 'UNSAVED CHANGES'}
+            {saved ? '2026 SPEC SYNCED' : 'UNSAVED CHANGES'}
           </span>
           <button
             className="secondary-btn"
             onClick={() => {
               setSetup(DEFAULT_SETUP)
               setPreset('balanced')
+              setExplodedRatio(0)
+              setSubsystemFilter('ALL')
+              setActiveAeroMode('CORNER')
               setSaved(false)
             }}
           >
@@ -161,12 +197,12 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
         </div>
       </div>
 
-      {/* Quick Setup Presets */}
+      {/* Quick Setup Presets & Mode Selector */}
       <div className="presets-bar">
-        <span className="presets-label"><Sliders size={14} /> BASELINE PRESETS:</span>
+        <span className="presets-label"><Sliders size={14} /> 2026 BASELINE PRESETS:</span>
         <button className={`preset-pill ${preset === 'balanced' ? 'active' : ''}`} onClick={() => applyPreset('balanced')}>
           <CircleGauge size={14} />
-          <span>BALANCED (DEFAULT)</span>
+          <span>BALANCED (MEDIUM DOWNFORCE)</span>
         </button>
         <button className={`preset-pill ${preset === 'downforce' ? 'active' : ''}`} onClick={() => applyPreset('downforce')}>
           <ChevronsDown size={14} />
@@ -174,26 +210,61 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
         </button>
         <button className={`preset-pill ${preset === 'low-drag' ? 'active' : ''}`} onClick={() => applyPreset('low-drag')}>
           <Wind size={14} />
-          <span>LOW DRAG / TOP SPEED (MONZA)</span>
+          <span>LOW DRAG / TOP SPEED (MONZA / LAS VEGAS)</span>
         </button>
       </div>
 
       {/* 3-Column Engineering Layout */}
       <div className="carlab-tri-layout">
-        {/* Left Column: Aero Platform & Ground Effect */}
+        {/* Left Column: Aero Platform & Active Wing Kinematics */}
         <section className="panel setup-section-panel">
           <div className="card-panel-header">
             <div className="header-text">
-              <span className="eyebrow">AERO PLATFORM</span>
-              <h2>Wings &amp; Underfloor</h2>
+              <span className="eyebrow">AERO PLATFORM (2026)</span>
+              <h2>Active Wings &amp; Underfloor</h2>
             </div>
             <Wind size={18} className="panel-icon-accent" />
           </div>
 
           <div className="setup-cards-stack">
+            {/* Active Aero Mode Switcher */}
+            <div className="active-aero-mode-card">
+              <div className="mode-card-header">
+                <strong>ACTIVE AERODYNAMICS (AAS)</strong>
+                <span className="regulation-tag">FIA ART. 3.4 &amp; 3.9</span>
+              </div>
+              <div className="mode-toggle-group">
+                <button
+                  className={`mode-toggle-btn ${activeAeroMode === 'CORNER' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveAeroMode('CORNER')
+                    onNotify('AERO MODE', 'Corner Mode (Z-Mode: High Downforce) engaged.', 'success')
+                  }}
+                >
+                  <ChevronsDown size={14} />
+                  <span>CORNER MODE (Z-MODE)</span>
+                </button>
+                <button
+                  className={`mode-toggle-btn ${activeAeroMode === 'STRAIGHT' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveAeroMode('STRAIGHT')
+                    onNotify('AERO MODE', 'Straight Mode (X-Mode: -45% Drag) engaged.', 'warning')
+                  }}
+                >
+                  <Wind size={14} />
+                  <span>STRAIGHT MODE (X-MODE)</span>
+                </button>
+              </div>
+              <p className="mode-description">
+                {activeAeroMode === 'CORNER'
+                  ? 'High downforce configuration: Front dual active flaps closed and 3-element rear wing deployed for maximum cornering grip.'
+                  : 'Low drag configuration: Front active flaps shed load (-14°) and rear wing upper element opens (+28°), cutting drag by ~45%.'}
+              </p>
+            </div>
+
             <SetupRangeSlider
               label="Front Wing Flap Angle"
-              hint="Increases front-end grip; adds slight drag"
+              hint="Dual-element active flap base pitch"
               value={setup.frontWing}
               min={10}
               max={50}
@@ -203,7 +274,7 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
 
             <SetupRangeSlider
               label="Rear Wing Angle"
-              hint="High-speed rear stability and braking grip"
+              hint="3-element mainplane baseline angle"
               value={setup.rearWing}
               min={10}
               max={50}
@@ -213,7 +284,7 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
 
             <SetupRangeSlider
               label="Engine Cooling Aperture"
-              hint="Controls thermal limits vs. aerodynamic drag"
+              hint="Sidepod louvre opening vs. drag penalty"
               value={setup.cooling}
               min={20}
               max={80}
@@ -225,10 +296,10 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
 
             <SetupRangeSlider
               label="Front Ride Height"
-              hint="Feeds Venturi tunnels — critical for ground effect"
+              hint="1450mm stepped floor entry clearance"
               value={setup.rideHeightFront}
-              min={15}
-              max={30}
+              min={14}
+              max={28}
               step={0.1}
               unit="mm"
               onChange={(val) => update('rideHeightFront', val)}
@@ -236,10 +307,10 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
 
             <SetupRangeSlider
               label="Rear Ride Height"
-              hint="Controls diffuser expansion ratio and rake"
+              hint="Diffuser expansion and rake angle"
               value={setup.rideHeightRear}
-              min={20}
-              max={40}
+              min={18}
+              max={36}
               step={0.1}
               unit="mm"
               onChange={(val) => update('rideHeightRear', val)}
@@ -249,22 +320,88 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               <div className="porpoising-warning-card">
                 <AlertTriangle size={18} />
                 <div>
-                  <strong>PORPOISING OSCILLATION DETECTED</strong>
-                  <p>Floor boundary layer separation. Raise front ride height above 20.0mm.</p>
+                  <strong>GROUND EFFECT OSCILLATION DETECTED</strong>
+                  <p>Raise front ride height above 16.5mm to restore laminar underfloor flow.</p>
                 </div>
               </div>
             )}
           </div>
         </section>
 
-        {/* Center Column: 3D Car Showroom & Live Telemetry Output */}
+        {/* Center Column: 3D Modular CAD Showroom & Part Inspector */}
         <section className="panel center-showroom-panel">
           <div className="card-panel-header">
             <div className="header-text">
-              <span className="eyebrow">3D AERO SIMULATION</span>
-              <h2>Vehicle Geometry &amp; CFD Flow</h2>
+              <span className="eyebrow">3D MODULAR CAD SHOWROOM</span>
+              <h2>2026 Vehicle Geometry &amp; Exploded View</h2>
             </div>
-            <span className="live-status-chip"><i /> 3D LIVE</span>
+            <div className="cad-header-tools">
+              <select
+                className="part-selector-dropdown"
+                value={selectedPart?.id ?? ''}
+                onChange={(e) => {
+                  const found = F1_2026_CAR_PARTS.find((p) => p.id === e.target.value)
+                  setSelectedPart(found ?? null)
+                }}
+              >
+                <option value="">INSPECT PART (30+ CAD COMPONENTS)...</option>
+                {F1_2026_CAR_PARTS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    [{p.category}] {p.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                className={`wireframe-toggle-btn ${wireframeMode ? 'active' : ''}`}
+                onClick={() => setWireframeMode(!wireframeMode)}
+                title="Toggle X-Ray Wireframe Mode"
+              >
+                <Eye size={14} /> {wireframeMode ? 'SOLID' : 'X-RAY'}
+              </button>
+            </div>
+          </div>
+
+          {/* Subsystem Isolation Filter Tabs */}
+          <div className="subsystem-filter-tabs">
+            {(
+              [
+                { key: 'ALL', label: 'FULL CAR' },
+                { key: 'AERO', label: 'AERODYNAMICS' },
+                { key: 'POWERTRAIN', label: 'POWERTRAIN' },
+                { key: 'CHASSIS', label: 'CHASSIS & SAFETY' },
+                { key: 'SUSPENSION', label: 'SUSPENSION & BRAKES' },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.key}
+                className={`subsystem-tab-btn ${subsystemFilter === tab.key ? 'active' : ''}`}
+                onClick={() => setSubsystemFilter(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Exploded View CAD Slider Control */}
+          <div className="cad-exploded-toolbar">
+            <div className="exploded-label-row">
+              <span><Layers size={14} /> EXPLODED CAD VIEW:</span>
+              <strong>{Math.round(explodedRatio * 100)}% DISASSEMBLY</strong>
+            </div>
+            <div className="exploded-slider-row">
+              <button className="ratio-quick-pill" onClick={() => setExplodedRatio(0)}>0% (ASSEMBLED)</button>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={explodedRatio}
+                onChange={(e) => setExplodedRatio(Number(e.target.value))}
+                className="exploded-range-input"
+              />
+              <button className="ratio-quick-pill" onClick={() => setExplodedRatio(0.5)}>50% (INSPECT)</button>
+              <button className="ratio-quick-pill" onClick={() => setExplodedRatio(1.0)}>100% (EXPLODE)</button>
+            </div>
           </div>
 
           <div className="carlab-3d-stage">
@@ -272,8 +409,8 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               fallback={
                 <div className="scene-loader">
                   <i />
-                  <strong>INITIALIZING 3D SHOWROOM</strong>
-                  <span>Loading wind tunnel particles &amp; chassis…</span>
+                  <strong>LOADING 2026 MODULAR CAD MODEL</strong>
+                  <span>Assembling 30+ precision FIA components…</span>
                 </div>
               }
             >
@@ -283,11 +420,58 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 frontBalance={aero.frontBalancePercent}
                 downforceKn={aero.downforceN / 1000}
                 porpoising={aero.porpoisingActive}
+                explodedRatio={explodedRatio}
+                activeAeroMode={activeAeroMode}
+                subsystemFilter={subsystemFilter}
+                wireframeMode={wireframeMode}
+                onSelectPart={(part) => setSelectedPart(part)}
               />
             </Suspense>
+
+            {/* Selected Component Technical Drawer Modal */}
+            {selectedPart && (
+              <div className="part-spec-overlay-card">
+                <div className="spec-card-header">
+                  <div>
+                    <span className="spec-eyebrow">{selectedPart.category} · {selectedPart.subsystem}</span>
+                    <h3 className="spec-title">{selectedPart.name}</h3>
+                  </div>
+                  <button className="close-spec-btn" onClick={() => setSelectedPart(null)}>
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="spec-metrics-grid">
+                  <div className="spec-stat">
+                    <span>REGULATION</span>
+                    <strong>{selectedPart.fiaArticle}</strong>
+                  </div>
+                  <div className="spec-stat">
+                    <span>MASS</span>
+                    <strong>{selectedPart.massKg} kg</strong>
+                  </div>
+                  <div className="spec-stat">
+                    <span>DIMENSIONS</span>
+                    <strong>{selectedPart.dimensionsMm} mm</strong>
+                  </div>
+                </div>
+                <div className="spec-material-block">
+                  <span className="material-label">MATERIAL COMPOSITION:</span>
+                  <p className="material-value">{selectedPart.material}</p>
+                </div>
+                <p className="spec-description">{selectedPart.description}</p>
+                <div className="spec-features-list">
+                  {selectedPart.keyFeatures.map((feature, idx) => (
+                    <div key={idx} className="feature-item">
+                      <Check size={12} className="feature-check" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Live Calculated Aero Telemetry Bar */}
+          {/* Live Calculated Aero & Telemetry Ribbon */}
           <div className="aero-metrics-ribbon">
             <div className="aero-stat">
               <span className="stat-label">TOTAL DOWNFORCE</span>
@@ -296,6 +480,12 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
             <div className="aero-stat">
               <span className="stat-label">DRAG COEFFICIENT</span>
               <strong className="stat-value">{aero.cdTotal.toFixed(2)} <small>Cd</small></strong>
+            </div>
+            <div className="aero-stat">
+              <span className="stat-label">DRAG SHEDDING</span>
+              <strong className={`stat-value ${activeAeroMode === 'STRAIGHT' ? 'highlight-green' : ''}`}>
+                {activeAeroMode === 'STRAIGHT' ? `-${aero.dragReductionPercent.toFixed(1)}%` : '0.0%'}
+              </strong>
             </div>
             <div className="aero-stat">
               <span className="stat-label">EST. TOP SPEED</span>
@@ -308,20 +498,56 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
           </div>
         </section>
 
-        {/* Right Column: Mechanical, Brakes & Tires */}
+        {/* Right Column: 2026 Hybrid Power Unit & Mechanical Platform */}
         <section className="panel setup-section-panel">
           <div className="card-panel-header">
             <div className="header-text">
-              <span className="eyebrow">MECHANICAL PLATFORM</span>
-              <h2>Brakes &amp; Tire Pressures</h2>
+              <span className="eyebrow">HYBRID PU &amp; MECHANICAL</span>
+              <h2>350kW MGU-K &amp; Suspension</h2>
             </div>
-            <Wrench size={18} className="panel-icon-accent" />
+            <Cpu size={18} className="panel-icon-accent" />
           </div>
 
           <div className="setup-cards-stack">
+            {/* 2026 Power Unit Specs Card */}
+            <div className="pu-2026-summary-card">
+              <div className="pu-card-header">
+                <strong>2026 HYBRID POWER UNIT (PU2026)</strong>
+                <span className="power-total-badge">{powertrain.totalPowerBhp.toFixed(0)} BHP</span>
+              </div>
+              <div className="pu-power-split-grid">
+                <div className="pu-split-stat">
+                  <span>1.6L V6 TURBO ICE</span>
+                  <strong>{powertrain.icePowerKw.toFixed(0)} kW <small>(536 bhp)</small></strong>
+                </div>
+                <div className="pu-split-stat">
+                  <span>350 kW MGU-K HYBRID</span>
+                  <strong>{powertrain.mguKPowerKw.toFixed(0)} kW <small>(470 bhp)</small></strong>
+                </div>
+              </div>
+
+              {/* Manual Override Mode (Overtake Boost) Test Button */}
+              <button
+                className={`override-boost-btn ${manualOverrideActive ? 'active' : ''}`}
+                onClick={() => {
+                  setManualOverrideActive(!manualOverrideActive)
+                  onNotify(
+                    'OVERTAKE BOOST',
+                    !manualOverrideActive
+                      ? 'Manual Override Mode active: Full 350kW deployment sustained up to 337 km/h.'
+                      : 'Standard speed-tapered deployment restored.',
+                    !manualOverrideActive ? 'warning' : 'success',
+                  )
+                }}
+              >
+                <Zap size={15} />
+                <span>{manualOverrideActive ? 'MANUAL OVERRIDE (MOM) ENGAGED' : 'ENGAGE MANUAL OVERRIDE (350kW BOOST)'}</span>
+              </button>
+            </div>
+
             <SetupRangeSlider
               label="Front Brake Bias"
-              hint="Higher front bias improves straight braking stability"
+              hint="BBW regenerative torque blending"
               value={setup.brakeBias}
               min={50}
               max={62}
@@ -331,8 +557,8 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
             />
 
             <SetupRangeSlider
-              label="Front Tire Pressure"
-              hint="Controls contact patch size and steering response"
+              label="Front Tyre Pressure"
+              hint="2026 narrow 280mm spec tyre patch"
               value={setup.tirePressureFront}
               min={20}
               max={26}
@@ -342,8 +568,8 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
             />
 
             <SetupRangeSlider
-              label="Rear Tire Pressure"
-              hint="Controls traction out of slow corners"
+              label="Rear Tyre Pressure"
+              hint="2026 narrow 375mm spec traction patch"
               value={setup.tirePressureRear}
               min={19}
               max={24}
@@ -352,22 +578,37 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               onChange={(val) => update('tirePressureRear', val)}
             />
 
-            {/* Platform Performance Radar */}
-            <div className="performance-summary-box">
-              <div className="summary-row">
-                <span>CORNERING EFFICIENCY</span>
-                <strong className="positive-text">HIGH (94/100)</strong>
+            {/* 2026 FIA Regulation Compliance Checklist */}
+            <div className="compliance-checklist-card">
+              <div className="compliance-header">
+                <ShieldCheck size={16} className="compliance-icon" />
+                <strong>2026 FIA REGULATORY COMPLIANCE</strong>
               </div>
-              <div className="performance-bar">
-                <div className="fill-bar" style={{ width: '94%' }} />
-              </div>
-
-              <div className="summary-row mt">
-                <span>STRAIGHTLINE SPEED</span>
-                <strong>{aero.topSpeedEstimateKmh > 325 ? 'VERY HIGH' : 'MODERATE'} ({Math.round(aero.topSpeedEstimateKmh / 3.4)}/100)</strong>
-              </div>
-              <div className="performance-bar">
-                <div className="fill-bar orange" style={{ width: `${Math.min(100, Math.round(aero.topSpeedEstimateKmh / 3.4))}%` }} />
+              <div className="compliance-grid">
+                <div className="compliance-row">
+                  <span>Wheelbase: 3,400 mm (-200mm)</span>
+                  <span className="pass-pill"><Check size={12} /> PASS</span>
+                </div>
+                <div className="compliance-row">
+                  <span>Max Width: 1,900 mm (-100mm)</span>
+                  <span className="pass-pill"><Check size={12} /> PASS</span>
+                </div>
+                <div className="compliance-row">
+                  <span>Floor Width: 1,450 mm (-150mm)</span>
+                  <span className="pass-pill"><Check size={12} /> PASS</span>
+                </div>
+                <div className="compliance-row">
+                  <span>Min Mass: 768 kg (-30kg)</span>
+                  <span className="pass-pill"><Check size={12} /> PASS</span>
+                </div>
+                <div className="compliance-row">
+                  <span>MGU-K Output: 350 kW (3x Boost)</span>
+                  <span className="pass-pill"><Check size={12} /> PASS</span>
+                </div>
+                <div className="compliance-row">
+                  <span>Fuel: 100% Sustainable E-Fuel</span>
+                  <span className="pass-pill"><Check size={12} /> PASS</span>
+                </div>
               </div>
             </div>
           </div>

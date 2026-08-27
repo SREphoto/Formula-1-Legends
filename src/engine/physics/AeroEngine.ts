@@ -7,6 +7,7 @@ export interface AeroInput {
   coolingPercent: number
   dirtyAirEfficiency?: number
   timeSeconds?: number
+  activeAeroMode?: 'CORNER' | 'STRAIGHT'
 }
 
 export interface AeroOutput {
@@ -19,11 +20,14 @@ export interface AeroOutput {
   clTotal: number
   cdTotal: number
   topSpeedEstimateKmh: number
+  activeAeroMode: 'CORNER' | 'STRAIGHT'
+  dragReductionPercent: number
 }
 
 const AIR_DENSITY = 1.225
-const CRITICAL_RIDE_HEIGHT_MM = 20
-const PLANK_WEAR_COEFFICIENT = 1.2e-9
+// 2026 Regulations: Partially flat floor reduces critical ride height threshold
+const CRITICAL_RIDE_HEIGHT_MM = 16.5
+const PLANK_WEAR_COEFFICIENT = 0.95e-9
 
 export function calculateAero(input: AeroInput): AeroOutput {
   const {
@@ -35,38 +39,54 @@ export function calculateAero(input: AeroInput): AeroOutput {
     coolingPercent,
     dirtyAirEfficiency = 1,
     timeSeconds = 0,
+    activeAeroMode = 'CORNER',
   } = input
 
-  const clFront = 0.78 + (frontWingAngle / 50) * 0.98
-  const clRear = 1.06 + (rearWingAngle / 50) * 1.24
+  // Active Aerodynamics modifiers (2026 Straight Mode X-Mode vs Corner Mode Z-Mode)
+  const isStraightMode = activeAeroMode === 'STRAIGHT'
+  const frontWingTrim = isStraightMode ? 0.65 : 1.0 // Shed front load in Straight Mode
+  const rearWingTrim = isStraightMode ? 0.52 : 1.0  // Shed 48% rear wing drag/lift
+
+  const clFront = (0.74 + (frontWingAngle / 50) * 0.92) * frontWingTrim
+  const clRear = (0.98 + (rearWingAngle / 50) * 1.18) * rearWingTrim
   const averageHeight = (rideHeightFrontMm + rideHeightRearMm) / 2
   const rake = rideHeightRearMm - rideHeightFrontMm
-  const floorHeightEfficiency = Math.max(0.62, 1 - Math.abs(16.5 - averageHeight) * 0.025)
-  const rakeEfficiency = Math.max(0.82, 1 - Math.abs(7 - rake) * 0.012)
-  const clFloor = 2.62 * floorHeightEfficiency * rakeEfficiency
-  const clBody = 0.31
+
+  // 2026 Partially flat floor equation: less sensitive to rake/ride height
+  const floorHeightEfficiency = Math.max(0.72, 1 - Math.abs(17.0 - averageHeight) * 0.018)
+  const rakeEfficiency = Math.max(0.88, 1 - Math.abs(6.5 - rake) * 0.008)
+  const clFloor = 2.15 * floorHeightEfficiency * rakeEfficiency
+  const clBody = 0.28
   const clTotal = clFront + clRear + clFloor + clBody
 
+  // 2026 Porpoising mitigation (vastly improved stability over 2022-2025 ground effect cars)
   const penetration = Math.max(0, (CRITICAL_RIDE_HEIGHT_MM - rideHeightFrontMm) / CRITICAL_RIDE_HEIGHT_MM)
-  const bounce = 0.4 + 0.2 * Math.sin(2 * Math.PI * 7.2 * timeSeconds)
-  const porpoiseEfficiency = Math.max(0.48, 1 - penetration * bounce)
-  const porpoisingActive = rideHeightFrontMm < CRITICAL_RIDE_HEIGHT_MM && velocityMs > 55
+  const bounce = 0.3 + 0.15 * Math.sin(2 * Math.PI * 6.5 * timeSeconds)
+  const porpoiseEfficiency = Math.max(0.65, 1 - penetration * bounce)
+  const porpoisingActive = rideHeightFrontMm < CRITICAL_RIDE_HEIGHT_MM && velocityMs > 62
 
-  const cdBase = 0.61
-  const cdWings = (frontWingAngle / 50) * 0.23 + (rearWingAngle / 50) * 0.37
-  const cdCooling = (coolingPercent / 100) * 0.085
-  const inducedDrag = 0.022 * clTotal ** 2
-  const cdTotal = cdBase + cdWings + cdCooling + inducedDrag
+  const cdBase = 0.52 // Narrower 1900mm width lower base drag
+  const cdFront = ((frontWingAngle / 50) * 0.19) * frontWingTrim
+  const cdRear = ((rearWingAngle / 50) * 0.34) * rearWingTrim
+  const cdCooling = (coolingPercent / 100) * 0.075
+  const inducedDrag = 0.019 * clTotal ** 2
+  const cdTotal = cdBase + cdFront + cdRear + cdCooling + inducedDrag
+
+  // Reference baseline drag for Corner Mode to calculate reduction %
+  const cdCornerBaseline = cdBase + (frontWingAngle / 50) * 0.19 + (rearWingAngle / 50) * 0.34 + cdCooling + 0.019 * (0.74 + (frontWingAngle / 50) * 0.92 + 0.98 + (rearWingAngle / 50) * 1.18 + clFloor + clBody) ** 2
+  const dragReductionPercent = isStraightMode ? Math.max(0, ((cdCornerBaseline - cdTotal) / cdCornerBaseline) * 100) : 0
 
   const dynamicPressure = 0.5 * AIR_DENSITY * velocityMs ** 2
-  const downforceN = dynamicPressure * clTotal * porpoiseEfficiency * Math.max(0.65, Math.min(1, dirtyAirEfficiency))
+  const downforceN = dynamicPressure * clTotal * porpoiseEfficiency * Math.max(0.7, Math.min(1, dirtyAirEfficiency))
   const dragN = dynamicPressure * cdTotal
-  const frontFloorShare = clFloor * (0.43 + rake * 0.002)
+  const frontFloorShare = clFloor * (0.44 + rake * 0.0018)
   const frontBalancePercent = ((clFront + frontFloorShare) / clTotal) * 100
 
   const plankContactMm = Math.max(0, CRITICAL_RIDE_HEIGHT_MM - rideHeightFrontMm)
   const plankWearRateMmPerSecond = PLANK_WEAR_COEFFICIENT * plankContactMm ** 2 * velocityMs ** 2
-  const topSpeedEstimateKmh = Math.max(260, 367 - cdTotal * 52)
+  const topSpeedEstimateKmh = isStraightMode
+    ? Math.max(290, 385 - cdTotal * 58)
+    : Math.max(265, 362 - cdTotal * 52)
 
   return {
     downforceN,
@@ -78,5 +98,7 @@ export function calculateAero(input: AeroInput): AeroOutput {
     clTotal,
     cdTotal,
     topSpeedEstimateKmh,
+    activeAeroMode,
+    dragReductionPercent,
   }
 }

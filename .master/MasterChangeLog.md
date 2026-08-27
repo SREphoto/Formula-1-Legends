@@ -4,6 +4,47 @@ All notable project changes, releases, revisions, and architecture updates are d
 
 ---
 
+## [Build R11 / 2026 Formula 1 Racecar Part-by-Part Modular CAD Studio & Dynamics Deployment] — 2026-08-27
+
+### 08-27G Added & Implemented
+
+- **Modular 3D Part-by-Part 2026 F1 Racecar Architecture ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/graphics/f1_2026/carPartsData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/carPartsData.ts))**:
+  - Engineered over 30 distinct procedural 3D components representing the complete 2026 FIA "Nimble Car" architecture across Aerodynamics, Powertrain, Chassis & Safety, and Suspension & Running Gear.
+  - Interactive **Continuous Exploded View Slider** ($0\% \to 100\%$) translating internal assemblies radially for structural CAD inspection.
+  - Subsystem isolation filters (`FULL CAR`, `AERODYNAMICS`, `POWERTRAIN`, `CHASSIS & SAFETY`, `SUSPENSION & BRAKES`) and X-Ray wireframe toggle.
+  - Direct 3D component click raycasting and quick-select dropdown displaying material composition, mass (kg), dimensions (mm), and official FIA regulation article citations.
+- **Active Aerodynamics System (AAS) Kinematics & Physics Engine ([src/engine/physics/AeroEngine.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/engine/physics/AeroEngine.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx))**:
+  - Articulated dual active front flaps and 3-element rear wing upper element between **Corner Mode (Z-Mode)** (high downforce) and **Straight Mode (X-Mode)** (low drag, -45% drag shedding).
+  - Implemented 2026 partially flat floor ground-effect equations with reduced porpoising sensitivity and narrower 1900mm drag profile.
+- **2026 Hybrid Power Unit Simulation & Manual Override Mode ([src/engine/physics/PowertrainEngine.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/engine/physics/PowertrainEngine.ts), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx))**:
+  - Implemented 50/50 power split: 400 kW 1.6L V6 Turbo ICE (100% sustainable drop-in e-fuel) + 350 kW MGU-K electrical generator ($1,006\text{ BHP}$ total output) and $8.5\text{ MJ/lap}$ regenerative braking recovery.
+  - Implemented **Manual Override Mode (MOM / Overtake Boost)** with speed-dependent power tapering curve (>290 km/h) and full 350 kW boost override up to 337 km/h.
+- **2026 FIA Regulatory Compliance Checklist ([src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Added live regulatory verification badges confirming 3,400 mm wheelbase, 1,900 mm width, 1,450 mm floor, 768 kg minimum weight, 350 kW MGU-K, and 100% sustainable fuel compliance.
+
+---
+
+## [Build R10 / Authentic Real-World F1 Circuit Geometry, Collapsible Workspace & Tactical Command Dock] — 2026-08-27
+
+### 08-27F Added & Enhanced
+
+- **Authentic 18-Corner Silverstone Grand Prix Circuit Geometry ([src/data/circuitData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts), [src/components/TrackMap.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TrackMap.tsx), [src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**:
+  - Replaced generic template cubic beziers with authentic 18-corner FIA Silverstone track geometry (Hamilton Straight -> Abbey -> Farm Curve -> Village -> The Loop -> Aintree -> Wellington Straight -> Brooklands -> Luffield -> Woodcote -> Copse -> Maggotts -> Becketts -> Chapel -> Hangar Straight -> Stowe -> Vale -> Club).
+  - Configured authentic layouts, corner coordinates, DRS zones, and start/finish lines for all 24 World Championship circuits.
+- **100% Collision-Free 3D Track Scenery & Start Gantry ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**:
+  - Re-positioned all grandstands (Hamilton Infield, Becketts Stadium, Stowe Runoff, Luffield Stadium), the Silverstone Wing Pit Complex, and outfield trees with safe clearance margins outside the track and pit lane envelopes.
+  - Added start/finish overhead gantry with 5 red/green FIA starting light pods.
+- **Collapsible Multi-Panel Workspace System ([src/views/RaceDashboard.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/RaceDashboard.tsx), [src/components/TimingTower.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TimingTower.tsx), [src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/components/StrategyHorizon.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/StrategyHorizon.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Added independent collapse/expand toggles for Timing Tower (left), Driver Telemetry (right), and Strategy Horizon (bottom).
+  - Enables the 3D race canvas to expand dynamically to full width and height with smooth CSS grid transitions.
+- **On-Demand Tactical Race Command Dock Modal ([src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Replaced the large static bottom command box with a compact status bar and modal trigger (`⚡ RACE COMMAND`).
+  - Added an interactive slide-up strategic modal for Pace mode, ERS programs, tire compound selection, and pit stop calls.
+- **Authentic Pit Radio Audio Player & OpenF1 Integration ([src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/services/radioAudioService.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts), [src/services/openf1Service.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts))**:
+  - Integrated interactive play/stop controls for driver radio transmissions with live equalizer waveform animations and Web Audio sound processing.
+
+---
+
 ## [Build R9 / 2026 Formula 1 Racecar Modular Part-by-Part Engineering Architecture] — 2026-08-27
 
 ### 08-27E Researched & Planned
