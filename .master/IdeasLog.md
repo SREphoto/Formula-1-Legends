@@ -61,6 +61,9 @@ This log tracks prospective features, 3D simulation enhancements, realism upgrad
 
 Completed items are moved here as they are deployed and verified:
 
+- ✅ **Wind Tunnel Streamline Smoke Inserter**: Multi-nozzle particle streamline generator (380 particles) with selectable wands (`ALL`, `FRONT WING`, `AIRBOX`, `UNDERFLOOR`) modeling upwash and diffuser curl (`CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`).
+- ✅ **Thermal Infrared Tire & Brake FLIR Camera**: FLIR Ironbow thermal camera view with real-time temperature gradients on tires ($100^\circ\text{C}$ orange), glowing white-hot brake rotors ($>850^\circ\text{C}$), and high-heat exhaust (`F1Car2026Model.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`).
+- ✅ **3D Telemetry Synchronized Playback Deck**: Real-time 75-second Grand Prix hot lap simulation loop driving wheel rotation ($\omega = v / r$), aerodynamic suspension squish/dive, active wing flap transitions (Z/X modes), 350kW MGU-K energy flow conduit pulsing, and cockpit HUD overlay (`CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`).
 - ✅ **Interactive CAD Cross-Section Clipping Planes (X/Y/Z)**: Hardware-accelerated local clipping plane cutting through ICE cylinders, 350kW MGU-K, lithium-NMC battery cells, and underfloor diffuser with offset slider (`F1Car2026Model.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`).
 - ✅ **CFD Surface Pressure Heatmap Shader & Mode**: Real-time aerodynamic surface pressure distribution rendering (+Cp Stagnation Red -> Neutral Green -> -Cp Suction Purple) with dynamic Straight Mode (X-Mode) load shedding and floating legend (`F1Car2026Model.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`).
 - ✅ **Multi-Axis Targeted Subsystem Explode Orbit**: Subsystem-specific explosion target filters (`ALL`, `AERO`, `PU`, `CHASSIS`, `SUSP`) enabling isolated disassembly of individual component assemblies (`F1Car2026Model.ts`, `CarLab.tsx`).

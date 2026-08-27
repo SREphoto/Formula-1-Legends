@@ -4,6 +4,34 @@ All notable project changes, releases, revisions, and architecture updates are d
 
 ---
 
+## [Build R15 / Dynamic 4-Angle 3D Camera System, Telemetry Ghost Delta Phantom Car & Wet Tire Spray Roost] — 2026-08-27
+
+### 08-27K Added & Enhanced
+
+- **Dynamic 4-Angle 3D Camera System ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx), [src/components/TrackMap.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TrackMap.tsx), [src/types.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/types.ts), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Implemented 4 live broadcast & onboard camera modes: **TV Broadcast Chase** (trackside panning with orbit offset), **Helicopter Aerial Chase** (+28m overhead orbit), **Cockpit Halo Driver POV** (+0.72m inside cockpit monocoque behind Halo central spar), and **Nosecone Bumper Cam** (+0.28m low asphalt perspective above front wing).
+- **Holographic Telemetry Ghost Delta Phantom Car ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx), [src/components/TrackMap.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TrackMap.tsx))**:
+  - Holographic cyan wireframe phantom car (`#00f0ff`) tracking optimal pole reference pace in real time.
+  - Interactive on/off toggle button (`👻 GHOST`) with live real-time pole delta badge (`POLE DELTA: -0.142s PURPLE` / `+0.240s YELLOW`).
+- **Dynamic Wet Tire Spray Roost Particle System ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**:
+  - 1,200 particle wet spray roost plumes rising and diffusing behind rear wheels and diffuser of cars traveling $>50\text{ km/h}$ in rainy conditions.
+  - Plume volume, upward draft, and opacity dynamically coupled to vehicle velocity and precipitation depth.
+
+---
+
+## [Build R14 / Wind Tunnel Smoke Inserter, FLIR Thermal IR Camera & 3D Telemetry Playback Deck] — 2026-08-27
+
+### 08-27J Added & Enhanced
+
+- **Wind Tunnel Streamline Smoke Inserter ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Engineered procedural 380-particle aerodynamic streamline wand tracer with selectable nozzle wands (`ALL WANDS`, `FRONT WING`, `AIRBOX & FIN`, `UNDERFLOOR`) modeling upwash, diffuser vortex expansion, and wake turbulence.
+- **Thermal Infrared Tire & Brake FLIR Camera ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Implemented FLIR Ironbow thermal spectrum rendering cold composite bodywork ($<40^\circ\text{C}$ indigo), tire tread contact patches ($100^\circ\text{C}$ orange), glowing white-hot brake rotors ($>850^\circ\text{C}$ emissive), and high-heat Inconel exhaust/turbo turbine ($>900^\circ\text{C}$).
+- **3D Telemetry Synchronized Playback Deck ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Live 75-second Grand Prix hot lap simulation loop driving wheel rotation ($\omega = v / r$), dynamic aerodynamic suspension squish/dive, active wing flap transitions (Z/X modes), and high-voltage MGU-K energy flow conduit pulsing (350 kW deploy green vs. 8.5 MJ regen amber) with real-time 3D cockpit HUD overlay.
+
+---
+
 ## [Build R13 / 24-Track Extreme Detail Overhaul, Graphical Driver Cards & 3D Environment Polish] — 2026-08-27
 
 ### 08-27I Added & Enhanced

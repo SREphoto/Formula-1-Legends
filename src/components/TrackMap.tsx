@@ -1,6 +1,6 @@
-import { Camera, ChevronRight, CloudRain, Cuboid, Flag, Map, Maximize2, Radio, RadioTower, Sparkles, Video } from 'lucide-react'
+import { Camera, ChevronRight, CloudRain, Compass, Cuboid, Flag, Ghost, Map, Maximize2, Radio, RadioTower, Sparkles, Video, Zap } from 'lucide-react'
 import { lazy, Suspense, useRef, useState } from 'react'
-import type { DriverState, RaceSnapshot, WorkerCommand } from '../types'
+import type { CameraMode, DriverState, RaceSnapshot, WorkerCommand } from '../types'
 import { DopplerRadarOverlay } from './DopplerRadarOverlay'
 
 const RaceScene3D = lazy(() => import('./RaceScene3D').then((module) => ({ default: module.RaceScene3D })))
@@ -23,8 +23,9 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
   const pathRef = useRef<SVGPathElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const [viewMode, setViewMode] = useState<'3d' | 'map' | 'radar'>('3d')
-  const [cameraMode, setCameraMode] = useState<'broadcast' | 'onboard'>('broadcast')
+  const [cameraMode, setCameraMode] = useState<CameraMode>('broadcast')
   const [radarOverlayActive, setRadarOverlayActive] = useState(true)
+  const [showGhostCar, setShowGhostCar] = useState(true)
   const [zoomScale, setZoomScale] = useState(1)
 
   const handleZoomIn = () => setZoomScale((prev) => Math.min(2.5, +(prev + 0.25).toFixed(2)))
@@ -75,22 +76,49 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
             </button>
           )}
 
-          <button
-            disabled={viewMode !== '3d'}
-            className={`icon-button ${viewMode === '3d' && cameraMode === 'broadcast' ? 'active' : ''}`}
-            onClick={() => setCameraMode('broadcast')}
-            title="Trackside chase camera"
-          >
-            <Video size={15} />
-          </button>
-          <button
-            disabled={viewMode !== '3d'}
-            className={`icon-button ${viewMode === '3d' && cameraMode === 'onboard' ? 'active' : ''}`}
-            onClick={() => setCameraMode('onboard')}
-            title="Onboard camera"
-          >
-            <Camera size={15} />
-          </button>
+          {viewMode === '3d' && (
+            <div className="segment-control camera-selector">
+              <button
+                className={cameraMode === 'broadcast' ? 'active' : ''}
+                onClick={() => setCameraMode('broadcast')}
+                title="TV Broadcast Chase Camera"
+              >
+                <Video size={13} /> TV
+              </button>
+              <button
+                className={cameraMode === 'helicopter' ? 'active' : ''}
+                onClick={() => setCameraMode('helicopter')}
+                title="Helicopter Aerial Chase"
+              >
+                <Compass size={13} /> HELI
+              </button>
+              <button
+                className={cameraMode === 'cockpit' ? 'active' : ''}
+                onClick={() => setCameraMode('cockpit')}
+                title="Cockpit Halo Driver POV"
+              >
+                <Camera size={13} /> HALO
+              </button>
+              <button
+                className={cameraMode === 'nosecone' ? 'active' : ''}
+                onClick={() => setCameraMode('nosecone')}
+                title="Nosecone Bumper Cam"
+              >
+                <Zap size={13} /> NOSE
+              </button>
+            </div>
+          )}
+
+          {viewMode === '3d' && (
+            <button
+              className={`icon-button ghost-toggle-btn ${showGhostCar ? 'active' : ''}`}
+              onClick={() => setShowGhostCar(!showGhostCar)}
+              title="Toggle Pole Reference Ghost Car"
+            >
+              <Ghost size={15} />
+            </button>
+          )}
+
           <button className="icon-button" title="Fullscreen" onClick={requestFullscreen}>
             <Maximize2 size={15} />
           </button>
@@ -107,6 +135,7 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
               onSelectDriver={onSelectDriver}
               rainfall={snapshot.rainfall}
               showDopplerRadar={radarOverlayActive}
+              showGhostCar={showGhostCar}
             />
           </Suspense>
         )}
@@ -256,6 +285,14 @@ export function TrackMap({ snapshot, selectedDriver, onSelectDriver, onOpenStrat
             <span><small>TYRE</small><b>{selectedDriver.tire.charAt(0)} · {selectedDriver.tireAge}L</b></span>
             <span><small>ERS</small><b>{selectedDriver.ers.toFixed(0)}%</b></span>
             <span><small>SPEED</small><b>{Math.round(selectedDriver.speed)}</b></span>
+            {showGhostCar && (
+              <span className="ghost-delta-pill">
+                <small>POLE DELTA</small>
+                <b className={selectedDriver.gap === 0 ? 'purple' : 'delta'}>
+                  {selectedDriver.gap === 0 ? '-0.142s' : `+${(selectedDriver.gap * 0.12).toFixed(3)}s`}
+                </b>
+              </span>
+            )}
           </div>
         )}
       </div>

@@ -1235,6 +1235,113 @@ button:focus-visible {
   font-weight: 900;
 }
 
+/* 4-Way Camera Selector & Ghost Toggle Controls */
+.camera-selector {
+  display: flex;
+  background: #111620;
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.camera-selector button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.camera-selector button:hover {
+  color: #fff;
+  background: #1c2432;
+}
+
+.camera-selector button.active {
+  background: var(--papaya);
+  color: #000;
+  font-weight: 900;
+}
+
+.ghost-toggle-btn.active {
+  background: rgba(0, 240, 255, 0.2);
+  color: #00f0ff;
+  border-color: #00f0ff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+}
+
+/* 3D Driver HUD Overlay */
+.driver-3d-hud {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: rgba(8, 11, 16, 0.88);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--hud-color, var(--papaya));
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  z-index: 10;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.hud-position {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--hud-color, var(--papaya));
+  padding-right: 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.driver-3d-hud div,
+.driver-3d-hud span {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.driver-3d-hud small {
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+}
+
+.driver-3d-hud b {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ghost-delta-pill {
+  padding-left: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ghost-delta-pill b.purple {
+  color: var(--neon-purple);
+  text-shadow: 0 0 8px rgba(189, 0, 255, 0.4);
+}
+
+.ghost-delta-pill b.delta {
+  color: var(--neon-yellow);
+}
+
 /* 2D Circuit SVG View */
 .circuit-svg {
   width: 100%;
@@ -6301,5 +6408,333 @@ button:focus-visible {
   font-weight: 700;
   color: var(--text-dim);
 }
+
+/* Wind Tunnel Smoke Wand Inserter */
+.smoke-wand-card {
+  background: #0a0d13;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wand-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wand-label-block {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wand-label-block strong {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.wand-icon {
+  color: #65daca;
+}
+
+.wand-badge {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 800;
+  color: #65daca;
+  background: rgba(101, 218, 202, 0.12);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.smoke-wand-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.smoke-wand-pill {
+  flex: 1;
+  min-width: 58px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: #131822;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 800;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.smoke-wand-pill:hover {
+  background: #1f2737;
+  color: #fff;
+}
+
+.smoke-wand-pill.active {
+  background: #65daca;
+  border-color: #65daca;
+  color: #000;
+}
+
+/* FLIR Thermal Camera Button & Legend */
+.flir-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: #151a23;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.flir-toggle-btn:hover {
+  background: #202836;
+  color: #fff;
+}
+
+.flir-toggle-btn.active {
+  background: rgba(255, 98, 0, 0.25);
+  border-color: #ff6200;
+  color: #ff6200;
+  box-shadow: 0 0 10px rgba(255, 98, 0, 0.4);
+}
+
+.flir-thermal-legend-bar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(10, 12, 18, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 98, 0, 0.5);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.flir-legend-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 800;
+  color: #ff9500;
+  letter-spacing: 0.5px;
+}
+
+.flir-gradient-strip {
+  height: 8px;
+  border-radius: 2px;
+  background: linear-gradient(to right, #0d152e 0%, #3e0959 25%, #ff2a00 50%, #ff6200 75%, #ffffff 100%);
+}
+
+.flir-bounds {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+/* 3D Telemetry Playback Deck */
+.telemetry-playback-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.telemetry-playback-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #090c12;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+.telemetry-play-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  background: #151a24;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.telemetry-play-btn:hover {
+  background: #1f2738;
+}
+
+.telemetry-play-btn.playing {
+  background: var(--neon-red, #ff3b30);
+  border-color: var(--neon-red, #ff3b30);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 59, 48, 0.35);
+}
+
+.playback-speed-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.speed-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.speed-pill {
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: #131822;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.speed-pill.active {
+  background: var(--neon-cyan, #38bdf8);
+  border-color: var(--neon-cyan, #38bdf8);
+  color: #000;
+}
+
+/* 3D Showroom Telemetry HUD Overlay */
+.showroom-telemetry-hud {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  background: rgba(10, 13, 19, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hud-gear-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #182030;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+.hud-gear-badge span {
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.hud-gear-badge strong {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 900;
+  color: #38bdf8;
+}
+
+.hud-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-metric small {
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.hud-metric b {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.hud-metric b abbr {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.hud-pedal-bars {
+  display: flex;
+  gap: 3px;
+  width: 90px;
+  height: 8px;
+  background: #141822;
+  border-radius: 2px;
+  padding: 1px;
+}
+
+.pedal-bar {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.05s linear;
+}
+
+.pedal-bar.throttle {
+  background: var(--neon-green, #30d158);
+}
+
+.pedal-bar.brake {
+  background: var(--neon-red, #ff3b30);
+}
+
+.flow-deploy {
+  color: var(--neon-green, #30d158) !important;
+}
+
+.flow-harvest {
+  color: #ff9500 !important;
+}
+
 
 

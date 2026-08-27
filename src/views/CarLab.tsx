@@ -6,22 +6,27 @@ import {
   CircleGauge,
   Cpu,
   Eye,
+  Flame,
   Layers,
   Palette,
+  Play,
   RotateCcw,
   Save,
   Scissors,
   ShieldCheck,
   Sliders,
+  Square,
+  Thermometer,
   Wind,
   X,
   Zap,
 } from 'lucide-react'
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type { DriverState, SetupState } from '../types'
 import { calculateAero } from '../engine/physics/AeroEngine'
 import { calculatePowertrain } from '../engine/physics/PowertrainEngine'
 import { F1_2026_CAR_PARTS, type CarPartMetadata, type SubsystemCategory } from '../graphics/f1_2026/carPartsData'
+import type { SmokeWandMode, TelemetrySyncState } from '../components/CarShowroom3D'
 
 const CarShowroom3D = lazy(() =>
   import('../components/CarShowroom3D').then((module) => ({ default: module.CarShowroom3D })),
@@ -111,13 +116,157 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
   const [clippingAxis, setClippingAxis] = useState<'NONE' | 'X' | 'Y' | 'Z'>('NONE')
   const [clippingOffset, setClippingOffset] = useState<number>(0)
   const [cfdHeatmapMode, setCfdHeatmapMode] = useState(false)
+  const [flirMode, setFlirMode] = useState(false)
+  const [smokeWandMode, setSmokeWandMode] = useState<SmokeWandMode>('OFF')
   const [selectedPart, setSelectedPart] = useState<CarPartMetadata | null>(null)
   const [manualOverrideActive, setManualOverrideActive] = useState(false)
+
+  // 3D Telemetry Synchronized Playback Loop
+  const [telemetryPlaying, setTelemetryPlaying] = useState(false)
+  const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 4>(1)
+  const [telemetrySyncState, setTelemetrySyncState] = useState<TelemetrySyncState>({
+    active: false,
+    speedKmh: 0,
+    rpm: 12000,
+    gear: 1,
+    throttle: 0,
+    brake: 0,
+    ersMode: 'NEUTRAL',
+    ersPowerKw: 0,
+    frontHeaveMm: 0,
+    rearHeaveMm: 0,
+  })
+
+  const lapProgressRef = useRef(0)
+
+  useEffect(() => {
+    if (!telemetryPlaying) {
+      setTelemetrySyncState((prev) => ({ ...prev, active: false }))
+      return
+    }
+
+    let animationFrame = 0
+    let lastTimestamp = performance.now()
+
+    const loop = (timestamp: number) => {
+      const dt = ((timestamp - lastTimestamp) / 1000) * playbackSpeed
+      lastTimestamp = timestamp
+
+      lapProgressRef.current = (lapProgressRef.current + dt) % 75 // 75 second Grand Prix hot lap
+      const t = lapProgressRef.current
+
+      // Simulated Real-Time Grand Prix Lap Profile
+      let speedKmh = 120
+      let rpm = 11000
+      let gear = 3
+      let throttle = 0.8
+      let brake = 0
+      let ersMode: 'DEPLOY' | 'HARVEST' | 'NEUTRAL' = 'DEPLOY'
+      const ersPowerKw = 350
+      let frontHeaveMm = 0
+      let rearHeaveMm = 0
+      let dynamicAeroMode: 'CORNER' | 'STRAIGHT' = 'CORNER'
+
+      if (t < 14) {
+        // Sector 1: Hamilton Straight into Abbey -> Farm Curve
+        speedKmh = 240 + (t / 14) * 95 // 240 -> 335 km/h
+        gear = 8
+        rpm = 12200 + (t / 14) * 800
+        throttle = 1.0
+        ersMode = 'DEPLOY'
+        dynamicAeroMode = 'STRAIGHT'
+        frontHeaveMm = -4.2
+        rearHeaveMm = -14.5
+      } else if (t < 20) {
+        // Heavy Braking into Village & Loop
+        const bProgress = (t - 14) / 6
+        speedKmh = 335 - bProgress * 250 // 335 -> 85 km/h
+        gear = 2
+        rpm = 10500
+        throttle = 0
+        brake = 1.0
+        ersMode = 'HARVEST'
+        dynamicAeroMode = 'CORNER'
+        frontHeaveMm = 14.8 // front compression dive
+        rearHeaveMm = -2.1
+      } else if (t < 36) {
+        // Acceleration through Aintree into Wellington Straight
+        const aProgress = (t - 20) / 16
+        speedKmh = 85 + aProgress * 255 // 85 -> 340 km/h
+        gear = 8
+        rpm = 12400
+        throttle = 1.0
+        ersMode = 'DEPLOY'
+        dynamicAeroMode = 'STRAIGHT'
+        frontHeaveMm = -5.0
+        rearHeaveMm = -16.0
+      } else if (t < 44) {
+        // Brooklands & Luffield Stadium Turns
+        speedKmh = 135
+        gear = 4
+        rpm = 11800
+        throttle = 0.65
+        brake = 0.15
+        ersMode = 'NEUTRAL'
+        dynamicAeroMode = 'CORNER'
+        frontHeaveMm = 4.2
+        rearHeaveMm = 6.8
+      } else if (t < 58) {
+        // High Speed Copse, Maggotts, Becketts Complex (Extreme G-Forces)
+        speedKmh = 278
+        gear = 7
+        rpm = 12700
+        throttle = 0.95
+        ersMode = 'DEPLOY'
+        dynamicAeroMode = 'CORNER'
+        frontHeaveMm = -12.0
+        rearHeaveMm = -18.5
+      } else {
+        // Hangar Straight into Stowe & Club Chicane
+        const hProgress = (t - 58) / 17
+        if (hProgress < 0.65) {
+          speedKmh = 260 + (hProgress / 0.65) * 85 // 260 -> 345 km/h
+          gear = 8
+          throttle = 1.0
+          ersMode = 'DEPLOY'
+          dynamicAeroMode = 'STRAIGHT'
+          rearHeaveMm = -17.2
+        } else {
+          speedKmh = 345 - ((hProgress - 0.65) / 0.35) * 230 // Hard braking into Stowe
+          gear = 3
+          throttle = 0
+          brake = 0.95
+          ersMode = 'HARVEST'
+          dynamicAeroMode = 'CORNER'
+          frontHeaveMm = 12.5
+        }
+      }
+
+      setActiveAeroMode(dynamicAeroMode)
+      setTelemetrySyncState({
+        active: true,
+        speedKmh,
+        rpm,
+        gear,
+        throttle,
+        brake,
+        ersMode,
+        ersPowerKw,
+        frontHeaveMm,
+        rearHeaveMm,
+      })
+
+      animationFrame = requestAnimationFrame(loop)
+    }
+
+    animationFrame = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(animationFrame)
+  }, [telemetryPlaying, playbackSpeed])
 
   const aero = useMemo(
     () =>
       calculateAero({
-        velocityMs: 83.33,
+        velocityMs: telemetrySyncState.active ? telemetrySyncState.speedKmh / 3.6 : 83.33,
         frontWingAngle: setup.frontWing,
         rearWingAngle: setup.rearWing,
         rideHeightFrontMm: setup.rideHeightFront,
@@ -127,22 +276,26 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
         timeSeconds: 5.2,
         activeAeroMode,
       }),
-    [setup, activeAeroMode],
+    [setup, activeAeroMode, telemetrySyncState],
   )
 
   const powertrain = useMemo(
     () =>
       calculatePowertrain({
-        rpm: 12500,
-        throttle: 1.0,
-        speedMs: 83.33,
-        ersMode: 'DEPLOY',
+        rpm: telemetrySyncState.active ? telemetrySyncState.rpm : 12500,
+        throttle: telemetrySyncState.active ? telemetrySyncState.throttle : 1.0,
+        speedMs: telemetrySyncState.active ? telemetrySyncState.speedKmh / 3.6 : 83.33,
+        ersMode: telemetrySyncState.active
+          ? telemetrySyncState.ersMode === 'NEUTRAL'
+            ? 'BALANCED'
+            : telemetrySyncState.ersMode
+          : 'DEPLOY',
         ersStateOfCharge: 85,
         engineWearPercent: 12,
         deltaSeconds: 0.01,
         manualOverrideActive,
       }),
-    [manualOverrideActive],
+    [manualOverrideActive, telemetrySyncState],
   )
 
   const update = <K extends keyof SetupState>(key: K, value: SetupState[K]) => {
@@ -195,6 +348,9 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               setActiveAeroMode('CORNER')
               setClippingAxis('NONE')
               setCfdHeatmapMode(false)
+              setFlirMode(false)
+              setSmokeWandMode('OFF')
+              setTelemetryPlaying(false)
               setSaved(false)
             }}
           >
@@ -269,6 +425,39 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                   ? 'High downforce configuration: Front dual active flaps closed and 3-element rear wing deployed for maximum cornering grip.'
                   : 'Low drag configuration: Front active flaps shed load (-14°) and rear wing upper element opens (+28°), cutting drag by ~45%.'}
               </p>
+            </div>
+
+            {/* Wind Tunnel Streamline Smoke Wand Inserter */}
+            <div className="smoke-wand-card">
+              <div className="wand-card-header">
+                <div className="wand-label-block">
+                  <Wind size={14} className="wand-icon" />
+                  <strong>WIND TUNNEL SMOKE WANDS</strong>
+                </div>
+                <span className="wand-badge">PARTICLE TRACERS</span>
+              </div>
+              <div className="smoke-wand-pills">
+                {(
+                  [
+                    { key: 'OFF', label: 'OFF' },
+                    { key: 'ALL', label: 'ALL WANDS' },
+                    { key: 'FRONT_WING', label: 'FRONT WING' },
+                    { key: 'AIRBOX', label: 'AIRBOX & FIN' },
+                    { key: 'FLOOR', label: 'UNDERFLOOR' },
+                  ] as const
+                ).map((w) => (
+                  <button
+                    key={w.key}
+                    className={`smoke-wand-pill ${smokeWandMode === w.key ? 'active' : ''}`}
+                    onClick={() => {
+                      setSmokeWandMode(w.key)
+                      onNotify('WIND TUNNEL SMOKE', `Streamline nozzle set to: ${w.label}`, 'success')
+                    }}
+                  >
+                    {w.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <SetupRangeSlider
@@ -360,10 +549,12 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                   </option>
                 ))}
               </select>
+
               <button
                 className={`cfd-toggle-btn ${cfdHeatmapMode ? 'active' : ''}`}
                 onClick={() => {
                   setCfdHeatmapMode(!cfdHeatmapMode)
+                  setFlirMode(false)
                   onNotify(
                     'CFD HEATMAP',
                     !cfdHeatmapMode
@@ -376,6 +567,25 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               >
                 <Palette size={14} /> {cfdHeatmapMode ? 'CFD ACTIVE' : 'CFD HEATMAP'}
               </button>
+
+              <button
+                className={`flir-toggle-btn ${flirMode ? 'active' : ''}`}
+                onClick={() => {
+                  setFlirMode(!flirMode)
+                  setCfdHeatmapMode(false)
+                  onNotify(
+                    'FLIR THERMAL IR',
+                    !flirMode
+                      ? 'Thermal Infrared Camera View engaged (Ironbow thermal tyre/brake imaging).'
+                      : 'Standard livery rendering restored.',
+                    'success',
+                  )
+                }}
+                title="Toggle FLIR Thermal Infrared Imaging"
+              >
+                <Thermometer size={14} /> {flirMode ? 'FLIR ON' : 'FLIR IR'}
+              </button>
+
               <button
                 className={`wireframe-toggle-btn ${wireframeMode ? 'active' : ''}`}
                 onClick={() => setWireframeMode(!wireframeMode)}
@@ -517,6 +727,9 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 clippingAxis={clippingAxis}
                 clippingOffset={clippingOffset}
                 cfdHeatmapMode={cfdHeatmapMode}
+                flirMode={flirMode}
+                smokeWandMode={smokeWandMode}
+                telemetrySync={telemetrySyncState}
                 onSelectPart={(part) => setSelectedPart(part)}
               />
             </Suspense>
@@ -530,6 +743,21 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                   <span>+1.0 (STAGNATION RED)</span>
                   <span>0.0 (FREE STREAM)</span>
                   <span>-2.5 (SUCTION PURPLE)</span>
+                </div>
+              </div>
+            )}
+
+            {/* FLIR Thermal Camera Legend Bar */}
+            {flirMode && (
+              <div className="flir-thermal-legend-bar">
+                <div className="flir-legend-title">
+                  <Flame size={12} /> FLIR IRONBOW THERMAL SPECTRUM
+                </div>
+                <div className="flir-gradient-strip" />
+                <div className="flir-bounds">
+                  <span>COLD BODY &lt;40°C</span>
+                  <span>TYRE TREAD 100°C</span>
+                  <span>BRAKE DISC &gt;850°C</span>
                 </div>
               </div>
             )}
@@ -577,29 +805,64 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
             )}
           </div>
 
-          {/* Live Calculated Aero & Telemetry Ribbon */}
-          <div className="aero-metrics-ribbon">
-            <div className="aero-stat">
-              <span className="stat-label">TOTAL DOWNFORCE</span>
-              <strong className="stat-value">{(aero.downforceN / 1000).toFixed(1)} <small>kN</small></strong>
+          {/* 3D Telemetry Synchronized Playback Deck Toolbar */}
+          <div className="telemetry-playback-deck">
+            <div className="telemetry-playback-controls">
+              <button
+                className={`telemetry-play-btn ${telemetryPlaying ? 'playing' : ''}`}
+                onClick={() => {
+                  setTelemetryPlaying(!telemetryPlaying)
+                  onNotify(
+                    'TELEMETRY SYNC',
+                    !telemetryPlaying
+                      ? 'Live Hot Lap Telemetry loop active: Driving suspension heave, wheel spin, active wings & MGU-K energy flows.'
+                      : 'Live Telemetry loop paused.',
+                    'success',
+                  )
+                }}
+              >
+                {telemetryPlaying ? <Square size={13} /> : <Play size={13} />}
+                <span>{telemetryPlaying ? 'PAUSE TELEMETRY' : 'PLAY LIVE HOT LAP SIMULATION'}</span>
+              </button>
+
+              <div className="playback-speed-group">
+                <span className="speed-label">SPEED:</span>
+                {([1, 2, 4] as const).map((speed) => (
+                  <button
+                    key={speed}
+                    className={`speed-pill ${playbackSpeed === speed ? 'active' : ''}`}
+                    onClick={() => setPlaybackSpeed(speed)}
+                  >
+                    {speed}x
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="aero-stat">
-              <span className="stat-label">DRAG COEFFICIENT</span>
-              <strong className="stat-value">{aero.cdTotal.toFixed(2)} <small>Cd</small></strong>
-            </div>
-            <div className="aero-stat">
-              <span className="stat-label">DRAG SHEDDING</span>
-              <strong className={`stat-value ${activeAeroMode === 'STRAIGHT' ? 'highlight-green' : ''}`}>
-                {activeAeroMode === 'STRAIGHT' ? `-${aero.dragReductionPercent.toFixed(1)}%` : '0.0%'}
-              </strong>
-            </div>
-            <div className="aero-stat">
-              <span className="stat-label">EST. TOP SPEED</span>
-              <strong className="stat-value highlight">{aero.topSpeedEstimateKmh.toFixed(0)} <small>KM/H</small></strong>
-            </div>
-            <div className="aero-stat">
-              <span className="stat-label">AERO BALANCE</span>
-              <strong className="stat-value">{aero.frontBalancePercent.toFixed(1)}% <small>FRONT</small></strong>
+
+            {/* Live Calculated Aero & Telemetry Ribbon */}
+            <div className="aero-metrics-ribbon">
+              <div className="aero-stat">
+                <span className="stat-label">TOTAL DOWNFORCE</span>
+                <strong className="stat-value">{(aero.downforceN / 1000).toFixed(1)} <small>kN</small></strong>
+              </div>
+              <div className="aero-stat">
+                <span className="stat-label">DRAG COEFFICIENT</span>
+                <strong className="stat-value">{aero.cdTotal.toFixed(2)} <small>Cd</small></strong>
+              </div>
+              <div className="aero-stat">
+                <span className="stat-label">DRAG SHEDDING</span>
+                <strong className={`stat-value ${activeAeroMode === 'STRAIGHT' ? 'highlight-green' : ''}`}>
+                  {activeAeroMode === 'STRAIGHT' ? `-${aero.dragReductionPercent.toFixed(1)}%` : '0.0%'}
+                </strong>
+              </div>
+              <div className="aero-stat">
+                <span className="stat-label">EST. TOP SPEED</span>
+                <strong className="stat-value highlight">{aero.topSpeedEstimateKmh.toFixed(0)} <small>KM/H</small></strong>
+              </div>
+              <div className="aero-stat">
+                <span className="stat-label">AERO BALANCE</span>
+                <strong className="stat-value">{aero.frontBalancePercent.toFixed(1)}% <small>FRONT</small></strong>
+              </div>
             </div>
           </div>
         </section>

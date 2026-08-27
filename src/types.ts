@@ -2,6 +2,7 @@ export type TireCompound = 'SOFT' | 'MEDIUM' | 'HARD' | 'INTERMEDIATE' | 'WET'
 export type PaceMode = 'CONSERVE' | 'BALANCED' | 'ATTACK'
 export type ErsMode = 'HARVEST' | 'BALANCED' | 'DEPLOY'
 export type AppView = 'race' | 'strategy' | 'car' | 'hq' | 'telemetry'
+export type CameraMode = 'broadcast' | 'helicopter' | 'cockpit' | 'nosecone' | 'onboard'
 
 export interface DriverMeta {
   id: string

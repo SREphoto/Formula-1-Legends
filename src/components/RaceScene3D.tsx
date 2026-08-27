@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
-import type { DriverState } from '../types'
+import type { CameraMode, DriverState } from '../types'
 import { createF1Car, disposeF1Car } from '../graphics/createF1Car'
 import { createPitCrew, disposePitCrew, type PitCrewRig } from '../graphics/createPitCrew'
 
 interface RaceScene3DProps {
   drivers: DriverState[]
   selectedDriverId: string
-  cameraMode: 'broadcast' | 'onboard'
+  cameraMode: CameraMode
   onSelectDriver: (driverId: string) => void
   rainfall?: number
   showDopplerRadar?: boolean
+  showGhostCar?: boolean
 }
 
 /**
@@ -319,15 +320,17 @@ export function RaceScene3D({
   onSelectDriver,
   rainfall = 0,
   showDopplerRadar = false,
+  showGhostCar = true,
 }: RaceScene3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [webglFailed, setWebglFailed] = useState(false)
   const driversRef = useRef(drivers)
   const selectedRef = useRef(selectedDriverId)
-  const cameraModeRef = useRef(cameraMode)
+  const cameraModeRef = useRef<CameraMode>(cameraMode)
   const selectRef = useRef(onSelectDriver)
   const rainfallRef = useRef(rainfall)
   const showRadarRef = useRef(showDopplerRadar)
+  const showGhostRef = useRef(showGhostCar)
 
   useEffect(() => {
     driversRef.current = drivers
@@ -352,6 +355,10 @@ export function RaceScene3D({
   useEffect(() => {
     showRadarRef.current = showDopplerRadar
   }, [showDopplerRadar])
+
+  useEffect(() => {
+    showGhostRef.current = showGhostCar
+  }, [showGhostCar])
 
   useEffect(() => {
     const container = containerRef.current
@@ -545,6 +552,41 @@ export function RaceScene3D({
       carGroups.set(driver.id, car)
     })
 
+    // --- Holographic Ghost Car (Pole Reference) ---
+    const ghostCar = createF1Car('#00f0ff', '#ffffff')
+    ghostCar.traverse((child: THREE.Object3D) => {
+      if (child instanceof THREE.Mesh) {
+        child.material = new THREE.MeshBasicMaterial({
+          color: '#00f0ff',
+          transparent: true,
+          opacity: 0.35,
+          wireframe: true,
+        })
+      }
+    })
+    scene.add(ghostCar)
+
+    // --- Wet Tire Spray Roost Particles ---
+    const sprayCount = 1200
+    const sprayGeo = new THREE.BufferGeometry()
+    const sprayPositions = new Float32Array(sprayCount * 3)
+    for (let i = 0; i < sprayCount; i += 1) {
+      sprayPositions[i * 3] = 0
+      sprayPositions[i * 3 + 1] = -100
+      sprayPositions[i * 3 + 2] = 0
+    }
+    sprayGeo.setAttribute('position', new THREE.BufferAttribute(sprayPositions, 3))
+    const sprayMat = new THREE.PointsMaterial({
+      color: '#e0f2fe',
+      size: 0.45,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    const sprayParticles = new THREE.Points(sprayGeo, sprayMat)
+    scene.add(sprayParticles)
+
     const selectionRing = new THREE.Mesh(
       new THREE.RingGeometry(1.35, 1.6, 40),
       new THREE.MeshBasicMaterial({ color: '#ff8000', transparent: true, opacity: 0.95, side: THREE.DoubleSide }),
@@ -625,8 +667,8 @@ export function RaceScene3D({
         rainParticles.visible = true
         rainMat.opacity = Math.min(0.85, (currentRain / 100) * 0.9)
         const positions = rainGeo.attributes.position.array as Float32Array
-        for (let i = 1; i < rainPositions.length; i += 3) {
-          positions[i] -= deltaTime * (28 + (currentRain / 100) * 25)
+        for (let i = 1; i < rainCount * 3; i += 3) {
+          positions[i] -= deltaTime * (32 + (currentRain / 100) * 24)
           if (positions[i] < 0) positions[i] = 45
         }
         rainGeo.attributes.position.needsUpdate = true
@@ -698,7 +740,49 @@ export function RaceScene3D({
         radarSweepMesh.visible = false
       }
 
-      // 3. Cars Simulation & Pit Crew Animation
+      // 3. Holographic Ghost Car (Pole Reference) Update
+      if (showGhostRef.current) {
+        ghostCar.visible = true
+        const ghostProgress = ((elapsed * 0.058) % 1)
+        const ghostPt = curve.getPointAt(ghostProgress)
+        const ghostTan = curve.getTangentAt(ghostProgress).normalize()
+        ghostCar.position.set(ghostPt.x, 0.07, ghostPt.z)
+        ghostCar.rotation.y = Math.atan2(ghostTan.x, ghostTan.z)
+      } else {
+        ghostCar.visible = false
+      }
+
+      // 4. Wet Tire Spray Roost Particles
+      if (currentRain > 0) {
+        sprayParticles.visible = true
+        sprayMat.opacity = Math.min(0.65, (currentRain / 100) * 0.75)
+        const sPos = sprayGeo.attributes.position.array as Float32Array
+        let sIdx = 0
+        driversRef.current.forEach((driver) => {
+          const car = carGroups.get(driver.id)
+          if (!car || driver.speed < 50) return
+          const speedFactor = driver.speed / 300
+          for (let p = 0; p < 25 && sIdx < sprayCount; p += 1) {
+            const i3 = sIdx * 3
+            if (sPos[i3 + 1] < 0 || sPos[i3 + 1] > 3.2) {
+              sPos[i3] = car.position.x + (Math.random() - 0.5) * 1.4
+              sPos[i3 + 1] = 0.15 + Math.random() * 0.2
+              sPos[i3 + 2] = car.position.z + (Math.random() - 0.5) * 1.4
+            } else {
+              sPos[i3 + 1] += deltaTime * (1.2 + speedFactor * 2.2)
+              sPos[i3] += (Math.random() - 0.5) * 0.06
+              sPos[i3 + 2] += (Math.random() - 0.5) * 0.06
+            }
+            sIdx += 1
+          }
+        })
+        sprayGeo.attributes.position.needsUpdate = true
+      } else {
+        sprayParticles.visible = false
+        sprayMat.opacity = 0
+      }
+
+      // 5. Cars Simulation & Pit Crew Animation
       let selectedPoint: THREE.Vector3 | undefined
       let selectedTangent: THREE.Vector3 | undefined
       let anyPittingActive = false
@@ -771,11 +855,21 @@ export function RaceScene3D({
         selectionRing.rotation.z += deltaTime * 0.7
         side.set(-selectedTangent.z, 0, selectedTangent.x)
 
-        if (cameraModeRef.current === 'onboard') {
-          desiredCamera.copy(selectedPoint).addScaledVector(selectedTangent, -3.2).add(new THREE.Vector3(0, 1.6, 0))
-          lookTarget.copy(selectedPoint).addScaledVector(selectedTangent, 14).add(new THREE.Vector3(0, 0.5, 0))
-          camera.fov = THREE.MathUtils.lerp(camera.fov, 62, 0.08)
+        const mode = cameraModeRef.current
+        if (mode === 'cockpit') {
+          desiredCamera.copy(selectedPoint).addScaledVector(selectedTangent, 0.28).add(new THREE.Vector3(0, 0.72, 0))
+          lookTarget.copy(selectedPoint).addScaledVector(selectedTangent, 22).add(new THREE.Vector3(0, 0.45, 0))
+          camera.fov = THREE.MathUtils.lerp(camera.fov, 72, 0.12)
+        } else if (mode === 'nosecone') {
+          desiredCamera.copy(selectedPoint).addScaledVector(selectedTangent, 2.1).add(new THREE.Vector3(0, 0.32, 0))
+          lookTarget.copy(selectedPoint).addScaledVector(selectedTangent, 26).add(new THREE.Vector3(0, 0.25, 0))
+          camera.fov = THREE.MathUtils.lerp(camera.fov, 82, 0.12)
+        } else if (mode === 'helicopter') {
+          desiredCamera.copy(selectedPoint).addScaledVector(selectedTangent, -26).add(new THREE.Vector3(0, 28, 0))
+          lookTarget.copy(selectedPoint).addScaledVector(selectedTangent, 10)
+          camera.fov = THREE.MathUtils.lerp(camera.fov, 52, 0.1)
         } else {
+          // Broadcast Trackside Camera
           const orbitSide = side.clone().multiplyScalar(10 * Math.cos(orbitOffset))
           desiredCamera.copy(selectedPoint).addScaledVector(selectedTangent, -13).add(orbitSide).add(new THREE.Vector3(0, 8.2 + Math.abs(Math.sin(orbitOffset)) * 3.5, 0))
           lookTarget.copy(selectedPoint).addScaledVector(selectedTangent, 5)
@@ -800,6 +894,7 @@ export function RaceScene3D({
       renderer.domElement.removeEventListener('pointerup', pointerUp)
 
       carGroups.forEach((car) => disposeF1Car(car))
+      disposeF1Car(ghostCar)
       disposePitCrew(pitCrewRig)
 
       scenery.materials.forEach((m) => m.dispose())
@@ -818,12 +913,15 @@ export function RaceScene3D({
       rightLineGeometry.dispose()
       rubberGeometry.dispose()
       pitRoadGeometry.dispose()
+      rainGeo.dispose()
+      rainMat.dispose()
+      sprayGeo.dispose()
+      sprayMat.dispose()
       pitLineGeo.dispose()
       pitSpeedLimitGeo.dispose()
       pitWallGeo.dispose()
       pitBuildingGeo.dispose()
       rainGeo.dispose()
-      radarGeo.dispose()
 
       runoffMaterial.dispose()
       curbMaterial.dispose()

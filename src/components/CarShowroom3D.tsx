@@ -3,6 +3,21 @@ import * as THREE from 'three'
 import { createF1Car2026, type F1Car2026Controller } from '../graphics/f1_2026/F1Car2026Model'
 import type { CarPartMetadata, SubsystemCategory } from '../graphics/f1_2026/carPartsData'
 
+export type SmokeWandMode = 'OFF' | 'ALL' | 'FRONT_WING' | 'AIRBOX' | 'FLOOR'
+
+export interface TelemetrySyncState {
+  active: boolean
+  speedKmh: number
+  rpm: number
+  gear: number
+  throttle: number
+  brake: number
+  ersMode: 'DEPLOY' | 'HARVEST' | 'NEUTRAL'
+  ersPowerKw: number
+  frontHeaveMm: number
+  rearHeaveMm: number
+}
+
 interface CarShowroom3DProps {
   primaryColor: string
   accentColor: string
@@ -17,6 +32,9 @@ interface CarShowroom3DProps {
   clippingAxis?: 'NONE' | 'X' | 'Y' | 'Z'
   clippingOffset?: number
   cfdHeatmapMode?: boolean
+  flirMode?: boolean
+  smokeWandMode?: SmokeWandMode
+  telemetrySync?: TelemetrySyncState
   onSelectPart?: (part: CarPartMetadata | null) => void
 }
 
@@ -34,6 +52,9 @@ export function CarShowroom3D({
   clippingAxis = 'NONE',
   clippingOffset = 0,
   cfdHeatmapMode = false,
+  flirMode = false,
+  smokeWandMode = 'OFF',
+  telemetrySync,
   onSelectPart,
 }: CarShowroom3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -49,6 +70,9 @@ export function CarShowroom3D({
     clippingAxis,
     clippingOffset,
     cfdHeatmapMode,
+    flirMode,
+    smokeWandMode,
+    telemetrySync,
   })
   valuesRef.current = {
     frontBalance,
@@ -62,6 +86,9 @@ export function CarShowroom3D({
     clippingAxis,
     clippingOffset,
     cfdHeatmapMode,
+    flirMode,
+    smokeWandMode,
+    telemetrySync,
   }
 
   const carControllerRef = useRef<F1Car2026Controller | null>(null)
@@ -74,7 +101,14 @@ export function CarShowroom3D({
       carControllerRef.current.setSubsystemFilter(subsystemFilter)
       carControllerRef.current.setWireframeMode(wireframeMode)
       carControllerRef.current.setClippingPlane(clippingAxis, clippingOffset)
-      carControllerRef.current.setCfdHeatmapMode(cfdHeatmapMode, activeAeroMode)
+      if (flirMode) {
+        carControllerRef.current.setFlirMode(true)
+      } else if (cfdHeatmapMode) {
+        carControllerRef.current.setCfdHeatmapMode(true, activeAeroMode)
+      } else {
+        carControllerRef.current.setCfdHeatmapMode(false)
+        carControllerRef.current.setFlirMode(false)
+      }
     }
   }, [
     explodedRatio,
@@ -85,6 +119,7 @@ export function CarShowroom3D({
     clippingAxis,
     clippingOffset,
     cfdHeatmapMode,
+    flirMode,
   ])
 
   useEffect(() => {
@@ -99,7 +134,7 @@ export function CarShowroom3D({
     renderer.toneMappingExposure = 1.25
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
-    renderer.localClippingEnabled = true // Enable CAD cross-section cutting planes
+    renderer.localClippingEnabled = true
     renderer.domElement.className = 'showroom-3d-canvas'
     renderer.domElement.style.touchAction = 'none'
     container.appendChild(renderer.domElement)
@@ -124,7 +159,7 @@ export function CarShowroom3D({
     cyanRim.position.set(-5, 2.5, -3)
     scene.add(cyanRim)
 
-    // Circular Presentation Turntable
+    // Turntable
     const platformMaterial = new THREE.MeshStandardMaterial({ color: '#11151a', roughness: 0.28, metalness: 0.65 })
     const platform = new THREE.Mesh(new THREE.CylinderGeometry(4.8, 5.15, 0.36, 64), platformMaterial)
     platform.position.y = -0.2
@@ -156,7 +191,11 @@ export function CarShowroom3D({
     carController.setSubsystemFilter(valuesRef.current.subsystemFilter)
     carController.setWireframeMode(valuesRef.current.wireframeMode)
     carController.setClippingPlane(valuesRef.current.clippingAxis, valuesRef.current.clippingOffset)
-    carController.setCfdHeatmapMode(valuesRef.current.cfdHeatmapMode, valuesRef.current.activeAeroMode)
+    if (valuesRef.current.flirMode) {
+      carController.setFlirMode(true)
+    } else if (valuesRef.current.cfdHeatmapMode) {
+      carController.setCfdHeatmapMode(true, valuesRef.current.activeAeroMode)
+    }
 
     const floorGlowMaterial = new THREE.MeshBasicMaterial({
       color: valuesRef.current.porpoising ? '#ff3f42' : primaryColor,
@@ -170,7 +209,7 @@ export function CarShowroom3D({
     floorGlow.position.y = 0.03
     carPivot.add(floorGlow)
 
-    // Aero downforce load arrows
+    // Downforce load arrows
     const arrowMaterial = new THREE.MeshStandardMaterial({ color: '#4ce2c2', emissive: '#1f8d7b', emissiveIntensity: 0.8 })
     const arrowGeometry = new THREE.ConeGeometry(0.12, 0.4, 10)
     const arrows: THREE.Mesh[] = []
@@ -182,7 +221,7 @@ export function CarShowroom3D({
       arrows.push(arrow)
     })
 
-    // Wind Tunnel Airflow Streamline Particles
+    // Ambient Airflow Particles
     const airflowCount = 120
     const airflowPositions = new Float32Array(airflowCount * 3)
     const airflowSpeeds = new Float32Array(airflowCount)
@@ -199,7 +238,47 @@ export function CarShowroom3D({
     airflow.rotation.y = Math.PI / 2
     scene.add(airflow)
 
-    // Raycasting for Part Selection & Inspection
+    // Multi-Nozzle Smoke Streamlines Wand Particles
+    const smokeCount = 380
+    const smokePositions = new Float32Array(smokeCount * 3)
+    const smokeOffsets = new Float32Array(smokeCount * 3)
+    const smokeWandIds = new Float32Array(smokeCount)
+
+    for (let i = 0; i < smokeCount; i++) {
+      // 5 Wand Nozzles: 0=Left FW, 1=Right FW, 2=Airbox, 3=Left Floor, 4=Right Floor
+      const wand = i % 5
+      smokeWandIds[i] = wand
+      const progress = (i / smokeCount) * 6.5
+      let x = 0
+      let y = 0.5
+      if (wand === 0) { x = -0.55; y = 0.22 }
+      else if (wand === 1) { x = 0.55; y = 0.22 }
+      else if (wand === 2) { x = 0; y = 0.85 }
+      else if (wand === 3) { x = -0.42; y = 0.12 }
+      else if (wand === 4) { x = 0.42; y = 0.12 }
+
+      smokePositions[i * 3] = x
+      smokePositions[i * 3 + 1] = y
+      smokePositions[i * 3 + 2] = 2.8 - progress
+      smokeOffsets[i * 3] = (Math.random() - 0.5) * 0.04
+      smokeOffsets[i * 3 + 1] = (Math.random() - 0.5) * 0.04
+      smokeOffsets[i * 3 + 2] = Math.random()
+    }
+
+    const smokeGeometry = new THREE.BufferGeometry()
+    smokeGeometry.setAttribute('position', new THREE.BufferAttribute(smokePositions, 3))
+    const smokeMaterial = new THREE.PointsMaterial({
+      color: '#e2f8ff',
+      size: 0.075,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    const smokePoints = new THREE.Points(smokeGeometry, smokeMaterial)
+    carPivot.add(smokePoints)
+
+    // Raycasting
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
 
@@ -266,8 +345,14 @@ export function CarShowroom3D({
       animationFrame = requestAnimationFrame(animate)
       const delta = Math.min(0.04, clock.getDelta())
       const elapsed = clock.elapsedTime
+      const currentSync = valuesRef.current.telemetrySync
 
-      if (!dragging && valuesRef.current.explodedRatio < 0.05 && valuesRef.current.clippingAxis === 'NONE') {
+      if (
+        !dragging &&
+        valuesRef.current.explodedRatio < 0.05 &&
+        valuesRef.current.clippingAxis === 'NONE' &&
+        !currentSync?.active
+      ) {
         targetRotation += delta * 0.12
       }
       carPivot.rotation.y = THREE.MathUtils.lerp(carPivot.rotation.y, targetRotation, 0.08)
@@ -279,6 +364,18 @@ export function CarShowroom3D({
       // Update car internal kinematics
       carController.update(delta)
 
+      // Handle Telemetry Synchronized Playback
+      if (currentSync?.active) {
+        const speedMs = currentSync.speedKmh / 3.6
+        // Wheel spin: omega = v / r (radius ~0.35m)
+        const radDelta = (speedMs / 0.35) * delta
+        carController.spinWheels(radDelta)
+        // Suspension Heave / Aero Squish
+        carController.setSuspensionCompression(currentSync.frontHeaveMm / 1000, currentSync.rearHeaveMm / 1000)
+        // MGU-K Energy Flow Conduits
+        carController.setEnergyFlow(currentSync.ersMode, currentSync.ersPowerKw)
+      }
+
       // Aero load vectors
       arrows.forEach((arrow, index) => {
         const frontWeight = index > 1 ? valuesRef.current.frontBalance / 50 : (100 - valuesRef.current.frontBalance) / 50
@@ -286,13 +383,67 @@ export function CarShowroom3D({
         arrow.position.y = 2.2 + Math.sin(elapsed * 2.4 + index) * 0.13
       })
 
-      // Airflow streamline speed scales with Straight Mode
+      // Airflow streamline speed
       const flowSpeedMult = valuesRef.current.activeAeroMode === 'STRAIGHT' ? 1.45 : 1.0
       for (let index = 0; index < airflowCount; index += 1) {
         airflowPositions[index * 3 + 2] += airflowSpeeds[index] * flowSpeedMult * delta
         if (airflowPositions[index * 3 + 2] > 7) airflowPositions[index * 3 + 2] = -7
       }
       airflowGeometry.attributes.position.needsUpdate = true
+
+      // Wind Tunnel Smoke Wand Streamlines
+      const wandMode = valuesRef.current.smokeWandMode
+      smokePoints.visible = wandMode !== 'OFF'
+      if (wandMode !== 'OFF') {
+        const smokeSpeed = (valuesRef.current.activeAeroMode === 'STRAIGHT' ? 5.5 : 4.0) * delta
+        for (let i = 0; i < smokeCount; i++) {
+          const wand = smokeWandIds[i]
+          let active = true
+          if (wandMode === 'FRONT_WING' && wand !== 0 && wand !== 1) active = false
+          if (wandMode === 'AIRBOX' && wand !== 2) active = false
+          if (wandMode === 'FLOOR' && wand !== 3 && wand !== 4) active = false
+
+          if (!active) {
+            smokePositions[i * 3 + 1] = -50 // hide
+            continue
+          }
+
+          // Advance along Z towards rear
+          smokePositions[i * 3 + 2] -= smokeSpeed
+          // Streamline curvature & turbulence
+          const z = smokePositions[i * 3 + 2]
+          if (wand === 0 || wand === 1) {
+            // Front Wing upwash & outwash
+            if (z < 2.0 && z > 0.8) {
+              smokePositions[i * 3 + 1] += 0.04 * delta
+              smokePositions[i * 3] += (wand === 0 ? -0.06 : 0.06) * delta
+            }
+          } else if (wand === 2) {
+            // Airbox roof downwash to rear wing
+            if (z < 0.5 && z > -1.2) {
+              smokePositions[i * 3 + 1] -= 0.02 * delta
+            } else if (z <= -1.8) {
+              smokePositions[i * 3 + 1] += 0.08 * delta // Rear wing upwash
+            }
+          } else if (wand === 3 || wand === 4) {
+            // Underfloor diffuser expansion
+            if (z < -1.0) {
+              smokePositions[i * 3 + 1] += 0.06 * delta
+            }
+          }
+
+          // Reset particle to nozzle upstream when it reaches the rear wake
+          if (smokePositions[i * 3 + 2] < -3.2) {
+            smokePositions[i * 3 + 2] = 2.8
+            if (wand === 0) { smokePositions[i * 3] = -0.55; smokePositions[i * 3 + 1] = 0.22 }
+            else if (wand === 1) { smokePositions[i * 3] = 0.55; smokePositions[i * 3 + 1] = 0.22 }
+            else if (wand === 2) { smokePositions[i * 3] = 0; smokePositions[i * 3 + 1] = 0.85 }
+            else if (wand === 3) { smokePositions[i * 3] = -0.42; smokePositions[i * 3 + 1] = 0.12 }
+            else if (wand === 4) { smokePositions[i * 3] = 0.42; smokePositions[i * 3 + 1] = 0.12 }
+          }
+        }
+        smokeGeometry.attributes.position.needsUpdate = true
+      }
 
       const baseCamera = new THREE.Vector3(8.2, 4.6, 9.2).multiplyScalar(targetCameraDistance)
       camera.position.lerp(baseCamera, 0.06)
@@ -329,10 +480,14 @@ export function CarShowroom3D({
       arrowMaterial.dispose()
       airflowGeometry.dispose()
       airflowMaterial.dispose()
+      smokeGeometry.dispose()
+      smokeMaterial.dispose()
       renderer.dispose()
       renderer.domElement.remove()
     }
   }, [primaryColor, accentColor, onSelectPart])
+
+  const currentSync = telemetrySync
 
   return (
     <div className="car-showroom-3d" ref={containerRef}>
@@ -344,9 +499,13 @@ export function CarShowroom3D({
       <div className="showroom-help">
         {clippingAxis !== 'NONE'
           ? `CROSS-SECTION CUT: AXIS ${clippingAxis} (${clippingOffset > 0 ? '+' : ''}${clippingOffset.toFixed(2)}m)`
-          : cfdHeatmapMode
-            ? 'CFD SURFACE PRESSURE DISTRIBUTION (+Cp RED / -Cp PURPLE)'
-            : 'DRAG TO ROTATE · SCROLL TO ZOOM · CLICK ANY PART TO INSPECT'}
+          : flirMode
+            ? 'FLIR THERMAL INFRARED CAMERA VIEW (IRONBOW PALETTE)'
+            : cfdHeatmapMode
+              ? 'CFD SURFACE PRESSURE DISTRIBUTION (+Cp RED / -Cp PURPLE)'
+              : smokeWandMode !== 'OFF'
+                ? `WIND TUNNEL SMOKE WAND: ${smokeWandMode} STREAMLINES`
+                : 'DRAG TO ROTATE · SCROLL TO ZOOM · CLICK ANY PART TO INSPECT'}
       </div>
       <div className="showroom-stat front">
         <small>AERO BALANCE</small>
@@ -356,6 +515,41 @@ export function CarShowroom3D({
         <small>TOTAL DOWNFORCE</small>
         <b>{downforceKn.toFixed(1)} kN</b>
       </div>
+
+      {/* Real-Time Live Telemetry HUD Overlay in 3D Showroom */}
+      {currentSync?.active && (
+        <div className="showroom-telemetry-hud">
+          <div className="hud-gear-badge">
+            <span>GEAR</span>
+            <strong>{currentSync.gear > 0 ? currentSync.gear : 'N'}</strong>
+          </div>
+          <div className="hud-metric">
+            <small>SPEED</small>
+            <b>{Math.round(currentSync.speedKmh)} <abbr>KM/H</abbr></b>
+          </div>
+          <div className="hud-metric">
+            <small>ICE RPM</small>
+            <b>{Math.round(currentSync.rpm)}</b>
+          </div>
+          <div className="hud-metric">
+            <small>THROTTLE / BRAKE</small>
+            <div className="hud-pedal-bars">
+              <div className="pedal-bar throttle" style={{ width: `${currentSync.throttle * 100}%` }} />
+              <div className="pedal-bar brake" style={{ width: `${currentSync.brake * 100}%` }} />
+            </div>
+          </div>
+          <div className="hud-metric">
+            <small>350kW MGU-K FLOW</small>
+            <b className={currentSync.ersMode === 'DEPLOY' ? 'flow-deploy' : currentSync.ersMode === 'HARVEST' ? 'flow-harvest' : ''}>
+              {currentSync.ersMode === 'DEPLOY'
+                ? `⚡ ${Math.round(currentSync.ersPowerKw)} kW DEPLOY`
+                : currentSync.ersMode === 'HARVEST'
+                  ? `🔋 8.5 MJ REGEN`
+                  : 'NEUTRAL'}
+            </b>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
