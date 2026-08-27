@@ -23,7 +23,7 @@ import type { DriverState, ErsMode, PaceMode, TireCompound, WorkerCommand } from
 import { formatLapTime } from '../utils/format'
 import { TireBadge } from './TimingTower'
 import { getSampleTeamRadio } from '../services/openf1Service'
-import { radioAudioService } from '../services/radioAudioService'
+import { radioAudioService, type RadioAudioMode } from '../services/radioAudioService'
 
 interface DriverTelemetryPanelProps {
   driver: DriverState
@@ -32,8 +32,6 @@ interface DriverTelemetryPanelProps {
   collapsed?: boolean
   onToggleCollapse?: () => void
 }
-
-const pitCompounds: TireCompound[] = ['SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE']
 
 function MetricCard({
   icon: Icon,
@@ -133,6 +131,7 @@ export function DriverTelemetryPanel({
   const [pitCompound, setPitCompound] = useState<TireCompound>('HARD')
   const [showCommandModal, setShowCommandModal] = useState(false)
   const [playingRadioId, setPlayingRadioId] = useState<string | null>(null)
+  const [radioAcousticMode, setRadioAcousticMode] = useState<RadioAudioMode>(radioAudioService.getRadioMode())
 
   useEffect(() => {
     return radioAudioService.subscribe((isPlaying, id) => {
@@ -361,6 +360,56 @@ export function DriverTelemetryPanel({
             <span className="radio-live-indicator"><i /> LIVE FEED</span>
           </div>
 
+          {/* Radio Acoustic Profile Selector */}
+          <div className="radio-mode-bar" style={{ display: 'flex', gap: '6px', marginBottom: '10px', alignItems: 'center' }}>
+            <span style={{ fontSize: '10px', color: '#8d99ae', fontWeight: 600, letterSpacing: '0.05em' }}>ACOUSTICS:</span>
+            {[
+              { id: 'authentic' as RadioAudioMode, label: '📻 Authentic VHF' },
+              { id: 'studio' as RadioAudioMode, label: '🎙️ Studio HD' },
+              { id: 'raw' as RadioAudioMode, label: '🏎️ Cockpit Raw' },
+            ].map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                className={`radio-mode-chip ${radioAcousticMode === id ? 'active' : ''}`}
+                style={{
+                  padding: '3px 8px',
+                  fontSize: '11px',
+                  borderRadius: '4px',
+                  border: radioAcousticMode === id ? '1px solid #ff8000' : '1px solid #283244',
+                  background: radioAcousticMode === id ? 'rgba(255,128,0,0.15)' : '#10141c',
+                  color: radioAcousticMode === id ? '#ff8000' : '#8d99ae',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+                onClick={() => {
+                  setRadioAcousticMode(id)
+                  radioAudioService.setRadioMode(id)
+                }}
+              >
+                {label}
+              </button>
+            ))}
+            <button
+              type="button"
+              style={{
+                marginLeft: 'auto',
+                padding: '3px 8px',
+                fontSize: '11px',
+                borderRadius: '4px',
+                border: '1px solid #30d158',
+                background: 'rgba(48,209,88,0.12)',
+                color: '#30d158',
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+              onClick={() => radioAudioService.testTransmission(`Will Joseph (${driver.shortName} Engineer)`, `Radio check, radio check. Loud and clear ${driver.firstName}, pacing is green.`)}
+              title="Test Team Radio Voice"
+            >
+              TEST COMMS
+            </button>
+          </div>
+
           <div className="radio-message-list">
             {radioMessages.map((msg, index) => {
               const msgId = `radio-${driver.id}-${index}`
@@ -433,17 +482,26 @@ export function DriverTelemetryPanel({
             <div className="command-modal-body">
               {/* Pace Mode Directive */}
               <div className="command-section">
-                <div className="command-section-label">PACE DIRECTIVE</div>
-                <div className="segmented-command-buttons">
-                  {(['CONSERVE', 'BALANCED', 'ATTACK'] as PaceMode[]).map((mode) => (
+                <div className="command-section-label">
+                  <span>PACE DIRECTIVE</span>
+                  <small>Controls tyre degradation and fuel consumption</small>
+                </div>
+                <div className="segmented-command-buttons rich-command-grid">
+                  {[
+                    { mode: 'CONSERVE' as PaceMode, icon: '🐢', title: 'CONSERVE', sub: 'Save Tyres & Fuel' },
+                    { mode: 'BALANCED' as PaceMode, icon: '⚖️', title: 'BALANCED', sub: 'Standard Target Pace' },
+                    { mode: 'ATTACK' as PaceMode, icon: '⚡', title: 'ATTACK', sub: 'Maximum Push & Pass' },
+                  ].map(({ mode, icon, title, sub }) => (
                     <button
                       key={mode}
-                      className={`command-btn ${driver.paceMode === mode ? 'active' : ''} mode-${mode.toLowerCase()}`}
+                      className={`command-rich-card ${driver.paceMode === mode ? 'active' : ''} mode-${mode.toLowerCase()}`}
                       onClick={() => setPace(mode)}
                     >
-                      {mode === 'CONSERVE' && '🐢 CONSERVE'}
-                      {mode === 'BALANCED' && '⚖️ BALANCED'}
-                      {mode === 'ATTACK' && '⚡ ATTACK'}
+                      <div className="command-card-top">
+                        <span className="command-icon">{icon}</span>
+                        <strong>{title}</strong>
+                      </div>
+                      <span className="command-sub">{sub}</span>
                     </button>
                   ))}
                 </div>
@@ -451,17 +509,26 @@ export function DriverTelemetryPanel({
 
               {/* ERS Deployment Mode */}
               <div className="command-section">
-                <div className="command-section-label">ERS DEPLOYMENT PROGRAM</div>
-                <div className="segmented-command-buttons">
-                  {(['HARVEST', 'BALANCED', 'DEPLOY'] as ErsMode[]).map((mode) => (
+                <div className="command-section-label">
+                  <span>ERS HYBRID ENERGY PROGRAM</span>
+                  <small>350 kW electrical motor deployment profile</small>
+                </div>
+                <div className="segmented-command-buttons rich-command-grid">
+                  {[
+                    { mode: 'HARVEST' as ErsMode, icon: '🔋', title: 'HARVEST', sub: 'Recharge Battery (+15%)' },
+                    { mode: 'BALANCED' as ErsMode, icon: '⚖️', title: 'BALANCED', sub: '50/50 Electric Split' },
+                    { mode: 'DEPLOY' as ErsMode, icon: '🚀', title: 'OVERTAKE', sub: 'Full 350 kW Boost' },
+                  ].map(({ mode, icon, title, sub }) => (
                     <button
                       key={mode}
-                      className={`command-btn ${driver.ersMode === mode ? 'active' : ''} ers-${mode.toLowerCase()}`}
+                      className={`command-rich-card ${driver.ersMode === mode ? 'active' : ''} ers-${mode.toLowerCase()}`}
                       onClick={() => setErs(mode)}
                     >
-                      {mode === 'HARVEST' && '🔋 HARVEST'}
-                      {mode === 'BALANCED' && '⚖️ BALANCED'}
-                      {mode === 'DEPLOY' && '🚀 OVERTAKE'}
+                      <div className="command-card-top">
+                        <span className="command-icon">{icon}</span>
+                        <strong>{title}</strong>
+                      </div>
+                      <span className="command-sub">{sub}</span>
                     </button>
                   ))}
                 </div>
@@ -469,16 +536,27 @@ export function DriverTelemetryPanel({
 
               {/* Pit Stop Call */}
               <div className="command-section pit-section">
-                <div className="command-section-label">PIT STOP TARGET COMPOUND</div>
+                <div className="command-section-label">
+                  <span>PIT STOP COMPOUND &amp; TIMING</span>
+                  <small>Select target tyre set for the next pit stop</small>
+                </div>
                 <div className="compound-selector-row">
-                  {pitCompounds.map((compound) => (
+                  {[
+                    { c: 'SOFT' as TireCompound, label: 'Soft', life: '~16 laps' },
+                    { c: 'MEDIUM' as TireCompound, label: 'Medium', life: '~26 laps' },
+                    { c: 'HARD' as TireCompound, label: 'Hard', life: '~38 laps' },
+                    { c: 'INTERMEDIATE' as TireCompound, label: 'Inters', life: 'Wet track' },
+                  ].map(({ c, label, life }) => (
                     <button
-                      key={compound}
-                      className={`compound-pill-btn ${pitCompound === compound ? 'active' : ''}`}
-                      onClick={() => setPitCompound(compound)}
+                      key={c}
+                      className={`compound-pill-btn ${pitCompound === c ? 'active' : ''}`}
+                      onClick={() => setPitCompound(c)}
                     >
-                      <TireBadge compound={compound} small />
-                      <span>{compound}</span>
+                      <TireBadge compound={c} small />
+                      <div className="compound-btn-text">
+                        <strong>{label}</strong>
+                        <small>{life}</small>
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -489,7 +567,7 @@ export function DriverTelemetryPanel({
                 >
                   <div className="box-btn-main">
                     <strong>{driver.boxThisLap ? '❌ CANCEL PIT STOP' : '🏎️ BOX THIS LAP'}</strong>
-                    <small>{driver.boxThisLap ? 'CAR WILL STAY OUT' : `FIT NEW ${pitCompound} TYRES`}</small>
+                    <small>{driver.boxThisLap ? 'Car will stay on track this lap' : `Pit now for fresh ${pitCompound} tyres (2.4s stop)`}</small>
                   </div>
                 </button>
               </div>

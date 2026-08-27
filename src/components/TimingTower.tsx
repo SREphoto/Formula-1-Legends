@@ -118,14 +118,26 @@ export function TimingTower({
 
       <div className="timing-toolbar">
         <div className="segment-control compact">
-          <button className={gapMode === 'leader' ? 'active' : ''} onClick={() => setGapMode('leader')}>GAP</button>
-          <button className={gapMode === 'interval' ? 'active' : ''} onClick={() => setGapMode('interval')}>INT</button>
+          <button
+            className={gapMode === 'leader' ? 'active' : ''}
+            onClick={() => setGapMode('leader')}
+            title="Gap to Race Leader (P1)"
+          >
+            GAP TO P1
+          </button>
+          <button
+            className={gapMode === 'interval' ? 'active' : ''}
+            onClick={() => setGapMode('interval')}
+            title="Interval to Car Directly Ahead"
+          >
+            INTERVAL
+          </button>
         </div>
-        <span className="timing-sync"><i /> 10 HZ</span>
+        <span className="timing-sync"><i /> LIVE 10 HZ</span>
       </div>
 
       <div className="tower-columns" aria-hidden="true">
-        <span>POS</span><span>DRIVER</span><span>TYRE</span><span>{gapMode === 'leader' ? 'GAP' : 'INT'}</span>
+        <span>POS</span><span>DRIVER</span><span>TYRE</span><span>{gapMode === 'leader' ? 'GAP TO P1' : 'INTERVAL'}</span>
       </div>
 
       <div className="driver-list">

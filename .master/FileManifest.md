@@ -46,6 +46,7 @@ This manifest tracks the repository directory tree, active source modules, docum
 | [`src/views/RaceDashboard.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/RaceDashboard.tsx) | 3-Column live race center workspace | Active |
 | [`src/views/StrategyWorkspace.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/StrategyWorkspace.tsx) | Pit window calculator, scenario cards (Plan A/B/C), delta chart | Active |
 | [`src/views/CarLab.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx) | 3-Column performance engineering setup lab and 3D showroom | Active |
+| [`src/views/SteeringWheelLab.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/SteeringWheelLab.tsx) | Interactive 3D F1 steering wheel lab, camera presets & telemetry sync | Active |
 | [`src/views/HQDashboard.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/HQDashboard.tsx) | Factory R&D pipeline, ATR allocation, paddock news feed | Active |
 | [`src/views/LiveTelemetryExplorer.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx) | OpenF1 live race telemetry analyzer & driver comparison | Active |
 
@@ -54,6 +55,7 @@ This manifest tracks the repository directory tree, active source modules, docum
 | File | Purpose | Status |
 | :--- | :--- | :--- |
 | [`src/components/AppHeader.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx) | Top navigation header with view tabs, 2026 branding | Active |
+| [`src/components/SteeringWheel3D.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/SteeringWheel3D.tsx) | Interactive Three.js 3D steering wheel canvas with raycasting & holographic tooltips | Active |
 | [`src/components/RaceStatusBar.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceStatusBar.tsx) | Race status bar, lap counter, session clock, playback deck | Active |
 | [`src/components/TimingTower.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TimingTower.tsx) | F1 TV live timing tower leaderboard, tire badges, and collapsible rail | Active |
 | [`src/components/DriverTelemetryPanel.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx) | Cockpit gauges, 4-corner tire thermal matrix, on-demand command dock modal, and team radio audio player | Active |
@@ -63,9 +65,6 @@ This manifest tracks the repository directory tree, active source modules, docum
 | [`src/components/CircuitMapPreview.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx) | Interactive 2D SVG track layout preview with DRS zones & corner tooltips | Active |
 | [`src/components/DopplerRadarOverlay.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DopplerRadarOverlay.tsx) | Circular Doppler radar sweep, dBZ reflectivity scale & rain heatmap | Active |
 | [`src/components/PaddockNewsWidget.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/PaddockNewsWidget.tsx) | Paddock news feed widget with category filters, bookmarks, and storage | Active |
-| [`src/components/RaceScene3D.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx) | Three.js 3D race world with broadcast/onboard cameras, pit lane, rain & radar | Active |
-| [`src/components/TrackMap.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TrackMap.tsx) | 2D/3D track view container with Silverstone sector map & Doppler overlay | Active |
-| [`src/components/StrategyHorizon.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/StrategyHorizon.tsx) | Live strategy pit alert callout strip | Active |
 | [`src/components/CarShowroom3D.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx) | Interactive 3D engineering showroom and wind tunnel particles | Active |
 | [`src/components/OnboardingOverlay.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/OnboardingOverlay.tsx) | Modal guide explaining race controls, telemetry, and strategy | Active |
 
@@ -73,10 +72,13 @@ This manifest tracks the repository directory tree, active source modules, docum
 
 | File | Purpose | Status |
 | :--- | :--- | :--- |
+| [`src/graphics/steering_wheel/steeringWheelData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/steeringWheelData.ts) | Registry of 28+ steering wheel controls, FIA rules, metadata, and sound mappings | Active |
+| [`src/graphics/steering_wheel/F1SteeringWheelModel.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts) | Procedural 3D F1 steering wheel model, dynamic LCD canvas, shift LEDs, and spring animations | Active |
+| [`src/utils/wheelAudioSynthesizer.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/utils/wheelAudioSynthesizer.ts) | Web Audio synthesizer for tactile switch clicks, rotary detents, and paddle shifts | Active |
 | [`src/data/circuitData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts) | 2D SVG track geometry, DRS paths, and turn metadata for all 24 GP rounds | Active |
 | [`src/services/soundEngine.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/soundEngine.ts) | Procedural V6 Turbo-Hybrid ICE harmonics, turbo spool, and skid sound engine | Active |
-| [`src/services/radioAudioService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts) | Web Audio synthesizer for F1 PTT beeps, VHF bandpass, and static FX | Active |
-| [`src/services/openf1Service.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts) | OpenF1 API client for meetings, drivers, telemetry & audio | Active |
+| [`src/services/radioAudioService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts) | Neural & Natural Voice Synthesis Engine, driver/engineer personas, PTT Roger beeps, and VHF squelch DSP | Active |
+| [`src/services/openf1Service.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts) | OpenF1 API client for meetings, drivers, telemetry & authentic team radio | Active |
 | [`src/services/f1NewsService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/f1NewsService.ts) | Paddock news data provider with categorized feeds | Active |
 | [`src/data/drivers.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/drivers.ts) | 2026 driver grid (20 drivers), teams, liveries, and standings | Active |
 | [`src/engine/physics/AeroEngine.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/engine/physics/AeroEngine.ts) | Aerodynamic downforce, drag, and ground-effect porpoising math | Active |

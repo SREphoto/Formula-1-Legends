@@ -1,7 +1,7 @@
 /**
- * Procedural V6 Turbo-Hybrid Motorsport Sound Synthesizer
+ * Procedural V6 Turbo-Hybrid Motorsport & Aeroacoustic Sound Synthesizer
  * Synthesizes real-time ICE combustion harmonics, turbocharger spool whine,
- * MGU-K electrical deployment whir, and tire skid screeching using the Web Audio API.
+ * MGU-K electrical deployment whir, tire skid screeching, and wind tunnel airflow whoosh.
  */
 
 export interface TelemetryAudioState {
@@ -36,11 +36,17 @@ class SoundEngine {
   private skidGain: GainNode | null = null
   private skidNoiseSource: AudioNode | null = null
 
+  // Wind Tunnel Aeroacoustic Nodes
+  private windGain: GainNode | null = null
+  private windFilter: BiquadFilterNode | null = null
+  private windNoiseSource: AudioNode | null = null
+
   private listeners: Set<(isRunning: boolean, isMuted: boolean) => void> = new Set()
 
   private getAudioContext(): AudioContext {
     if (!this.audioCtx) {
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      const AudioContextClass =
+        window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       this.audioCtx = new AudioContextClass()
     }
     if (this.audioCtx.state === 'suspended') {
@@ -99,133 +105,199 @@ class SoundEngine {
       this.iceDistortion.curve = this.makeDistortionCurve(18) as Float32Array<ArrayBuffer>
       this.iceDistortion.oversample = '2x'
 
-      // 4 harmonic oscillators for V6 firing profile
-      const harmonicRatios = [1.0, 1.5, 2.0, 3.0]
-      const harmonicGains = [0.45, 0.25, 0.2, 0.1]
-      this.iceOscillators = []
+      const harmonics = [1, 1.5, 2, 3, 4.5, 6]
+      const harmonicGains = [0.4, 0.25, 0.3, 0.15, 0.08, 0.04]
 
-      harmonicRatios.forEach((ratio, idx) => {
+      this.iceOscillators = harmonics.map((mult, index) => {
         const osc = ctx.createOscillator()
-        osc.type = idx === 0 ? 'sawtooth' : 'triangle'
-        osc.frequency.setValueAtTime(300 * ratio, now)
+        osc.type = index % 2 === 0 ? 'sawtooth' : 'triangle'
+        osc.frequency.setValueAtTime(120 * mult, now)
 
         const hGain = ctx.createGain()
-        hGain.gain.setValueAtTime(harmonicGains[idx], now)
+        hGain.gain.setValueAtTime(harmonicGains[index], now)
 
         osc.connect(hGain)
         if (this.iceDistortion) hGain.connect(this.iceDistortion)
-        osc.start(now)
-        this.iceOscillators.push(osc)
+        osc.start()
+        return osc
       })
 
-      this.iceDistortion.connect(this.iceFilter)
-      this.iceFilter.connect(this.iceGain)
-      this.iceGain.connect(this.masterGain)
+      if (this.iceDistortion && this.iceFilter && this.iceGain && this.masterGain) {
+        this.iceDistortion.connect(this.iceFilter)
+        this.iceFilter.connect(this.iceGain)
+        this.iceGain.connect(this.masterGain)
+      }
 
-      // 2. Turbocharger Spool Whine
+      // 2. Turbocharger Spool Whine (High frequency sine sweep)
       this.turboGain = ctx.createGain()
-      this.turboGain.gain.setValueAtTime(0.02, now)
+      this.turboGain.gain.setValueAtTime(0.001, now)
 
       this.turboOsc = ctx.createOscillator()
       this.turboOsc.type = 'sine'
-      this.turboOsc.frequency.setValueAtTime(2200, now)
-      this.turboOsc.connect(this.turboGain)
-      this.turboGain.connect(this.masterGain)
-      this.turboOsc.start(now)
+      this.turboOsc.frequency.setValueAtTime(3200, now)
 
-      // 3. MGU-K Electrical Deployment Whine
+      const turboFilter = ctx.createBiquadFilter()
+      turboFilter.type = 'bandpass'
+      turboFilter.frequency.setValueAtTime(4500, now)
+      turboFilter.Q.setValueAtTime(4.0, now)
+
+      if (this.turboGain && this.masterGain) {
+        this.turboOsc.connect(turboFilter)
+        turboFilter.connect(this.turboGain)
+        this.turboGain.connect(this.masterGain)
+      }
+      this.turboOsc.start()
+
+      // 3. 350kW MGU-K Electric Motor Whir
       this.mgukGain = ctx.createGain()
-      this.mgukGain.gain.setValueAtTime(0.01, now)
+      this.mgukGain.gain.setValueAtTime(0.001, now)
 
       this.mgukOsc = ctx.createOscillator()
-      this.mgukOsc.type = 'sine'
-      this.mgukOsc.frequency.setValueAtTime(3600, now)
-      this.mgukOsc.connect(this.mgukGain)
-      this.mgukGain.connect(this.masterGain)
-      this.mgukOsc.start(now)
+      this.mgukOsc.type = 'triangle'
+      this.mgukOsc.frequency.setValueAtTime(950, now)
 
-      // 4. Tire Skid Screech Noise
+      const mgukFilter = ctx.createBiquadFilter()
+      mgukFilter.type = 'bandpass'
+      mgukFilter.frequency.setValueAtTime(1400, now)
+      mgukFilter.Q.setValueAtTime(3.0, now)
+
+      if (this.mgukGain && this.masterGain) {
+        this.mgukOsc.connect(mgukFilter)
+        mgukFilter.connect(this.mgukGain)
+        this.mgukGain.connect(this.masterGain)
+      }
+      this.mgukOsc.start()
+
+      // 4. Tire Skid Noise Generator
       const bufferSize = ctx.sampleRate * 2
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-      const data = buffer.getChannelData(0)
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+      const output = noiseBuffer.getChannelData(0)
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * 0.15
+        output[i] = Math.random() * 2 - 1
       }
 
-      const noiseSource = ctx.createBufferSource()
-      noiseSource.buffer = buffer
-      noiseSource.loop = true
+      const whiteNoise = ctx.createBufferSource()
+      whiteNoise.buffer = noiseBuffer
+      whiteNoise.loop = true
 
       const skidFilter = ctx.createBiquadFilter()
       skidFilter.type = 'bandpass'
-      skidFilter.frequency.setValueAtTime(1600, now)
-      skidFilter.Q.setValueAtTime(3.0, now)
+      skidFilter.frequency.setValueAtTime(950, now)
+      skidFilter.Q.setValueAtTime(3.5, now)
 
       this.skidGain = ctx.createGain()
-      this.skidGain.gain.setValueAtTime(0, now)
+      this.skidGain.gain.setValueAtTime(0.0, now)
 
-      noiseSource.connect(skidFilter)
-      skidFilter.connect(this.skidGain)
-      this.skidGain.connect(this.masterGain)
-      noiseSource.start(now)
-      this.skidNoiseSource = noiseSource
+      whiteNoise.connect(skidFilter)
+      if (this.masterGain) {
+        skidFilter.connect(this.skidGain)
+        this.skidGain.connect(this.masterGain)
+      }
+      whiteNoise.start()
+      this.skidNoiseSource = whiteNoise
+
+      // 5. Wind Tunnel Aeroacoustic Noise Generator
+      const windNoise = ctx.createBufferSource()
+      windNoise.buffer = noiseBuffer
+      windNoise.loop = true
+
+      this.windFilter = ctx.createBiquadFilter()
+      this.windFilter.type = 'bandpass'
+      this.windFilter.frequency.setValueAtTime(650, now)
+      this.windFilter.Q.setValueAtTime(1.8, now)
+
+      this.windGain = ctx.createGain()
+      this.windGain.gain.setValueAtTime(0.0, now)
+
+      windNoise.connect(this.windFilter)
+      if (this.masterGain) {
+        this.windFilter.connect(this.windGain)
+        this.windGain.connect(this.masterGain)
+      }
+      windNoise.start()
+      this.windNoiseSource = windNoise
 
       this.isRunning = true
       this.notify()
-    } catch (err) {
-      console.warn('Unable to initialize SoundEngine:', err)
-      this.stop()
+    } catch {
+      this.isRunning = false
     }
   }
 
   /**
-   * Updates audio parameters in real time based on active telemetry.
+   * Updates synthesis parameters from real-time telemetry.
    */
-  public updateTelemetry({ rpm, throttle, brake, speed, isErsActive }: TelemetryAudioState): void {
+  public updateTelemetry(telemetry: TelemetryAudioState): void {
     if (!this.isRunning || !this.audioCtx) return
 
+    const { rpm, throttle, brake, speed, isErsActive } = telemetry
     const now = this.audioCtx.currentTime
 
-    // Fundamental V6 frequency: 3 firing pulses per revolution
-    // RPM range 4000 - 13000 -> 200 Hz to 650 Hz fundamental
-    const fundamentalFreq = Math.max(120, Math.min(750, (rpm / 60) * 3))
+    // ICE fundamental firing frequency = (RPM / 60) * 3
+    const firingFreq = Math.max(25, (rpm / 60) * 3)
+    const harmonics = [1, 1.5, 2, 3, 4.5, 6]
 
-    const harmonicRatios = [1.0, 1.5, 2.0, 3.0]
-    this.iceOscillators.forEach((osc, idx) => {
-      try {
-        osc.frequency.setTargetAtTime(fundamentalFreq * harmonicRatios[idx], now, 0.04)
-      } catch {
-        // Frequency update boundary check
-      }
+    this.iceOscillators.forEach((osc, index) => {
+      osc.frequency.setTargetAtTime(firingFreq * harmonics[index], now, 0.035)
     })
 
-    // Filter frequency opens up with throttle
     if (this.iceFilter) {
-      const targetFilterFreq = 1200 + (throttle / 100) * 2800 + (rpm / 13000) * 1500
-      this.iceFilter.frequency.setTargetAtTime(targetFilterFreq, now, 0.05)
+      const targetCutoff = 1200 + (rpm / 15000) * 3400 + throttle * 1200
+      this.iceFilter.frequency.setTargetAtTime(targetCutoff, now, 0.04)
     }
 
-    // Turbo Spool Whine (scales with throttle and high RPM)
+    if (this.iceGain) {
+      const targetGain = 0.15 + (throttle / 100) * 0.45 + (rpm / 15000) * 0.25
+      this.iceGain.gain.setTargetAtTime(targetGain, now, 0.04)
+    }
+
+    // Turbocharger spool
     if (this.turboOsc && this.turboGain) {
-      const turboFreq = 1800 + (rpm / 13000) * 2400 + (throttle / 100) * 800
-      const targetTurboGain = (throttle / 100) * 0.05
-      this.turboOsc.frequency.setTargetAtTime(turboFreq, now, 0.06)
-      this.turboGain.gain.setTargetAtTime(targetTurboGain, now, 0.05)
+      const turboFreq = 2200 + throttle * 4800 + (rpm / 15000) * 1800
+      const targetTurboGain = (throttle / 100) * 0.12
+      this.turboOsc.frequency.setTargetAtTime(turboFreq, now, 0.08)
+      this.turboGain.gain.setTargetAtTime(targetTurboGain, now, 0.08)
     }
 
-    // MGU-K Electrical Deployment (increases when ERS active or on full throttle)
+    // 350kW MGU-K Electric deployment
     if (this.mgukOsc && this.mgukGain) {
-      const mgukFreq = 3200 + (speed / 350) * 2800
-      const targetMgukGain = (isErsActive || (throttle > 85 && speed > 180)) ? 0.035 : 0.005
+      const mgukFreq = 650 + (speed / 360) * 2400
+      const targetMgukGain = isErsActive ? 0.09 + (speed / 360) * 0.06 : 0.005
       this.mgukOsc.frequency.setTargetAtTime(mgukFreq, now, 0.05)
       this.mgukGain.gain.setTargetAtTime(targetMgukGain, now, 0.05)
     }
 
-    // Tire Skid Screech on heavy braking (>60%) or sharp turn transitions
+    // Tire Skid Screech
     if (this.skidGain) {
       const isSkidding = brake > 60 && speed > 100
       const targetSkidGain = isSkidding ? ((brake - 60) / 40) * 0.08 : 0
       this.skidGain.gain.setTargetAtTime(targetSkidGain, now, 0.04)
+    }
+  }
+
+  /**
+   * Updates wind tunnel aeroacoustic noise based on airspeed and active aero state.
+   */
+  public updateWindTunnel(speedKmh: number, activeAeroMode: 'CORNER' | 'STRAIGHT', active = true): void {
+    if (!this.isRunning || !this.audioCtx) return
+
+    const now = this.audioCtx.currentTime
+    if (this.windGain && this.windFilter) {
+      if (!active || speedKmh < 10) {
+        this.windGain.gain.setTargetAtTime(0.0, now, 0.06)
+        return
+      }
+
+      const speedNormalized = Math.min(1.0, speedKmh / 350)
+      const baseFreq = 400 + speedNormalized * 1800
+      // In Straight Mode (low drag), flow attaches with less turbulent roar
+      const dragFactor = activeAeroMode === 'STRAIGHT' ? 0.65 : 1.0
+
+      const targetCutoff = baseFreq * (activeAeroMode === 'STRAIGHT' ? 1.2 : 0.9)
+      const targetGain = Math.min(0.22, 0.03 + speedNormalized * 0.18 * dragFactor)
+
+      this.windFilter.frequency.setTargetAtTime(targetCutoff, now, 0.05)
+      this.windGain.gain.setTargetAtTime(targetGain, now, 0.05)
     }
   }
 
@@ -269,6 +341,15 @@ class SoundEngine {
         // Already stopped
       }
       this.skidNoiseSource = null
+    }
+
+    if (this.windNoiseSource) {
+      try {
+        (this.windNoiseSource as AudioBufferSourceNode).stop()
+      } catch {
+        // Already stopped
+      }
+      this.windNoiseSource = null
     }
 
     this.isRunning = false

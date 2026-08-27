@@ -9,6 +9,7 @@ import { CarLab } from './views/CarLab'
 import { HQDashboard } from './views/HQDashboard'
 import { LiveTelemetryExplorer } from './views/LiveTelemetryExplorer'
 import { RaceDashboard } from './views/RaceDashboard'
+import { SteeringWheelLab } from './views/SteeringWheelLab'
 import { StrategyWorkspace } from './views/StrategyWorkspace'
 
 interface ToastState {
@@ -101,6 +102,13 @@ function App() {
         />
       )}
       {activeView === 'car' && <CarLab selectedDriver={selectedDriver} onNotify={notify} />}
+      {activeView === 'wheel' && (
+        <SteeringWheelLab
+          selectedDriver={selectedDriver}
+          sendCommand={sendCommand}
+          onNotify={notify}
+        />
+      )}
       {activeView === 'hq' && <HQDashboard onNotify={notify} />}
       {activeView === 'telemetry' && <LiveTelemetryExplorer />}
 

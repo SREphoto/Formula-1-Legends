@@ -22,7 +22,7 @@ import {
   type OpenF1Driver,
   type OpenF1Meeting,
 } from '../services/openf1Service'
-import { radioAudioService } from '../services/radioAudioService'
+import { radioAudioService, type RadioAudioMode } from '../services/radioAudioService'
 import { soundEngine } from '../services/soundEngine'
 
 export function LiveTelemetryExplorer() {
@@ -31,6 +31,7 @@ export function LiveTelemetryExplorer() {
   const [driver2Num, setDriver2Num] = useState<number>(1) // Verstappen
   const [activeTab, setActiveTab] = useState<'telemetry' | 'stints' | 'radio' | 'weather'>('telemetry')
   const [activeRadioPlaying, setActiveRadioPlaying] = useState<string | null>(null)
+  const [radioAcousticMode, setRadioAcousticMode] = useState<RadioAudioMode>(radioAudioService.getRadioMode())
   const [isEngineSoundActive, setIsEngineSoundActive] = useState(false)
 
   useEffect(() => {
@@ -455,6 +456,53 @@ export function LiveTelemetryExplorer() {
                   {activeRadioPlaying ? 'LIVE TRANSMISSION ACTIVE · AUDIO SYNTHESIS & SQUELCH FILTER ENGAGED' : 'STANDBY · SQUELCH GATE ARMED'}
                 </p>
               </div>
+            </div>
+
+            <div className="radio-acoustic-modes" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <span style={{ fontSize: '11px', color: '#8d99ae', fontWeight: 600 }}>ACOUSTICS:</span>
+              {[
+                { id: 'authentic' as RadioAudioMode, label: '📻 Authentic VHF' },
+                { id: 'studio' as RadioAudioMode, label: '🎙️ Studio HD' },
+                { id: 'raw' as RadioAudioMode, label: '🏎️ Cockpit Raw' },
+              ].map(({ id, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  style={{
+                    padding: '3px 8px',
+                    fontSize: '11px',
+                    borderRadius: '4px',
+                    border: radioAcousticMode === id ? '1px solid #ff8000' : '1px solid #283244',
+                    background: radioAcousticMode === id ? 'rgba(255,128,0,0.15)' : '#10141c',
+                    color: radioAcousticMode === id ? '#ff8000' : '#8d99ae',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                  onClick={() => {
+                    setRadioAcousticMode(id)
+                    radioAudioService.setRadioMode(id)
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+              <button
+                type="button"
+                style={{
+                  padding: '3px 8px',
+                  fontSize: '11px',
+                  borderRadius: '4px',
+                  border: '1px solid #30d158',
+                  background: 'rgba(48,209,88,0.12)',
+                  color: '#30d158',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+                onClick={() => radioAudioService.testTransmission('Will Joseph (Race Engineer)', 'Radio check, radio check. Loud and clear, pit confirm.')}
+                title="Test Team Radio Voice"
+              >
+                TEST COMMS
+              </button>
             </div>
 
             {activeRadioPlaying && (

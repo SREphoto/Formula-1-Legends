@@ -102,3 +102,40 @@ _Ranked by usefulness and fix count._
   - Encapsulated low-poly mechanics into `disposePitCrew(pitCrewRig)` traversing all nested materials and buffer geometries.
   - Added explicit `.dispose()` calls on `radarTex`, `rainGeo`, `rainMat`, `pitRoadGeometry`, `pitWallGeo`, and `radarGeo` in `RaceScene3D.tsx`'s unmount cleanup effect.
 - **Files Modified**: `src/graphics/createPitCrew.ts`, `src/components/RaceScene3D.tsx`
+
+---
+
+## 7. Dynamic Canvas LCD Screen Memory & Pointer Raycasting Handler Staling
+
+- **Rank**: #7 3D Graphics & React State Integration Fix
+- **Fix Count**: 1
+- **Symptoms**: Frequent pointer raycasting events and keyboard shortcuts in complex Three.js viewports captured stale React state closures, or triggered TypeScript index signature mismatch warnings during partial state merges.
+- **Root Cause**:
+  - Direct type-casting `telemetry as Record<string, unknown>` triggers TypeScript strict overlap error `TS2352`.
+  - Native DOM `pointermove`, `wheel`, and `keydown` event listeners bound inside `useEffect` capture initial closure state unless synchronized via mutable `useRef` bridges.
+- **Resolution**:
+  - Switched telemetry updates to idiomatic `Object.assign(telemetry, data)` with automatic dynamic `needsUpdate = true` on the 1024x640 OLED canvas texture.
+  - Attached interaction callbacks and camera target positions to mutable `stateRef` and `handleControlInteractRef` instances, preventing listener re-attachment churn and eliminating closure staleness.
+- **Files Modified**: `src/graphics/steering_wheel/F1SteeringWheelModel.ts`, `src/components/SteeringWheel3D.tsx`, `src/views/SteeringWheelLab.tsx`
+
+---
+
+## 8. Robotic Novelty Voice Synthesis Artifacts & VHF Squelch Noise Clashing
+
+- **Rank**: #4 Most Critical Audio Quality & Voice Synthesis Fix
+- **Fix Count**: 1
+- **Symptoms**: Team radio voices sounded horribly robotic, squeaky, or like glitching vintage synthesizers ("like robots but worse"); background static noise clashed harshly with voice playback.
+- **Root Cause**:
+  - `radioAudioService.ts` picked a random voice (`Math.random() * englishVoices.length`) without filtering out built-in OS novelty/robotic voices (e.g. `Zarvox`, `Trinoids`, `Albert`, `Bad News`, `Fred`, `Boing`, `Cellos`, `Whisper`).
+  - Web Speech voice list loading is asynchronous; synchronous initial reads returned `[]`, triggering low-quality OS fallback synthesizers.
+  - Extreme manual pitch shifting (`1.15` / `0.95`) caused metallic vocoder distortion in browser speech synthesis.
+  - Background static played at constant gain without dynamic speech ducking, muddling voice clarity.
+- **Resolution**:
+  - Implemented strict blacklisting of all novelty, robotic, and alien synthesizer voices across macOS, Windows, Linux, and iOS.
+  - Created a dynamic Natural Voice Scoring & Ranking engine prioritizing Apple Siri/Enhanced, Google Natural, and Microsoft Natural voices.
+  - Added asynchronous voice caching via `speechSynthesis.onvoiceschanged`.
+  - Created dedicated speaker persona mappings with character-appropriate accents, rates, and natural pitches for Race Engineers (Will Joseph, Gianpiero Lambiase, Bono, Bryan Bozzi) and Drivers (Norris, Piastri, Verstappen, Leclerc, Hamilton, Russell, Alonso, Sainz).
+  - Integrated dynamic Web Audio speech ducking (reducing background VHF noise by 75% during active speech) with authentic Roger PTT beeps, mic keying clicks, and squelch release tail bursts.
+- **Files Modified**: `src/services/radioAudioService.ts`, `src/services/openf1Service.ts`, `src/components/DriverTelemetryPanel.tsx`, `src/views/LiveTelemetryExplorer.tsx`
+
+

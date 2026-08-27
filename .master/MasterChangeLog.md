@@ -4,6 +4,76 @@ All notable project changes, releases, revisions, and architecture updates are d
 
 ---
 
+## [Build R18 / Broadcast-Quality Natural Team Radio Voices & VHF Audio DSP Overhaul] — 2026-08-27
+
+### 08-27N Added & Enhanced
+
+- **Neural & Natural Voice Synthesis Engine ([src/services/radioAudioService.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts))**:
+  - Implemented strict blacklisting of legacy novelty, robotic, and comedic synthesizer voices (e.g. `Zarvox`, `Trinoids`, `Albert`, `Bad News`, `Fred`, `Boing`, `Cellos`, `Whisper`) that caused broken robotic audio artifacts.
+  - Engineered dynamic Voice Scoring & Selection Algorithm prioritizing Natural, Neural, Enhanced, Apple Siri, Google UK/US Natural, and Microsoft Natural voices.
+  - Implemented asynchronous voice discovery via `speechSynthesis.onvoiceschanged` with cached voice registries and fallback guarantees.
+  - Built character-specific speaker personas with dedicated cadence, pitch, and accent profiling for Race Engineers (Will Joseph, Gianpiero Lambiase, Peter Bonnington, Bryan Bozzi) and Drivers (Lando Norris, Oscar Piastri, Max Verstappen, Lewis Hamilton, Charles Leclerc, George Russell, Fernando Alonso, Carlos Sainz).
+- **Procedural VHF Team Radio Audio DSP Pipeline ([src/services/radioAudioService.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts))**:
+  - Authentic Push-to-Talk (PTT) Roger chirps with calibrated dual frequencies (Intro: 1850Hz + 2300Hz, Outro: 2200Hz + 1750Hz) and tactile mic switch keying clicks.
+  - Squelch tail burst generation (filtered noise burst on transmission end) and ducked VHF static ambiance that automatically attenuates background noise while speech is active.
+  - 3 switchable radio acoustic profiles: `📻 Authentic VHF Radio`, `🎙️ Studio HD (Clean)`, and `🏎️ Cockpit Raw`.
+- **2026 Grid Team Radio Transmissions ([src/services/openf1Service.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts))**:
+  - Expanded `getSampleTeamRadio` with authentic radio transmissions for Norris, Piastri, Verstappen, Leclerc, Hamilton, Russell, Alonso, and Sainz.
+- **Interactive Radio Controls & Test Comms ([src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/views/LiveTelemetryExplorer.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx))**:
+  - Added acoustic profile toggle chips and instant "Test Comms" preview buttons to audition voice clarity directly in the UI.
+- **Resolved All Workspace ESLint Warnings & Errors ([src/components/SteeringWheel3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/SteeringWheel3D.tsx), [src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts), [src/views/SteeringWheelLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/SteeringWheelLab.tsx))**:
+  - Cleaned up prefer-const, unused variables, and hook references to achieve 100% clean lint audit.
+
+---
+
+## [Build R17 / 3D Exact F1 Steering Wheel Replica & Interactive Cockpit Controls] — 2026-08-27
+
+### 08-27M Added & Enhanced
+
+- **3D Procedural Formula 1 Steering Wheel Replica ([src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts))**:
+  - Engineered photo-realistic 3D procedural steering wheel model adhering to 2026 FIA technical regulations with carbon fiber composite faceplate weave, sculpted silicone/Alcantara handgrips with thumb rests, titanium mounting bolts, aluminum protective button bezels, CNC knurled rotaries, and rear magnetic carbon paddle shifters with quick-release steering hub.
+- **28+ Interactive Controls & Comprehensive Metadata Registry ([src/graphics/steering_wheel/steeringWheelData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/steeringWheelData.ts))**:
+  - Full catalog of push buttons (`DRS`, `RADIO`, `PL` Pit Limiter, `OT` Overtake, `SOC` Recharge, `N` Neutral, `R` Reverse, `ACK` Marshal Acknowledge, `DRINK`, `PASS` Attack Pace, `BB+`/`BB-` Brake Balance, `EB+`/`EB-` Engine Braking, `PAGE+`/`PAGE-`), rotary thumb dials (`DIFF IN`, `DIFF OUT`), center rotary switches (`STRAT 1-10`, `TYRE`, `MF-SYS`, `CLUTCH BITE`), rear carbon paddle shifters (`SHIFT UP`, `SHIFT DOWN`), and analog launch clutch paddles.
+- **Dynamic 4.3" FIA-Spec OLED Telemetry Display & Shift LEDs ([src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts))**:
+  - 60 FPS Canvas-driven LCD texture rendering live gear, speed, RPM, delta times, ERS state of charge, brake balance, tire surface/core temperatures, and 4 switchable display pages (Race Telemetry, Tire Thermals, ERS Energy Flow, Active Aero Diagnostics).
+  - 15x Progressive RGB Shift LEDs (5 Green -> 5 Red -> 5 Blue) flashing at peak RPM rev-limiter + 6x FIA Track Flag warning LEDs.
+- **Zero-Latency Web Audio Tactile Synthesizer ([src/utils/wheelAudioSynthesizer.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/utils/wheelAudioSynthesizer.ts))**:
+  - Procedural sound synthesis generating authentic microswitch mechanical clicks, heavy rotary detent clunks, magnetic carbon paddle snaps, and team radio alert beeps.
+- **Rich Holographic Engineering HUD Tooltips & Raycasting ([src/components/SteeringWheel3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/SteeringWheel3D.tsx))**:
+  - 3D Raycasting with pointer hover highlighting, spring-loaded depression animations (-3.5mm Z push, 30° rotary detents, -12° paddle pulls), and floating HUD tooltips revealing technical acronyms, FIA rules, real-time values, and physics impact.
+- **Dedicated Interactive Cockpit Wheel Lab View & Navigation ([src/views/SteeringWheelLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/SteeringWheelLab.tsx), [src/App.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/App.tsx), [src/components/AppHeader.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx), [src/types.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/types.ts), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Added `Cockpit Wheel` to the main application navigation with 7 camera presets (`Front Full Wheel`, `Cockpit POV`, `4.3" LCD Focus`, `Left Thumb`, `Right Thumb`, `Rear Paddles`, `360° Orbit`), Live Simulation Sync vs Manual Test Bench mode, keyboard shortcuts (<kbd>SPACE</kbd>, <kbd>E</kbd>, <kbd>Q</kbd>, <kbd>P</kbd>, <kbd>B</kbd>, <kbd>V</kbd>, <kbd>1-4</kbd>), night cockpit lighting toggle, and interactive controls directory.
+
+---
+
+## [Build R16b / Tactical Command Subtitles & Strategic Plan Clarifications] — 2026-08-27
+
+### 08-27M Added & Enhanced
+
+- **Tactical Command Modal Clarity & Subtitles ([src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Upgraded Pace Directives with crystal-clear plain-language subtitles (`CONSERVE: Save Tyres & Fuel`, `BALANCED: Standard Target Pace`, `ATTACK: Maximum Push & Pass`).
+  - Upgraded ERS Hybrid Programs with plain-language subtitles (`HARVEST: Recharge Battery (+15%)`, `BALANCED: 50/50 Electric Split`, `OVERTAKE: Full 350 kW Boost`).
+  - Upgraded Pit Compound Selector with estimated stint lifespan tags (`Soft ~16 laps`, `Medium ~26 laps`, `Hard ~38 laps`, `Inters Wet track`).
+- **Timing Tower Tooltips & Column Clarity ([src/components/TimingTower.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TimingTower.tsx))**:
+  - Replaced ambiguous abbreviations with explicit `GAP TO P1` and `INTERVAL` buttons with tooltips.
+- **Strategic Plan Clarifications ([src/views/StrategyWorkspace.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/StrategyWorkspace.tsx))**:
+  - Simplified Strategy Plans A, B, and C with clear risk, tire sequence, and pit window labels.
+
+---
+
+## [Build R16 / Camera Viewport Director, Aeroacoustic Wind Tunnel Audio & Lap Telemetry Trace Scrubber] — 2026-08-27
+
+### 08-27L Added & Enhanced
+
+- **Camera Viewport Director & Keyboard Shortcuts ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Engineered smooth lerping camera director targeting 5 inspection angles: `1: FRONT WING`, `2: COCKPIT`, `3: POWER UNIT`, `4: DIFFUSER`, and `5: 360° ORBIT` with global keyboard hotkeys (`1`-`5`).
+- **Aeroacoustic Wind Tunnel Audio Synthesizer ([src/services/soundEngine.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/soundEngine.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx))**:
+  - Web Audio synthesis generating procedural airflow whoosh, turbulence hiss, and drag reduction resonance when Straight Mode (X-Mode, -45% drag) attaches flow to the rear wing.
+- **Interactive 2D Telemetry Lap Trace Scrubber ([src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Multi-parameter real-time telemetry card with Speed, Throttle, and Brake curves and a live scrubber needle synchronized to the 75s Silverstone Grand Prix hot lap.
+
+---
+
 ## [Build R15 / Dynamic 4-Angle 3D Camera System, Telemetry Ghost Delta Phantom Car & Wet Tire Spray Roost] — 2026-08-27
 
 ### 08-27K Added & Enhanced

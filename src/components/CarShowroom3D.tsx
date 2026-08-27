@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { createF1Car2026, type F1Car2026Controller } from '../graphics/f1_2026/F1Car2026Model'
 import type { CarPartMetadata, SubsystemCategory } from '../graphics/f1_2026/carPartsData'
+import { soundEngine } from '../services/soundEngine'
 
 export type SmokeWandMode = 'OFF' | 'ALL' | 'FRONT_WING' | 'AIRBOX' | 'FLOOR'
+export type CameraPreset = 'ORBIT' | 'FRONT_WING' | 'COCKPIT' | 'POWERTRAIN' | 'DIFFUSER'
 
 export interface TelemetrySyncState {
   active: boolean
@@ -34,6 +36,8 @@ interface CarShowroom3DProps {
   cfdHeatmapMode?: boolean
   flirMode?: boolean
   smokeWandMode?: SmokeWandMode
+  cameraPreset?: CameraPreset
+  isWindAudioActive?: boolean
   telemetrySync?: TelemetrySyncState
   onSelectPart?: (part: CarPartMetadata | null) => void
 }
@@ -54,6 +58,8 @@ export function CarShowroom3D({
   cfdHeatmapMode = false,
   flirMode = false,
   smokeWandMode = 'OFF',
+  cameraPreset = 'ORBIT',
+  isWindAudioActive = false,
   telemetrySync,
   onSelectPart,
 }: CarShowroom3DProps) {
@@ -72,6 +78,8 @@ export function CarShowroom3D({
     cfdHeatmapMode,
     flirMode,
     smokeWandMode,
+    cameraPreset,
+    isWindAudioActive,
     telemetrySync,
   })
   valuesRef.current = {
@@ -88,6 +96,8 @@ export function CarShowroom3D({
     cfdHeatmapMode,
     flirMode,
     smokeWandMode,
+    cameraPreset,
+    isWindAudioActive,
     telemetrySync,
   }
 
@@ -245,7 +255,6 @@ export function CarShowroom3D({
     const smokeWandIds = new Float32Array(smokeCount)
 
     for (let i = 0; i < smokeCount; i++) {
-      // 5 Wand Nozzles: 0=Left FW, 1=Right FW, 2=Airbox, 3=Left Floor, 4=Right Floor
       const wand = i % 5
       smokeWandIds[i] = wand
       const progress = (i / smokeCount) * 6.5
@@ -290,6 +299,10 @@ export function CarShowroom3D({
     let movedSinceDown = false
     let targetRotation = carPivot.rotation.y
     let targetCameraDistance = 1
+
+    const currentLookTarget = new THREE.Vector3(0, 0.5, 0)
+    const desiredLookTarget = new THREE.Vector3(0, 0.5, 0)
+    const desiredCameraPos = new THREE.Vector3(8.2, 4.6, 9.2)
 
     const onPointerDown = (event: PointerEvent) => {
       dragging = true
@@ -346,12 +359,33 @@ export function CarShowroom3D({
       const delta = Math.min(0.04, clock.getDelta())
       const elapsed = clock.elapsedTime
       const currentSync = valuesRef.current.telemetrySync
+      const currentPreset = valuesRef.current.cameraPreset
+
+      // Camera preset targets
+      if (currentPreset === 'FRONT_WING') {
+        desiredCameraPos.set(0, 1.4, 4.4)
+        desiredLookTarget.set(0, 0.25, 1.8)
+      } else if (currentPreset === 'COCKPIT') {
+        desiredCameraPos.set(0, 1.6, 1.5)
+        desiredLookTarget.set(0, 0.52, 0.3)
+      } else if (currentPreset === 'POWERTRAIN') {
+        desiredCameraPos.set(2.4, 2.6, -0.6)
+        desiredLookTarget.set(0, 0.42, -0.6)
+      } else if (currentPreset === 'DIFFUSER') {
+        desiredCameraPos.set(0, 1.1, -4.5)
+        desiredLookTarget.set(0, 0.48, -1.8)
+      } else {
+        // 'ORBIT'
+        desiredCameraPos.set(8.2, 4.6, 9.2).multiplyScalar(targetCameraDistance)
+        desiredLookTarget.set(0, 0.5, 0)
+      }
 
       if (
         !dragging &&
         valuesRef.current.explodedRatio < 0.05 &&
         valuesRef.current.clippingAxis === 'NONE' &&
-        !currentSync?.active
+        !currentSync?.active &&
+        currentPreset === 'ORBIT'
       ) {
         targetRotation += delta * 0.12
       }
@@ -367,13 +401,19 @@ export function CarShowroom3D({
       // Handle Telemetry Synchronized Playback
       if (currentSync?.active) {
         const speedMs = currentSync.speedKmh / 3.6
-        // Wheel spin: omega = v / r (radius ~0.35m)
         const radDelta = (speedMs / 0.35) * delta
         carController.spinWheels(radDelta)
-        // Suspension Heave / Aero Squish
         carController.setSuspensionCompression(currentSync.frontHeaveMm / 1000, currentSync.rearHeaveMm / 1000)
-        // MGU-K Energy Flow Conduits
         carController.setEnergyFlow(currentSync.ersMode, currentSync.ersPowerKw)
+
+        // Update wind tunnel sound
+        if (valuesRef.current.isWindAudioActive) {
+          soundEngine.updateWindTunnel(currentSync.speedKmh, valuesRef.current.activeAeroMode, true)
+        }
+      } else if (valuesRef.current.isWindAudioActive) {
+        soundEngine.updateWindTunnel(180, valuesRef.current.activeAeroMode, true)
+      } else {
+        soundEngine.updateWindTunnel(0, 'CORNER', false)
       }
 
       // Aero load vectors
@@ -404,35 +444,29 @@ export function CarShowroom3D({
           if (wandMode === 'FLOOR' && wand !== 3 && wand !== 4) active = false
 
           if (!active) {
-            smokePositions[i * 3 + 1] = -50 // hide
+            smokePositions[i * 3 + 1] = -50
             continue
           }
 
-          // Advance along Z towards rear
           smokePositions[i * 3 + 2] -= smokeSpeed
-          // Streamline curvature & turbulence
           const z = smokePositions[i * 3 + 2]
           if (wand === 0 || wand === 1) {
-            // Front Wing upwash & outwash
             if (z < 2.0 && z > 0.8) {
               smokePositions[i * 3 + 1] += 0.04 * delta
               smokePositions[i * 3] += (wand === 0 ? -0.06 : 0.06) * delta
             }
           } else if (wand === 2) {
-            // Airbox roof downwash to rear wing
             if (z < 0.5 && z > -1.2) {
               smokePositions[i * 3 + 1] -= 0.02 * delta
             } else if (z <= -1.8) {
-              smokePositions[i * 3 + 1] += 0.08 * delta // Rear wing upwash
+              smokePositions[i * 3 + 1] += 0.08 * delta
             }
           } else if (wand === 3 || wand === 4) {
-            // Underfloor diffuser expansion
             if (z < -1.0) {
               smokePositions[i * 3 + 1] += 0.06 * delta
             }
           }
 
-          // Reset particle to nozzle upstream when it reaches the rear wake
           if (smokePositions[i * 3 + 2] < -3.2) {
             smokePositions[i * 3 + 2] = 2.8
             if (wand === 0) { smokePositions[i * 3] = -0.55; smokePositions[i * 3 + 1] = 0.22 }
@@ -445,9 +479,9 @@ export function CarShowroom3D({
         smokeGeometry.attributes.position.needsUpdate = true
       }
 
-      const baseCamera = new THREE.Vector3(8.2, 4.6, 9.2).multiplyScalar(targetCameraDistance)
-      camera.position.lerp(baseCamera, 0.06)
-      camera.lookAt(0, 0.5, 0)
+      camera.position.lerp(desiredCameraPos, 0.06)
+      currentLookTarget.lerp(desiredLookTarget, 0.06)
+      camera.lookAt(currentLookTarget)
       renderer.render(scene, camera)
     }
     animate()
@@ -505,7 +539,9 @@ export function CarShowroom3D({
               ? 'CFD SURFACE PRESSURE DISTRIBUTION (+Cp RED / -Cp PURPLE)'
               : smokeWandMode !== 'OFF'
                 ? `WIND TUNNEL SMOKE WAND: ${smokeWandMode} STREAMLINES`
-                : 'DRAG TO ROTATE · SCROLL TO ZOOM · CLICK ANY PART TO INSPECT'}
+                : cameraPreset !== 'ORBIT'
+                  ? `CAMERA VIEWPORT: ${cameraPreset} FOCUS`
+                  : 'DRAG TO ROTATE · SCROLL TO ZOOM · CLICK ANY PART TO INSPECT'}
       </div>
       <div className="showroom-stat front">
         <small>AERO BALANCE</small>
@@ -516,7 +552,7 @@ export function CarShowroom3D({
         <b>{downforceKn.toFixed(1)} kN</b>
       </div>
 
-      {/* Real-Time Live Telemetry HUD Overlay in 3D Showroom */}
+      {/* Real-Time Live Telemetry HUD Overlay */}
       {currentSync?.active && (
         <div className="showroom-telemetry-hud">
           <div className="hud-gear-badge">

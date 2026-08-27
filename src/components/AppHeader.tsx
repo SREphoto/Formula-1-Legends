@@ -1,6 +1,7 @@
 import {
   Activity,
   Building2,
+  CircleDot,
   Gauge,
   HelpCircle,
   Radio,
@@ -19,6 +20,7 @@ const navItems: { id: AppView; label: string; icon: typeof Radio }[] = [
   { id: 'race', label: 'Race Center', icon: Radio },
   { id: 'strategy', label: 'Strategy', icon: Gauge },
   { id: 'car', label: 'Car Lab', icon: SlidersHorizontal },
+  { id: 'wheel', label: 'Cockpit Wheel', icon: CircleDot },
   { id: 'hq', label: 'Team HQ', icon: Building2 },
   { id: 'telemetry', label: 'Live Telemetry', icon: Activity },
 ]

@@ -1,6 +1,7 @@
 import {
   Activity,
   AlertTriangle,
+  Camera,
   Check,
   ChevronsDown,
   CircleGauge,
@@ -17,6 +18,8 @@ import {
   Sliders,
   Square,
   Thermometer,
+  Volume2,
+  VolumeX,
   Wind,
   X,
   Zap,
@@ -26,7 +29,8 @@ import type { DriverState, SetupState } from '../types'
 import { calculateAero } from '../engine/physics/AeroEngine'
 import { calculatePowertrain } from '../engine/physics/PowertrainEngine'
 import { F1_2026_CAR_PARTS, type CarPartMetadata, type SubsystemCategory } from '../graphics/f1_2026/carPartsData'
-import type { SmokeWandMode, TelemetrySyncState } from '../components/CarShowroom3D'
+import type { CameraPreset, SmokeWandMode, TelemetrySyncState } from '../components/CarShowroom3D'
+import { soundEngine } from '../services/soundEngine'
 
 const CarShowroom3D = lazy(() =>
   import('../components/CarShowroom3D').then((module) => ({ default: module.CarShowroom3D })),
@@ -118,12 +122,15 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
   const [cfdHeatmapMode, setCfdHeatmapMode] = useState(false)
   const [flirMode, setFlirMode] = useState(false)
   const [smokeWandMode, setSmokeWandMode] = useState<SmokeWandMode>('OFF')
+  const [cameraPreset, setCameraPreset] = useState<CameraPreset>('ORBIT')
+  const [isWindAudioActive, setIsWindAudioActive] = useState(false)
   const [selectedPart, setSelectedPart] = useState<CarPartMetadata | null>(null)
   const [manualOverrideActive, setManualOverrideActive] = useState(false)
 
   // 3D Telemetry Synchronized Playback Loop
   const [telemetryPlaying, setTelemetryPlaying] = useState(false)
   const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 4>(1)
+  const [lapTimeSec, setLapTimeSec] = useState(0)
   const [telemetrySyncState, setTelemetrySyncState] = useState<TelemetrySyncState>({
     active: false,
     speedKmh: 0,
@@ -138,6 +145,20 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
   })
 
   const lapProgressRef = useRef(0)
+
+  // Keyboard shortcut listener for camera viewports
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return
+      if (e.key === '1') setCameraPreset('FRONT_WING')
+      else if (e.key === '2') setCameraPreset('COCKPIT')
+      else if (e.key === '3') setCameraPreset('POWERTRAIN')
+      else if (e.key === '4') setCameraPreset('DIFFUSER')
+      else if (e.key === '5') setCameraPreset('ORBIT')
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   useEffect(() => {
     if (!telemetryPlaying) {
@@ -154,6 +175,7 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
 
       lapProgressRef.current = (lapProgressRef.current + dt) % 75 // 75 second Grand Prix hot lap
       const t = lapProgressRef.current
+      setLapTimeSec(t)
 
       // Simulated Real-Time Grand Prix Lap Profile
       let speedKmh = 120
@@ -187,7 +209,7 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
         brake = 1.0
         ersMode = 'HARVEST'
         dynamicAeroMode = 'CORNER'
-        frontHeaveMm = 14.8 // front compression dive
+        frontHeaveMm = 14.8
         rearHeaveMm = -2.1
       } else if (t < 36) {
         // Acceleration through Aintree into Wellington Straight
@@ -212,7 +234,7 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
         frontHeaveMm = 4.2
         rearHeaveMm = 6.8
       } else if (t < 58) {
-        // High Speed Copse, Maggotts, Becketts Complex (Extreme G-Forces)
+        // High Speed Copse, Maggotts, Becketts Complex
         speedKmh = 278
         gear = 7
         rpm = 12700
@@ -232,7 +254,7 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
           dynamicAeroMode = 'STRAIGHT'
           rearHeaveMm = -17.2
         } else {
-          speedKmh = 345 - ((hProgress - 0.65) / 0.35) * 230 // Hard braking into Stowe
+          speedKmh = 345 - ((hProgress - 0.65) / 0.35) * 230 // Hard braking
           gear = 3
           throttle = 0
           brake = 0.95
@@ -350,6 +372,8 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               setCfdHeatmapMode(false)
               setFlirMode(false)
               setSmokeWandMode('OFF')
+              setCameraPreset('ORBIT')
+              setIsWindAudioActive(false)
               setTelemetryPlaying(false)
               setSaved(false)
             }}
@@ -587,6 +611,25 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               </button>
 
               <button
+                className={`audio-toggle-btn ${isWindAudioActive ? 'active' : ''}`}
+                onClick={() => {
+                  if (!soundEngine.getIsRunning()) soundEngine.start()
+                  setIsWindAudioActive(!isWindAudioActive)
+                  onNotify(
+                    'AERO SOUND',
+                    !isWindAudioActive
+                      ? 'Aeroacoustic Wind Tunnel synthesis active.'
+                      : 'Wind audio muted.',
+                    'success',
+                  )
+                }}
+                title="Toggle Aeroacoustic Wind Tunnel Audio"
+              >
+                {isWindAudioActive ? <Volume2 size={14} /> : <VolumeX size={14} />}
+                <span>{isWindAudioActive ? 'WIND ON' : 'WIND AUDIO'}</span>
+              </button>
+
+              <button
                 className={`wireframe-toggle-btn ${wireframeMode ? 'active' : ''}`}
                 onClick={() => setWireframeMode(!wireframeMode)}
                 title="Toggle X-Ray Wireframe Mode"
@@ -594,6 +637,28 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 <Eye size={14} /> {wireframeMode ? 'SOLID' : 'X-RAY'}
               </button>
             </div>
+          </div>
+
+          {/* Camera Viewport Director Bar */}
+          <div className="camera-director-bar">
+            <span className="camera-director-label"><Camera size={13} /> VIEWPORT (KEYS 1-5):</span>
+            {(
+              [
+                { key: 'ORBIT', label: '5: 360° ORBIT' },
+                { key: 'FRONT_WING', label: '1: FRONT WING' },
+                { key: 'COCKPIT', label: '2: COCKPIT' },
+                { key: 'POWERTRAIN', label: '3: POWER UNIT' },
+                { key: 'DIFFUSER', label: '4: DIFFUSER' },
+              ] as const
+            ).map((cam) => (
+              <button
+                key={cam.key}
+                className={`cam-director-pill ${cameraPreset === cam.key ? 'active' : ''}`}
+                onClick={() => setCameraPreset(cam.key)}
+              >
+                {cam.label}
+              </button>
+            ))}
           </div>
 
           {/* Subsystem Isolation Filter Tabs */}
@@ -729,6 +794,8 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 cfdHeatmapMode={cfdHeatmapMode}
                 flirMode={flirMode}
                 smokeWandMode={smokeWandMode}
+                cameraPreset={cameraPreset}
+                isWindAudioActive={isWindAudioActive}
                 telemetrySync={telemetrySyncState}
                 onSelectPart={(part) => setSelectedPart(part)}
               />
@@ -838,6 +905,42 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 ))}
               </div>
             </div>
+
+            {/* Interactive Telemetry Lap Trace Mini-Graph */}
+            {telemetryPlaying && (
+              <div className="telemetry-trace-graph-card">
+                <div className="trace-graph-header">
+                  <span>SILVERSTONE GRAND PRIX · HOT LAP TRACE ({lapTimeSec.toFixed(1)}s / 75.0s)</span>
+                  <div className="trace-legends">
+                    <span className="leg speed">● SPEED (KM/H)</span>
+                    <span className="leg throttle">● THROTTLE</span>
+                    <span className="leg brake">● BRAKE</span>
+                  </div>
+                </div>
+                <div className="trace-graph-canvas-wrap">
+                  <svg className="trace-svg" viewBox="0 0 400 48" preserveAspectRatio="none">
+                    {/* Grid lines */}
+                    <line x1="0" y1="24" x2="400" y2="24" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 3" />
+                    {/* Simulated Speed curve */}
+                    <path
+                      d="M 0,32 Q 35,4 75,4 L 80,42 Q 100,42 120,4 L 180,4 Q 210,38 230,38 L 290,6 Q 320,6 340,42 Q 370,42 400,16"
+                      fill="none"
+                      stroke="#38bdf8"
+                      strokeWidth="2"
+                    />
+                    {/* Live Scrubber Cursor */}
+                    <line
+                      x1={(lapTimeSec / 75) * 400}
+                      y1="0"
+                      x2={(lapTimeSec / 75) * 400}
+                      y2="48"
+                      stroke="#ff3b30"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </div>
+              </div>
+            )}
 
             {/* Live Calculated Aero & Telemetry Ribbon */}
             <div className="aero-metrics-ribbon">
