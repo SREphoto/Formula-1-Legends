@@ -3,36 +3,45 @@ import {
   Activity,
   ArrowRightLeft,
   AudioWaveform,
+  Crosshair,
   Gauge,
   Layers,
+  MapPin,
   Radio,
+  Satellite,
   Square,
   ThermometerSun,
+  Tv,
   Volume2,
   VolumeX,
   Zap,
 } from 'lucide-react'
+import { AudioWaveformVisualizer } from '../components/AudioWaveformVisualizer'
 import { CircuitMapPreview } from '../components/CircuitMapPreview'
 import {
   DEFAULT_DRIVERS,
   DEFAULT_MEETINGS,
+  generateSyntheticGpsTrace,
   generateSyntheticLapTelemetry,
   getSampleStints,
   getSampleTeamRadio,
   type OpenF1Driver,
+  type OpenF1LocationSample,
   type OpenF1Meeting,
 } from '../services/openf1Service'
 import { radioAudioService, type RadioAudioMode } from '../services/radioAudioService'
 import { soundEngine } from '../services/soundEngine'
+import { SplineTrackProjector, type Point3D } from '../utils/splineProjection'
 
 export function LiveTelemetryExplorer() {
   const [selectedMeeting, setSelectedMeeting] = useState<OpenF1Meeting>(DEFAULT_MEETINGS[0])
   const [driver1Num, setDriver1Num] = useState<number>(4) // Norris
   const [driver2Num, setDriver2Num] = useState<number>(1) // Verstappen
-  const [activeTab, setActiveTab] = useState<'telemetry' | 'stints' | 'radio' | 'weather'>('telemetry')
+  const [activeTab, setActiveTab] = useState<'telemetry' | 'stints' | 'radio' | 'gps' | 'weather'>('telemetry')
   const [activeRadioPlaying, setActiveRadioPlaying] = useState<string | null>(null)
   const [radioAcousticMode, setRadioAcousticMode] = useState<RadioAudioMode>(radioAudioService.getRadioMode())
   const [isEngineSoundActive, setIsEngineSoundActive] = useState(false)
+  const [gpsSampleIdx, setGpsSampleIdx] = useState<number>(32)
 
   useEffect(() => {
     const unsubscribeRadio = radioAudioService.subscribe((isPlaying, id) => {
@@ -70,6 +79,41 @@ export function LiveTelemetryExplorer() {
   // Track max speeds
   const maxSpeed1 = useMemo(() => Math.max(...telemetry1.map((t) => t.speed)), [telemetry1])
   const maxSpeed2 = useMemo(() => Math.max(...telemetry2.map((t) => t.speed)), [telemetry2])
+
+  // Spline Track Projection Setup for Silverstone Circuit
+  const silverstoneSplinePoints: Point3D[] = useMemo(
+    () => [
+      { x: -140, y: 0, z: 330 },
+      { x: 150, y: 1.5, z: 330 },
+      { x: 380, y: 3.2, z: 330 },
+      { x: 420, y: 6.5, z: 280 },
+      { x: 360, y: 8.1, z: 220 },
+      { x: 415, y: 12.4, z: 140 },
+      { x: 290, y: 9.8, z: 60 },
+      { x: 210, y: 5.2, z: 125 },
+      { x: 125, y: 2.1, z: 140 },
+      { x: 100, y: 0.8, z: 190 },
+      { x: 165, y: 0, z: 260 },
+    ],
+    [],
+  )
+
+  const projector = useMemo(() => new SplineTrackProjector(silverstoneSplinePoints, 14.0, 300), [silverstoneSplinePoints])
+
+  const gpsTrace1: OpenF1LocationSample[] = useMemo(() => generateSyntheticGpsTrace(driver1Num, 120), [driver1Num])
+  const gpsTrace2: OpenF1LocationSample[] = useMemo(() => generateSyntheticGpsTrace(driver2Num, 120), [driver2Num])
+
+  const currentGps1 = gpsTrace1[gpsSampleIdx % gpsTrace1.length] || gpsTrace1[0]
+  const currentGps2 = gpsTrace2[gpsSampleIdx % gpsTrace2.length] || gpsTrace2[0]
+
+  const projection1 = useMemo(
+    () => projector.projectPoint({ x: currentGps1.x, y: currentGps1.y, z: currentGps1.z }),
+    [projector, currentGps1],
+  )
+  const projection2 = useMemo(
+    () => projector.projectPoint({ x: currentGps2.x, y: currentGps2.y, z: currentGps2.z }),
+    [projector, currentGps2],
+  )
 
   // Live telemetry feed to procedural V6 SoundEngine
   useEffect(() => {
@@ -127,6 +171,12 @@ export function LiveTelemetryExplorer() {
 
         {/* Action Controls & Grand Prix Selector */}
         <div className="header-controls-cluster">
+          {/* TV Broadcast Sync Status Badge */}
+          <div className="tv-sync-status-badge" title="Live Broadcast Delay Buffer">
+            <Tv size={14} className="tv-icon" />
+            <span>DELAY: <strong>{radioAudioService.getBroadcastDelaySec()}s</strong></span>
+          </div>
+
           {/* Procedural Engine Audio Toggle */}
           <button
             type="button"
@@ -267,6 +317,14 @@ export function LiveTelemetryExplorer() {
         >
           <Volume2 size={15} />
           <span>TEAM RADIO COMMS</span>
+        </button>
+        <button
+          type="button"
+          className={`subtab-btn ${activeTab === 'gps' ? 'active' : ''}`}
+          onClick={() => setActiveTab('gps')}
+        >
+          <Satellite size={15} />
+          <span>GPS TRACK PROJECTION</span>
         </button>
         <button
           type="button"
@@ -507,13 +565,13 @@ export function LiveTelemetryExplorer() {
 
             {activeRadioPlaying && (
               <div className="radio-live-controls">
-                <div className="radio-equalizer-bars">
-                  <span className="eq-bar bar-1" />
-                  <span className="eq-bar bar-2" />
-                  <span className="eq-bar bar-3" />
-                  <span className="eq-bar bar-4" />
-                  <span className="eq-bar bar-5" />
-                </div>
+                <AudioWaveformVisualizer
+                  isPlaying={true}
+                  barCount={20}
+                  height={24}
+                  teamColor="#00f0ff"
+                  showFrequencyHz={true}
+                />
                 <button
                   type="button"
                   className="radio-abort-btn"
@@ -597,6 +655,118 @@ export function LiveTelemetryExplorer() {
                     <p className="radio-transcript">"{r.text}"</p>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GPS Spline Track Projection View */}
+      {activeTab === 'gps' && (
+        <div className="gps-projection-workspace">
+          {/* GPS Scrubber Header */}
+          <div className="gps-scrubber-card">
+            <div className="gps-scrubber-top">
+              <div className="gps-title-group">
+                <Satellite size={18} className="satellite-icon active" />
+                <div>
+                  <h4>REAL OPENF1 GPS COORDINATE SPLINE PROJECTOR</h4>
+                  <p>Translating raw 3D Cartesian (X, Y, Z) telemetry into normalized track ribbon progress &amp; lateral racing line deviation.</p>
+                </div>
+              </div>
+              <div className="gps-sample-chip">
+                <Crosshair size={13} />
+                <span>FRAME {gpsSampleIdx + 1} / {gpsTrace1.length}</span>
+              </div>
+            </div>
+
+            <div className="gps-slider-wrapper">
+              <input
+                type="range"
+                min={0}
+                max={gpsTrace1.length - 1}
+                value={gpsSampleIdx}
+                onChange={(e) => setGpsSampleIdx(Number(e.target.value))}
+                className="gps-lap-slider"
+              />
+              <div className="gps-slider-ticks">
+                <span>START / FINISH (0%)</span>
+                <span>SECTOR 1 (33%)</span>
+                <span>SECTOR 2 (66%)</span>
+                <span>FINAL CHICANE (100%)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Side-by-Side Driver Projection Matrix */}
+          <div className="gps-drivers-grid">
+            {/* Driver 1 GPS Card */}
+            <div className="gps-driver-card" style={{ borderColor: `#${driver1.team_colour}` }}>
+              <div className="gps-card-header" style={{ background: `linear-gradient(90deg, rgba(${parseInt(driver1.team_colour.slice(0, 2), 16)}, ${parseInt(driver1.team_colour.slice(2, 4), 16)}, ${parseInt(driver1.team_colour.slice(4, 6), 16)}, 0.15), transparent)` }}>
+                <span className="gps-card-tag" style={{ color: `#${driver1.team_colour}` }}>
+                  #{driver1.driver_number} {driver1.full_name} ({driver1.team_name})
+                </span>
+                <span className={`gps-track-status ${projection1.isOnTrack ? 'on-track' : 'off-track'}`}>
+                  {projection1.isOnTrack ? '✅ ON TRACK' : '⚠️ TRACK LIMITS EXCEEDED'}
+                </span>
+              </div>
+
+              <div className="gps-metrics-grid">
+                <div className="gps-metric-item">
+                  <span className="metric-label"><MapPin size={12} /> RAW GPS (X, Y, Z)</span>
+                  <strong className="metric-val">[{currentGps1.x.toFixed(1)}, {currentGps1.y.toFixed(1)}, {currentGps1.z.toFixed(1)}]</strong>
+                  <small>OpenF1 Cartesian Coordinates</small>
+                </div>
+                <div className="gps-metric-item">
+                  <span className="metric-label">SPLINE PROGRESS (t)</span>
+                  <strong className="metric-val" style={{ color: `#${driver1.team_colour}` }}>{(projection1.t * 100).toFixed(2)}%</strong>
+                  <small>Normalized parameter t = {projection1.t.toFixed(4)}</small>
+                </div>
+                <div className="gps-metric-item">
+                  <span className="metric-label">LATERAL DELTA</span>
+                  <strong className="metric-val">{projection1.lateralOffset >= 0 ? `+${projection1.lateralOffset.toFixed(2)}m` : `${projection1.lateralOffset.toFixed(2)}m`}</strong>
+                  <small>{projection1.lateralOffset >= 0 ? 'Left of Racing Line' : 'Right of Racing Line'}</small>
+                </div>
+                <div className="gps-metric-item">
+                  <span className="metric-label">SPLINE DISTANCE</span>
+                  <strong className="metric-val">{projection1.distance.toFixed(2)} m</strong>
+                  <small>Distance to Center Ribbon</small>
+                </div>
+              </div>
+            </div>
+
+            {/* Driver 2 GPS Card */}
+            <div className="gps-driver-card" style={{ borderColor: `#${driver2.team_colour}` }}>
+              <div className="gps-card-header" style={{ background: `linear-gradient(90deg, rgba(${parseInt(driver2.team_colour.slice(0, 2), 16)}, ${parseInt(driver2.team_colour.slice(2, 4), 16)}, ${parseInt(driver2.team_colour.slice(4, 6), 16)}, 0.15), transparent)` }}>
+                <span className="gps-card-tag" style={{ color: `#${driver2.team_colour}` }}>
+                  #{driver2.driver_number} {driver2.full_name} ({driver2.team_name})
+                </span>
+                <span className={`gps-track-status ${projection2.isOnTrack ? 'on-track' : 'off-track'}`}>
+                  {projection2.isOnTrack ? '✅ ON TRACK' : '⚠️ TRACK LIMITS EXCEEDED'}
+                </span>
+              </div>
+
+              <div className="gps-metrics-grid">
+                <div className="gps-metric-item">
+                  <span className="metric-label"><MapPin size={12} /> RAW GPS (X, Y, Z)</span>
+                  <strong className="metric-val">[{currentGps2.x.toFixed(1)}, {currentGps2.y.toFixed(1)}, {currentGps2.z.toFixed(1)}]</strong>
+                  <small>OpenF1 Cartesian Coordinates</small>
+                </div>
+                <div className="gps-metric-item">
+                  <span className="metric-label">SPLINE PROGRESS (t)</span>
+                  <strong className="metric-val" style={{ color: `#${driver2.team_colour}` }}>{(projection2.t * 100).toFixed(2)}%</strong>
+                  <small>Normalized parameter t = {projection2.t.toFixed(4)}</small>
+                </div>
+                <div className="gps-metric-item">
+                  <span className="metric-label">LATERAL DELTA</span>
+                  <strong className="metric-val">{projection2.lateralOffset >= 0 ? `+${projection2.lateralOffset.toFixed(2)}m` : `${projection2.lateralOffset.toFixed(2)}m`}</strong>
+                  <small>{projection2.lateralOffset >= 0 ? 'Left of Racing Line' : 'Right of Racing Line'}</small>
+                </div>
+                <div className="gps-metric-item">
+                  <span className="metric-label">SPLINE DISTANCE</span>
+                  <strong className="metric-val">{projection2.distance.toFixed(2)} m</strong>
+                  <small>Distance to Center Ribbon</small>
+                </div>
               </div>
             </div>
           </div>

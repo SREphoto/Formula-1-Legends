@@ -12,17 +12,19 @@ import {
 } from 'lucide-react'
 import {
   F1CarAeroIcon,
-  F1SuperlicenseIcon,
   F1SteeringWheelIcon,
   F1TelemetryWaveIcon,
   F1EngineV6Icon,
 } from './F1Icons'
+import { TeamLogoBadge, TEAMS_META, type TeamMetaInfo } from './TeamGraphics'
 import { soundEngine } from '../services/soundEngine'
 
 export interface PaddockCredentials {
   teamName: string
+  teamCode: string
   teamColor: string
   teamSecondaryColor: string
+  primaryDriverId: string
   roleTitle: string
   roleId: 'strategist' | 'aero' | 'telemetry' | 'fia'
   userName: string
@@ -34,19 +36,20 @@ export interface ParallaxAuthScreenProps {
   onAuthenticate: (credentials: PaddockCredentials) => void
   onClose?: () => void
   isReopen?: boolean
+  currentCredentials?: PaddockCredentials | null
 }
 
-const TEAMS_LIST = [
-  { name: 'McLaren Formula 1 Team', short: 'McLaren', primary: '#ff8000', accent: '#47c7fc', carNo: '4 / 81', code: 'MCL' },
-  { name: 'Scuderia Ferrari HP', short: 'Ferrari', primary: '#e8002d', accent: '#ffe600', carNo: '16 / 44', code: 'FER' },
-  { name: 'Oracle Red Bull Racing', short: 'Red Bull', primary: '#1e41ff', accent: '#f50538', carNo: '1 / 11', code: 'RBR' },
-  { name: 'Mercedes-AMG PETRONAS F1', short: 'Mercedes', primary: '#00d2be', accent: '#c8ccce', carNo: '63 / 12', code: 'MER' },
-  { name: 'Aston Martin Aramco F1', short: 'Aston Martin', primary: '#006f62', accent: '#cedc00', carNo: '14 / 18', code: 'AMR' },
-  { name: 'Williams Racing', short: 'Williams', primary: '#00a0de', accent: '#eb2337', carNo: '55 / 23', code: 'WIL' },
-  { name: 'BWT Alpine F1 Team', short: 'Alpine', primary: '#0090ff', accent: '#ff87bc', carNo: '10 / 7', code: 'ALP' },
-  { name: 'Visa Cash App RB F1 Team', short: 'Racing Bulls', primary: '#6692ff', accent: '#ffffff', carNo: '22 / 30', code: 'RB' },
-  { name: 'Stake F1 Team Kick Sauber', short: 'Kick Sauber', primary: '#52e252', accent: '#000000', carNo: '27 / 5', code: 'SAU' },
-  { name: 'MoneyGram Haas F1 Team', short: 'Haas', primary: '#ffffff', accent: '#e6002b', carNo: '31 / 87', code: 'HAA' },
+const TEAMS_LIST: TeamMetaInfo[] = [
+  TEAMS_META.MCL,
+  TEAMS_META.FER,
+  TEAMS_META.RBR,
+  TEAMS_META.MER,
+  TEAMS_META.AMR,
+  TEAMS_META.WIL,
+  TEAMS_META.ALP,
+  TEAMS_META.RB,
+  TEAMS_META.SAU,
+  TEAMS_META.HAA,
 ]
 
 const ROLES_LIST = [
@@ -80,10 +83,29 @@ const ROLES_LIST = [
   },
 ] as const
 
-export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }: ParallaxAuthScreenProps) {
-  const [selectedTeam, setSelectedTeam] = useState(TEAMS_LIST[0])
-  const [selectedRole, setSelectedRole] = useState<(typeof ROLES_LIST)[number]>(ROLES_LIST[0])
-  const [userName, setUserName] = useState('PADDOCK OPERATOR')
+export function ParallaxAuthScreen({
+  onAuthenticate,
+  onClose,
+  isReopen = false,
+  currentCredentials,
+}: ParallaxAuthScreenProps) {
+  // Initialize team selection with sticky current credentials if available
+  const initialTeam = useMemo(() => {
+    if (currentCredentials?.teamCode && TEAMS_META[currentCredentials.teamCode]) {
+      return TEAMS_META[currentCredentials.teamCode]
+    }
+    return TEAMS_LIST[0]
+  }, [currentCredentials])
+
+  const [selectedTeam, setSelectedTeam] = useState<TeamMetaInfo>(initialTeam)
+  const [selectedRole, setSelectedRole] = useState<(typeof ROLES_LIST)[number]>(() => {
+    if (currentCredentials?.roleId) {
+      const found = ROLES_LIST.find((r) => r.id === currentCredentials.roleId)
+      if (found) return found
+    }
+    return ROLES_LIST[0]
+  })
+  const [userName, setUserName] = useState<string>(currentCredentials?.userName || 'PADDOCK OPERATOR')
   const [isScanning, setIsScanning] = useState(false)
   const [scanProgress, setScanProgress] = useState(0)
   const [authenticated, setAuthenticated] = useState(false)
@@ -150,12 +172,14 @@ export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }
         setIsScanning(false)
         setAuthenticated(true)
 
-        // Complete Authentication
+        // Complete Authentication with rich credentials
         setTimeout(() => {
           onAuthenticate({
             teamName: selectedTeam.name,
-            teamColor: selectedTeam.primary,
-            teamSecondaryColor: selectedTeam.accent,
+            teamCode: selectedTeam.code,
+            teamColor: selectedTeam.primaryColor,
+            teamSecondaryColor: selectedTeam.accentColor,
+            primaryDriverId: selectedTeam.primaryDriverId,
             roleTitle: selectedRole.title,
             roleId: selectedRole.id,
             userName: userName || 'PADDOCK OPERATOR',
@@ -170,8 +194,10 @@ export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }
   const credentialsPayload: PaddockCredentials = useMemo(
     () => ({
       teamName: selectedTeam.name,
-      teamColor: selectedTeam.primary,
-      teamSecondaryColor: selectedTeam.accent,
+      teamCode: selectedTeam.code,
+      teamColor: selectedTeam.primaryColor,
+      teamSecondaryColor: selectedTeam.accentColor,
+      primaryDriverId: selectedTeam.primaryDriverId,
       roleTitle: selectedRole.title,
       roleId: selectedRole.id,
       userName: userName || 'PADDOCK OPERATOR',
@@ -189,13 +215,15 @@ export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }
       onMouseLeave={handleMouseLeave}
       style={
         {
-          '--auth-team-primary': selectedTeam.primary,
-          '--auth-team-accent': selectedTeam.accent,
+          '--auth-team-primary': selectedTeam.primaryColor,
+          '--auth-team-accent': selectedTeam.accentColor,
+          '--auth-team-secondary': selectedTeam.secondaryColor,
         } as React.CSSProperties
       }
     >
-      {/* Layer 0: Background Circuit Spline & Carbon Topography */}
+      {/* Layer 0: Background Circuit Spline & Large Angled Stripes */}
       <div className="parallax-layer layer-deep-topo" />
+      <div className="parallax-layer layer-angled-motion-stripes" />
       <div className="parallax-layer layer-scanlines" />
 
       {/* Layer 1: Dynamic Speed Streaks & Digital Oscilloscope Beams */}
@@ -208,7 +236,7 @@ export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }
       {/* Header Badge */}
       <div className="auth-top-branding">
         <div className="auth-brand-pill">
-          <F1SuperlicenseIcon size={18} color={selectedTeam.primary} />
+          <TeamLogoBadge teamCode={selectedTeam.code} size={20} glow={false} />
           <span>FIA FORMULA 1 WORLD CHAMPIONSHIP · 2026 SEASON</span>
         </div>
         {isReopen && onClose && (
@@ -227,10 +255,17 @@ export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }
               {/* Foil Holographic Sheen Layer */}
               <div className="card-foil-sheen" />
 
+              {/* Large Angled Racing Livery Background */}
+              <div className="card-angled-livery-stripes">
+                <div className="card-stripe c1" />
+                <div className="card-stripe c2" />
+                <div className="card-stripe c3" />
+              </div>
+
               {/* Pass Header */}
               <div className="pass-header-strip">
                 <div className="fia-seal">
-                  <F1SuperlicenseIcon size={24} color="#ffd700" />
+                  <TeamLogoBadge teamCode={selectedTeam.code} size={26} />
                   <div>
                     <strong>FEDERATION INTERNATIONALE DE L&apos;AUTOMOBILE</strong>
                     <small>OFFICIAL PADDOCK &amp; TELEMETRY ACCESS PASS</small>
@@ -260,10 +295,10 @@ export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }
                 </div>
 
                 <div className="pass-team-row">
-                  <div className="team-pill-swatch" style={{ background: selectedTeam.primary }} />
+                  <div className="team-pill-swatch" style={{ background: selectedTeam.primaryColor }} />
                   <div className="team-meta">
                     <strong>{selectedTeam.name}</strong>
-                    <small>CAR NUMBERS: {selectedTeam.carNo}</small>
+                    <small>DRIVERS: {selectedTeam.driverNumbers}</small>
                   </div>
                 </div>
 
@@ -302,33 +337,51 @@ export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }
             <span className="config-eyebrow">MOTORSPORT ACCESS GATEWAY</span>
             <h1 className="config-title">Paddock &amp; Telemetry Command Center</h1>
             <p className="config-subtitle">
-              Configure your 2026 team credentials, engineering role, and authorize access to real-time 100 Hz vehicle kinematics.
+              Select your constructor team, configure your engineering role, and authorize access to real-time 100 Hz vehicle kinematics.
             </p>
           </div>
 
-          {/* 1. Team Selector Grid */}
+          {/* 1. Team Selector Grid with Modern Angled Stripes & Vector Logos */}
           <div className="config-section">
             <span className="section-label">
-              <Layers size={13} /> SELECT CONSTRUCTOR TEAM (10 TEAMS)
+              <Layers size={13} /> SELECT CONSTRUCTOR TEAM (10 OFFICIAL TEAMS)
             </span>
-            <div className="team-selector-chips">
-              {TEAMS_LIST.map((t) => (
-                <button
-                  key={t.name}
-                  type="button"
-                  className={`team-chip ${selectedTeam.name === t.name ? 'active' : ''}`}
-                  style={
-                    {
-                      '--chip-color': t.primary,
-                      borderColor: selectedTeam.name === t.name ? t.primary : undefined,
-                    } as React.CSSProperties
-                  }
-                  onClick={() => setSelectedTeam(t)}
-                >
-                  <span className="chip-dot" style={{ background: t.primary }} />
-                  <span className="chip-name">{t.short}</span>
-                </button>
-              ))}
+            <div className="team-selector-grid-modern">
+              {TEAMS_LIST.map((t) => {
+                const isSelected = selectedTeam.code === t.code
+                return (
+                  <button
+                    key={t.code}
+                    type="button"
+                    className={`team-card-select-btn ${isSelected ? 'active' : ''}`}
+                    style={
+                      {
+                        '--btn-primary': t.primaryColor,
+                        '--btn-accent': t.accentColor,
+                        '--btn-secondary': t.secondaryColor,
+                      } as React.CSSProperties
+                    }
+                    onClick={() => setSelectedTeam(t)}
+                  >
+                    {/* Angled Racing Livery Stripes Underlay */}
+                    <div className="btn-angled-stripes">
+                      <span className="stripe-s1" />
+                      <span className="stripe-s2" />
+                    </div>
+
+                    <div className="btn-content-wrap">
+                      <div className="btn-logo-wrap">
+                        <TeamLogoBadge teamCode={t.code} size={24} glow={isSelected} />
+                      </div>
+                      <div className="btn-team-text">
+                        <strong className="btn-team-name">{t.teamShort}</strong>
+                        <span className="btn-driver-numbers">{t.driverNumbers}</span>
+                      </div>
+                      {isSelected && <span className="selected-glow-dot" />}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -384,10 +437,10 @@ export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }
               <div className="scan-text-container">
                 <strong>
                   {authenticated
-                    ? 'SECURITY AUTHORIZATION GRANTED ✓'
+                    ? `AUTHENTICATED FOR ${selectedTeam.name.toUpperCase()} ✓`
                     : isScanning
                       ? `AUTHENTICATING FIA CHIP... ${scanProgress}%`
-                      : 'SCAN BIOMETRIC CHIP & AUTHORIZE'}
+                      : `SCAN BIOMETRIC CHIP & JOIN ${selectedTeam.teamShort.toUpperCase()}`}
                 </strong>
                 <small>ENCRYPTED FIA SMART LICENSE BIO-VERIFICATION</small>
               </div>
@@ -398,7 +451,7 @@ export function ParallaxAuthScreen({ onAuthenticate, onClose, isReopen = false }
               className="direct-enter-btn"
               onClick={() => onAuthenticate(credentialsPayload)}
             >
-              <span>ENTER PADDOCK COMMAND CENTER</span>
+              <span>ENTER PADDOCK WITH {selectedTeam.teamShort.toUpperCase()}</span>
               <ChevronRight size={16} />
             </button>
           </div>

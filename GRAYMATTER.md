@@ -29,6 +29,169 @@ src/
 - Live timing tower and circuit map for a 20-driver legends grid (timing, tower, circuit) _(timing, tower, circuit)_
 - The production build is committed in /docs and configured for: (production, build, committed) _(production, build, committed)_
 - bash
+- **2026 Track Design Report ([.master/documents/track_design_report_2026_calendar.md](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/track_design_report_2026_calendar.md))**: _(track, design, report)_
+- Per-circuit dossiers: identity/grading, track layout & corner design, pit complexes & buildings, grandstands & seating capacities, terrain & surroundings, and climate/weather profiles. _(percircuit, dossiers, identitygrading)_
+- **Verified calendar anomalies captured**: 23-round season; new **Madring (Madrid)** as Round 14 (5.416 km / 22 turns / Studio Dromo–Jarno Zaffelli / €83.2M build / La Monumental banked corner capped at 24% gradient / two tunnels under an elevated motorway / first fully covered paddock in F1 / 110,000→140,000 capacity plan); **Round 16 "Gulf Air Bahrain Grand Prix in Malaysia"** staged at Sepang (Sakhir & Jeddah listed as returning 2027); Barcelona-Catalunya retained alongside Madrid. _(verified, calendar, anomalies)_
+- Added comparative technical summary table (length/turns/direction/elevation/venue type) and a 2026-regulations design-impact analysis (active aero X-Mode/Z-Mode, MGU-K override deployment). _(added, comparative, technical)_
+- Designed 14 custom vector SVG motorsport icons engineered specifically for the F1 2026 application: `F1CarAeroIcon`, `F1EngineV6Icon`, `F1MguKIcon`, `F1TireCompoundIcon`, `F1TelemetryWaveIcon`, `F1TrackElevationIcon`, `F1PitStopCrewIcon`, `F1SteeringWheelIcon`, `F1RadioSquelchIcon`, `F1SuperlicenseIcon`, `F1KielProbeIcon`, `F1PorpoisingIcon`, `F1FlagChequeredIcon`, and `F1WindTunnelIcon`. _(designed, custom, vector)_
+- Replaced generic utility icons across navigation, headers, car lab platforms, and strategy modules. _(replaced, generic, utility)_
+- **Compact Context + Focus Card Architecture ([src/components/ContextFocusCard.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ContextFocusCard.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/views/StrategyWorkspace.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/StrategyWorkspace.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(compact, context, focus)_
+- Integrated across CarLab (Active Aero, Wind Tunnel/Aero-Rake Diagnostics, Ground Effect Ride Heights, 350kW MGU-K Hybrid Power Unit, Brakes & Narrow Tires, and FIA Scrutineering Compliance) and Strategy Workspace (Monte Carlo AI Environmental Factors). _(integrated, across, carlab)_
+- Replaced the oversized, thick cylinder "platter" with a flush carbon-fiber inspection pad (`CylinderGeometry(3.0, 3.05, 0.02)`), a CNC titanium bevel rim, and a soft shadow receiver plane. _(replaced, oversized, thick)_
+- **Onboarding Overlay Root-Cause Fix & Visual Redesign ([src/components/OnboardingOverlay.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/OnboardingOverlay.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(onboarding, overlay, rootcause)_
+- **Strategic Plan Clarifications ([src/views/StrategyWorkspace.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/StrategyWorkspace.tsx))**: _(strategic, clarifications, srcviewsstrategyworkspacetsxfileuserssamuelagappsformulalegendsformulalegendssrcviewsstrategyworkspacetsx)_
+- Simplified Strategy Plans A, B, and C with clear risk, tire sequence, and pit window labels. _(simplified, strategy, plans)_
+- **Factory Operations**: Added interactive factory facility upgrades (`Design HQ`, `Wind Tunnel`, `Composites Lab`) and project creation handlers (`HQDashboard.tsx`). _(factory, operations, added)_
+- **Interactive Cross-Section CAD Clipping Planes ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(interactive, crosssection, clipping)_
+- Hardware-accelerated local clipping plane engine with selectable cut axes: **Axis X (Sagittal Side-Cut)** through ICE cylinders, MGU-K rotor and gearbox; **Axis Y (Horizontal Floor-Cut)** through lithium-NMC battery cells and diffuser channels; and **Axis Z (Transverse Front-to-Rear Cut)** through crash structures and radiator assemblies. _(hardwareaccelerated, local, clipping)_
+- **Modular 3D Part-by-Part 2026 F1 Racecar Architecture ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/graphics/f1_2026/carPartsData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/carPartsData.ts))**: _(modular, partbypart, racecar)_
+- Engineered over 30 distinct procedural 3D components representing the complete 2026 FIA "Nimble Car" architecture across Aerodynamics, Powertrain, Chassis & Safety, and Suspension & Running Gear. _(engineered, distinct, procedural)_
+- **Collapsible Multi-Panel Workspace System ([src/views/RaceDashboard.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/RaceDashboard.tsx), [src/components/TimingTower.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TimingTower.tsx), [src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/components/StrategyHorizon.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/StrategyHorizon.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(collapsible, multipanel, workspace)_
+- Added independent collapse/expand toggles for Timing Tower (left), Driver Telemetry (right), and Strategy Horizon (bottom). _(added, independent, collapseexpand)_
+- **2026 FIA Technical Regulations Architecture Baseline**: _(technical, regulations, architecture)_
+- **2026 Hybrid Power Unit (PU2026) Architecture**: _(hybrid, power, architecture)_
+- **Pit Lane Architecture & Pit Wall**: Parallel pit lane branch spline, concrete pit wall barrier with timing stands, team garages, and overhead pneumatic gantry with hanging air lines. _(architecture, parallel, branch)_
+- Tire Stint strategy timeline breakdown by compound. _(stint, strategy, timeline)_
+- **Bespoke Motorsport Command Center Design System**: _(bespoke, motorsport, command)_
+- **Strategy Workspace Overhaul**: _(strategy, workspace, overhaul)_
+- Plan A/B/C cards and non-overlapping SVG race delta chart. _(cards, nonoverlapping, delta)_
+- **Tire Stint Strategy Timeline**: Compound progression (Medium → Hard). _(stint, strategy, timeline)_
+- Neon glowing active borders for selected tabs, pace modes, and strategy options. _(glowing, active, borders)_
+- **Car Systems**: ERS hybrid battery %, fuel load (kg), carbon brake temps, ICE wear %, plank wear limit. _(systems, hybrid, battery)_
+- **Strategic Scenario Cards**: Plan A (1-Stop Prime Overcut), Plan B (2-Stop Sprint Undercut), and Plan C (Weather Contingency) with direct `[COMMIT STRATEGY]` button. _(strategic, scenario, cards)_
+- Real-World F1 Engineering Explanation. _(realworld, engineering, explanation)_
+- In-Game Physics / Strategy Impact. _(ingame, physics, strategy)_
+- Project: Formula-1-Legends management simulator
+Compiled: 2026-08-28 (in-season, pre Round 13 — Gran Premio d'Italia)
+Scope: Full physical design dossier for every circuit on the 2026 FIA Formula One World Championship calendar: track layouts, pit complexes, grandstands and seating, buildings, terrain, and climate. _(project, formulalegends, management)_
+- ---
+- Verified via live fetch (primary sources): the official Formula1.com 2026 race calendar (round numbers, dates, titles, results) and the Wikipedia 2026 FIA Formula One World Championship season article (22-round structure, standings venue codes, circuit status), plus the dedicated Madring Wikipedia article including its raw Layout/Site/History sections (Zaffelli/Studio Dromo design brief, IFEMA site details, capacity figures, La Monumental banking specification, construction cost, overtaking zones, tunnel sections, covered paddock, and the £125M/€83.2M construction figures quoted by Madring COO Carlos Jiménez). _(verified, fetch, primary)_
+- Season context for design purposes: 2026 introduces the new power-unit formula (50/50 split between 350 kW MGU-K deployment and 900 hp V6 turbo output with 100% sustainable fuel) and movable active aero (low-drag X-Mode on straights, high-load Z-Mode in corners, plus a manual "Override" electric-boost mode). This changes the design pressures on each track: long straights reward the override zones; slow chicane complexes lose relative weight; banked and long-radius corners gain significance. _(season, context, design)_
+- Track design: Public-traffic roads around the lake, closed and dressed with barriers each year. The 2022 redesign rebuilt the Turn 9/10 complex into a fast sweeping left-right (removing the old 90-degree angles), re-profiled Turns 1, 3 and 11/12 to widen lines and raise speeds, and shortened the lap slightly. Signature sections: the braking drop into Turn 1 off the start/finish straight; the lakefront run between Turns 10–12; the fast Turns 9–10 sweep past the Fitzroy Street side. _(track, design, publictraffic)_
+- Identity: Purpose-built circuit (2004) in Jiading District on Shanghai's north-west edge, FIA Grade 1. 5.451 km, 16 turns, clockwise; the first Hermann Tilke F1 design in China, with the layout deliberately evoking the Chinese character 上 (shàng, "first/upper"). Hosts the season's earliest Asian round. _(identity, purposebuilt, circuit)_
+- Track design: Signature element is the Turn 1–2–3 "snail": a 270-degree tightening, descending spiral that drops roughly 12 m from entry to exit and generates huge sustained lateral load. This feeds the longest full-throttle run down to the heavy-braking Turn 6. The back section (Turns 11–13) forms the character's vertical stroke; Turns 14 (long right kink) and 16 (flat-out left) shape qualifying. Straight-line speed is rewarded; braking stability into the hairpin complex is critical. _(track, design, signature)_
+- Identity: Figure-of-eight permanent circuit (1962, designed by John Hugenholz, owned by Honda Mobilityland) in the hills near Suzuka, Mie Prefecture. 5.807 km, 18 turns, clockwise, FIA Grade 1; universally rated by drivers as the definitive test, with two DRS zones. _(identity, figureofeight, permanent)_
+- Track design: The only F1 track where the circuit crosses over itself. Sector 1 is the legendary S-Curves (Turns 1–2 downhill left-right, then the esses: 3–4–5–6–7) demanding rhythm and lateral balance at 200+ km/h; Degner 1 and 2 follow under the crossover, then the long under-bridge straight into the hairpin (best overtaking point). Spoon Curve is a long double-apex climb; the 130R is a flat 300 km/h left; the Casio Triangle chicane sets up the pit-straight exit. Notable elevation: valley floor to hillside, 30–40 m of movement per lap. _(track, design, track)_
+- Track design: Three straights and three 12+ m-wide overtaking zones (T1 braking zone off the stadium straight; Turn 11 hairpin at the end of the longest full-throttle section; Turn 17). The lap threads service roads and car parks, incorporates the fastest non-oval section (the Turns 14–15 kink past the harbour), and passes over/around an artificial lake. Tunnels and underpasses route the lap around stadium infrastructure. _(track, design, straights)_
+- Terrain & surroundings: Dead-flat South Florida fill land at 2–4 m above sea level; palm trees, water features, subtropical planting; the surrounding area is suburban Miami Gardens. _(terrain, surroundings, deadflat)_
+- Track design: Classic stop-go street rhythm on island roads: the pit straight and T1–2 opening lefts, the fast T3 kink through the trees, the hairpin (T10) at the far end after the long run past the Casino, and the chicane-filled middle sector where walls sit millimetres from the racing line. Top speed is high; the surface is famously bumpy and low-grip early in the weekend (green, dusty road surface). _(track, design, classic)_
+- Track design: Sainte Dévote opens, then the Beau Rivage climb toward Massenet and the Casino square; Mirabeau drops toward the Loews (Fairmont) hairpin — the calendar's slowest corner (48 km/h) — then Portier, and the unique tunnel, which climbs (5% gradient), kinks and plunges under the Fairmont, the only tunnel in F1 and the track's highest-speed enclosed section. The Nouvelle Chicane, Tabac, the Swimming Pool complex and Rascasse/Anthony Noghes complete the lap. Elevation swings 45 m between the casino district and the port. Overtaking is close to impossible without strategy or errors; qualifying is everything. _(track, design, sainte)_
+- Terrain & surroundings: Mediterranean cliffs, sea walls and urban canyon; the circuit uses national roads of the Principality with kerb-height barriers; views of superyachts, Belle Époque architecture and the hills of the Riviera. _(terrain, surroundings, mediterranean)_
+- Weather: Early June: mild Mediterranean, 18–23 °C afternoons, 14–16 °C mornings, sea humidity 65%; rainfall probability is low (May–June averages 2 rain days/month), but a 2026 rain/strategy shuffle is always the wildcard. _(weather, early, mediterranean)_
+- Track design: The Turn 1–2 braking right (overtaking point one) after the 1 km main straight; the high-speed Turns 3–4 right sweep; the middle sector's widely copied long-radius corners (Turns 5–7 lefts used by every junior series as an aero benchmark); the Campsa fast right; and the flowing final sector onto the back straight and Turn 10 hairpin. Reprofiled 2023 turns 8–9 restore more flow. Elevation amplitude is modest (20 m), and wind direction materially shifts car balance (headwind into T1 vs tailwind). _(track, design, braking)_
+- Track design: Continuous up-then-down profile climbing 63 m per lap. From the start/finish downhill left into Turn 1 (overtaking zone), up to Turn 3 (the hairpin-like right at the top of the first climb), the flat-out right-left of Turns 4–5, the straight down to Turn 6, then the distinctive downhill run of Turns 7–9 (including the fast left at 9 that punishes low rear grip), and the pit-straight kink of Turn 10. Three DRS zones despite only ten corners; braking energy recovery and 2026 Override-mode deployment are significant here. _(track, design, continuous)_
+- Track design: The 2026 calendar's most celebrated high-speed flow. Sector 1: Abbey (flat right), Farm Curve, Village (braking), The Loop, Aintree, the Wellington Straight to Brooklands/Luffield and Woodcote. Sector 2: Copse (flat 290 km/h right) into the Maggotts–Becketts–Chapel flick sequence — the most aerodynamically demanding corner complex in F1 — onto the Hangar Straight. Sector 3: Stowe (braking), the Vale, Club corner and back to the pit straight. Modest but meaningful elevation (20 m amplitude); prevailing wind affects the Hangar Straight run. _(track, design, calendars)_
+- Track design: La Source hairpin drops into Eau Rouge–Raidillon, the compressed 17% uphill left-right-left taken flat (300 km/h) — the benchmark corner of world motorsport — feeding the 2 km Kemmel Straight (prime overtaking zone). Les Combes begins the twisting middle sector (Malmedy, Rivage, Pouhon's famous double-apex left, Fagnes, Stavelot); then the long, climbing flat-out run through Blanchimont (fastest corner, 290 km/h) to the Bus Stop chicane. Elevation swings 100 m; La Source is the low point and the Les Combes plateau the high point relative to the valley floor. _(track, design, source)_
+- Track design: Downhill into the Turn 1 right (main overtaking spot), then near-continuous medium-speed corners: the Turn 2 left, the long Turn 4 right kink up the hill, the Turns 6–7 switchback at the top, the downhill Turn 8 complex, Turn 10's off-camber right, and the tight Turns 12–13–14 finishing loop. Elevation amplitude 36 m; two DRS zones. Tyre degradation and qualifying positioning dominate outcomes. _(track, design, downhill)_
+- Identity: Dune circuit (1948) on the North Sea coast 25 km west of Amsterdam; 4.259 km, 14 turns, clockwise, FIA Grade 1; aggressively banked (2020 redesign, Dromo/ Jarno Zaffelli — the same designer now behind Madring). _(identity, circuit, north)_
+- Track design: Tarzan (Turn 1) is a heavily banked (18°) right-hander climbing out of the pit straight; the lap threads through the dunes with Gerlachbocht, the Hunserug crest, the Rob Slotemakerbocht and the Hans Ernst chicane; the renaturalized Turns 10–11 are now fast banked sweeps (Arie Luyendyk bochten at 32% banking — the steepest corner in F1), and the Hugenholtz banking (19°) closes the lap. Sea-level track with dune-sand on the surface, sea wind, and 15–20 m elevation from dune profile. _(track, design, tarzan)_
+- Track design: Rettifilo (T1) heavy braking after the main straight; Curva Grande (long flat right); Variante della Roggia chicane; Lesmo 1 and 2 (two right-handers over a crest); the Serraglio straight; Variante Ascari chicane; the long back straight and the Parabolica (now widened at exit, 2021 re-profile) sweeping onto the main straight. Three DRS zones; extremely low downforce setups. The old banked oval of 1955 is visible in the park but unused. _(track, design, rettifilo)_
+- Terrain & surroundings: Flat (160 m elevation) parkland of the Parco di Monza — one of Europe's largest walled parks — with mature plane and chestnut trees lining the lap; the historic Villa Reale and the old speed ring lie inside. _(terrain, surroundings, elevation)_
+- La Monumental — a long-radius banked curve billed as the longest banked corner in F1, capped at a 24% gradient (13.5 degrees) by design brief (explicitly engineered not to replicate Indianapolis's tyre-stress banking). Runs through the exhibition campus. _(monumental, longradius, banked)_
+- Four designated overtaking zones at Turns 1, 5, 11 and 17 (Zaffelli's brief: 3–4 pass opportunities for an average driver, "four or five" for Alonso). _(designated, overtaking, zones)_
+- Track design: A 2.1 km main straight (flat-out, 340 km/h) into the tight Turn 1 braking left; along the Neftchilar Boulevard to the Turn 7 left that funnels into the medieval old-city complex: Turns 8–10 are the narrow, castle-walled maze with walls on both sides and zero tolerance, opening back onto the wide modern boulevard for the run to Turn 12, then the flowing Turns 13–16 loop back to the straight. Almost no elevation change (sea level, ± a few metres). _(track, design, straight)_
+- Track design: Two long parallel straights separated by the distinctive Turn 15/Turn 1 complex (a 90-degree left into a climbing right hairpin); Turn 4 is a long, uphill right-hander; the back straight is the main DRS run into the Turn 14/Turn 15 double-hairpin. Rolling terrain with genuine elevation change (20–25 m amplitude) and aggressive camber changes through the middle sector. Wide-track, high-downforce layout. _(track, design, parallel)_
+- Pits & buildings: Large permanent pit building with a roof-deck hospitality suite and viewing terrace above the garages (a signature Tilke design element of the 1990s), race control, and a permanent media centre; the main grandstand covers the full pit straight length. _(buildings, permanent, building)_
+- Terrain & surroundings: Palm-oil plantation land converted to circuit, rolling hills of Sepang; tropical vegetation surrounds the lap; KLIA airport nearby. _(terrain, surroundings, palmoil)_
+- Track design: A lap of opposing characters: the long Raffles Boulevard and Nicoll Highway straights, the Turns 5–6 braking complex, the fast Sheares (Turn 7), the technical Anderson Bridge/Esplanade Drive waterfront, the turn-13 tunnel under the circle line MRT, and the flowing 2023-reprofiled Turns 14–19 riverside section. Essentially zero elevation change (the old Anderson Bridge crest was removed with the 2015 reprofile). Illuminated by 1,500+ floodlight projectors mounted on temporary gantries. _(track, design, opposing)_
+- Seating: Grandstands at the Pit Building (main), Turn 1 (A/B), Esplanade Waterfront, Padang, Stamford and Bay Grandstands with rooftop and balcony hospitality; race-weekend attendance typically 200,000+ across three days, 80,000 race day. _(seating, grandstands, building)_
+- Terrain & surroundings: Dead-flat reclaimed downtown land at sea level; Marina Bay skyline, Marina Bay Sands, the Esplanade theatres and the Flyer create the sport's most urban backdrop; bay breezes and sea-level humidity. _(terrain, surroundings, deadflat)_
+- Weather: Equatorial night conditions: air 27–31 °C, humidity 70–85%, heat index above 40 °C in-cockpit, with the recurring threat of tropical convective showers (the 2017 and 2022 delayed/shortened races are precedents). Crew heat-stress management is a design factor. _(weather, equatorial, night)_
+- Track design: The lap's calling card is Turn 1 — a blind, 41 m climbing left-hander after the 1 km main straight (the uphill gradient is 10% at its steepest). The opening sector deliberately references Silverstone's Maggotts–Becketts rhythm (Turns 3–6), then the stadium-section pair of hairpins (12–15) echo Hockenheim's arena. Turns 16–18 flow downhill to the final corner and back straight; Turn 11 is the hairpin overtaking zone. Elevation amplitude 30–40 m of natural rolling terrain. _(track, design, calling)_
+- Track design: The long start/finish straight (about 1.2 km) into the heavy-braking Turn 1; Turns 2–3 Esses; the medium-speed middle sector through Turns 4–6; the former Peraltada is split — the modern lap bypasses the old banking into the Foro Sol baseball-stadium section (Turns 12–13 inside the sunken stadium, one of F1's signature amphitheatre corners), then the run through Turns 14–15 to the final Turn 17 right onto the main straight. Three DRS zones because the thin air slashes downforce. Flat terrain (the elevation is the venue's altitude, not relief). _(track, design, startfinish)_
+- Identity: 1940-designed permanent circuit in the Interlagos district of São Paulo; 4.309 km, 15 turns, anticlockwise (one of only three anticlockwise 2026 rounds with Baku and COTA), FIA Grade 1; 800 m altitude; a natural amphitheatre beloved by drivers. _(identity, designed, permanent)_
+- Track design: The famous Senna S (Turns 1–2, downhill left-right) begins the lap from the pit straight; Curva do Sol, then the Reta Oposta back straight (two DRS zones), Descida do Lago lefts, the twisting uphill Turns 8–10 (Ferradura, Laranjinha/Pinheirinho), Bico de Pato, Mergulho, and the long Junção–Subida dos Boxes climb back to the line — a full-throttle, camber-heavy final sector. Elevation amplitude 40 m in continuous oscillation; a lap with no rest. _(track, design, famous)_
+- Track design: The 1.92 km Wynn–Koval Straight is the flat-out backbone (340 km/h with 2026 low-drag aero); the lap runs past the Bellagio fountains, Caesars Palace, the Flamingo, the Sphere and the Venetian, with the Turn 1 braking zone past the Mirage site; slow-speed Zones (Turns 5–6, 13–14) alternate with fast kinks (Turns 4, 10, 12). Essentially zero elevation change (the 2023 layout is pancake-flat). Three DRS zones and low-grip, cool slick-tyre conditions define the challenge. _(track, design, wynnkoval)_
+- Track design: A 1.068 km main straight (flat-out 330–340 km/h) into the tight Turn 1 right; the lap then flows through a long sequence of medium-to-fast sweeps — the Turns 2–6 complex, the fast Turns 10–11 esses and the double-apex Turn 12–13 — before the final hairpins (Turns 14–15–16) return to the straight. Flat (desert plain, ±2 m). Two DRS zones; high sustained lateral loads and heavy braking-energy requirements in the sand-laden air. _(track, design, straight)_
+- Track design: Two long straights (start/finish 1.14 km and the Turn 8 back straight 1.25 km) joined by the flowing Turns 1–2 (uphill right-left), the banked Turn 5, the Turns 6–7 braking complex, the old marina section (Turns 11–13 including the unique underpass beneath the W Abu Dhabi hotel — the track passes through the hotel structure), and the Turns 14–16 sector that finishes under the hotel's arch. Nearly flat; two DRS zones; the closing sector is slower/tighter to maximise overtaking potential for the title decider. _(track, design, straights)_
+- Design-power highlights for 2026: the Madring (22 corners) overtakes Singapore and Baku as the corner-densest venue; Spa remains the longest and fastest; Monaco remains the shortest and slowest; Mexico City remains the altitude outlier; Las Vegas remains the coldest; Sepang (Round 16) is the hottest and most humid. _(designpower, highlights, madring)_
+- Known limitations: exact 2026 grandstand build maps, DRS-zone counts as homologated per event, and Sprint-venue designations for rounds after Round 12 were not captured in the fetched sources and are marked as best-available reference data. Corner-by-corner coordinates for the Madring are available on madring.com (render/video) but were not machine-parsed for this report. _(known, limitations, exact)_
+- Build a bespoke F1 Command Center design system with deep carbon glassmorphism, authentic telemetry layouts, and responsive widescreen cards. _(build, bespoke, command)_
+- **Dedicated 3D Simulation Realism Roadmap (After-Plan)**: _(dedicated, simulation, realism)_
+- Floating Next Pit Window decision alert with direct strategy link. _(floating, window, decision)_
+- **Systems & Health**: ERS Battery %, Fuel Load (kg) with delta, Front/Rear Carbon Brake Temps (°C), ICE Engine Wear %, Plank Wear gauge. _(systems, health, battery)_
+- **Strategy Cards**: _(strategy, cards)_
+- **Plan A (1-Stop Medium → Hard)**, **Plan B (2-Stop Soft → Medium → Soft)**, **Plan C (Rain Cover)**. _(medium, medium, cover)_
+- Shows Projected Finish (`P1 +2.8s`), Win Probability (`42%`), Pit Window (Laps 39–43), and active **[✓ COMMIT PLAN]** button. _(shows, projected, finish)_
+- This Standard Operating Procedure (SOP) defines the mandatory execution protocol for all engineering, architectural, and documentation operations within this repository. Every developer and AI assistant must adhere strictly to these rules. _(standard, operating, procedure)_
+- Problem & Root Cause Synopsis: Explanation of any issues encountered, what went wrong, and why. _(problem, cause, synopsis)_
+- Tracks architectural ideas, gameplay expansions, 3D graphics enhancements, and feature backlogs. _(tracks, architectural, ideas)_
+- Older versions of implementation plans, previous revision notes, and superseded documents must be preserved in .master/archive/ rather than deleted. _(older, versions, implementation)_
+- | File / Folder | Purpose | Status |
+| :--- | :--- | :--- |
+| AGENTS.md | Universal root-level agent rule enforcing SOP across sessions | Active |
+| .agents/rules/sopprotocol.md | Persistent workspace agent rule for response format & logs | Active |
+| .master/SOP.md | Standard Operating Procedures protocol for all operations | Active |
+| .master/MasterChangeLog.md | Authoritative changelog across all builds and revisions | Active |
+| .master/TroubleshootingLog.md | Bug fixes, root cause diagnostics, and usage counters | Active |
+| .master/IdeasLog.md | Roadmap for 3D realism, GPS circuits, audio, OpenF1 telemetry | Active |
+| .master/FileManifest.md | Complete file directory manifest | Active |
+| .master/scripts/validatesop.js | Automated validation script verifying SOP compliance | Active |
+| .master/documents/implementationplan2026overhaul.md | Technical implementation plan for 2026 grid & UI overhaul | Active |
+| .master/documents/walkthrough2026overhaul.md | Walkthrough and verification notes for 2026 UI overhaul | Active |
+| .master/documents/implementationplanlivetelemetrynews.md | Technical plan for OpenF1 live telemetry & news integration | Active |
+| .master/documents/walkthroughlivetelemetrynews.md | Walkthrough for OpenF1 live telemetry & paddock news | Active |
+| .master/documents/trackdesignreport2026calendar.md | Full physical design dossier of all 23 circuits on the 2026 F1 calendar (layouts, pits, seating, buildings, terrain, climate) | Active | _(folder, purpose, status)_
+- | .master/documents/workflowrun.md | End-to-end execution workflow for /run pipeline | Active |
+| .agents/skills/run/SKILL.md | Antigravity custom skill for /run command | Active |
+| .master/archive/ | Archive storage for superseded plans and previous notes | Active | _(masterdocumentsworkflowrunmd, endtoend, execution)_
+- | File | Purpose | Status |
+| :--- | :--- | :--- |
+| src/main.tsx | React root mounting with Barlow & Inter typography fonts | Active |
+| src/App.tsx | Top-level application shell, active view switcher, toasts | Active |
+| src/styles.css | Bespoke motorsport design system, telemetry styling, carbon cards | Active |
+| src/types.ts | TypeScript interfaces for simulation telemetry, drivers, commands | Active | _(purpose, status, srcmaintsx)_
+- | File | Purpose | Status |
+| :--- | :--- | :--- |
+| src/views/RaceDashboard.tsx | 3-Column live race center workspace | Active |
+| src/views/StrategyWorkspace.tsx | Pit window calculator, scenario cards (Plan A/B/C), delta chart | Active |
+| src/views/CarLab.tsx | 3-Column performance engineering setup lab and 3D showroom | Active |
+| src/views/SteeringWheelLab.tsx | Interactive 3D F1 steering wheel lab, camera presets & telemetry sync | Active |
+| src/views/HQDashboard.tsx | Factory R&D pipeline, ATR allocation, paddock news feed | Active |
+| src/views/LiveTelemetryExplorer.tsx | OpenF1 live race telemetry analyzer & driver comparison | Active | _(purpose, status, srcviewsracedashboardtsx)_
+- | File | Purpose | Status |
+| :--- | :--- | :--- |
+| src/components/AppHeader.tsx | Top navigation header with view tabs, 2026 branding, and interactive Paddock credentials trigger | Active |
+| src/components/F1Icons.tsx | 14 bespoke vector SVG motorsport icons (Aero, V6 ICE, MGU-K, Tires, Superlicense, Telemetry, Kiel Probes) | Active |
+| src/components/TeamGraphics.tsx | Vector SVG team logos for all 10 constructor teams, TeamBanner with large angled stripes, TeamAngledBackdrop, and metadata | Active |
+| src/components/ContextFocusCard.tsx | Reusable compact summary vs. expanded focus card architecture with full-screen inspection modal | Active |
+| src/components/ParallaxAuthScreen.tsx | Multi-layer 3D parallax Paddock/Telemetry Auth portal with 3D tilting Superlicense pass card & biometric scanner | Active |
+| src/components/SteeringWheel3D.tsx | Interactive Three.js 3D steering wheel canvas with raycasting & holographic tooltips | Active |
+| src/components/RaceStatusBar.tsx | Race status bar, lap counter, session clock, playback deck | Active |
+| src/components/TimingTower.tsx | F1 TV live timing tower leaderboard, tire badges, and collapsible rail | Active |
+| src/components/DriverTelemetryPanel.tsx | Cockpit gauges, 4-corner tire thermal matrix, on-demand command dock modal, and team radio audio player | Active |
+| src/components/StrategyHorizon.tsx | Predictive race model chart, stint delta comparison, and collapsible drawer | Active |
+| src/components/TrackMap.tsx | Authentic 18-corner Silverstone Grand Prix map, Doppler radar layer, and 3D viewport | Active |
+| src/components/RaceScene3D.tsx | High-performance Three.js 3D race scene with authentic Silverstone spline, start gantry, and collision-free scenery | Active |
+| src/components/CircuitMapPreview.tsx | Interactive 2D SVG track layout preview with DRS zones & corner tooltips | Active |
+| src/components/DopplerRadarOverlay.tsx | Circular Doppler radar sweep, dBZ reflectivity scale & rain heatmap | Active |
+| src/components/PaddockNewsWidget.tsx | Paddock news feed widget with category filters, bookmarks, and storage | Active |
+| src/components/CarShowroom3D.tsx | Interactive 3D CAD showroom with Aero-Rake wake tracers, 4K snapshot export, and live HUD | Active |
+| src/components/OnboardingOverlay.tsx | Modal guide explaining race controls, telemetry, and strategy | Active | _(purpose, status, srccomponentsappheadertsx)_
+- `sun.shadow.bias` was set to negative (`-0.0004`), creating extreme shadow acne on flat planar surfaces. _(sunshadowbias, negative, creating)_
+- **Rank**: #2 Most Critical Architecture Fix _(critical, architecture)_
+- Moved all project documentation, change logs, implementation plans, and troubleshooting guides into a dedicated root `.master/` folder (`.master/documents/`, `.master/MasterChangeLog.md`, `.master/TroubleshootingLog.md`, `.master/IdeasLog.md`, `.master/FileManifest.md`). _(moved, project, documentation)_
+- Re-architected all cards with explicit semantic markup (`<span className="metric-label">`, `<strong className="metric-value">`, `<small className="metric-unit">`). _(rearchitected, cards, explicit)_
+- **Files Modified**: `src/styles.css`, `src/views/CarLab.tsx`, `src/components/DriverTelemetryPanel.tsx`, `src/views/StrategyWorkspace.tsx`, `src/views/HQDashboard.tsx` _(files, modified, srcstylescss)_
+- In Car Lab's 2026 Vehicle Geometry view, raw text ("2026 SPECIFICATION", "FIA NIMBLE CAR ARCHITECTURE", "AERO BALANCE 42.5%", etc.) was rendered stacked and uncontained in standard HTML document flow above the 3D canvas. _(vehicle, geometry, specification)_
+- Replaced the thick cylinder platform with a flush carbon inspection pad (`CylinderGeometry(3.0, 3.05, 0.02)`), a CNC titanium bevel rim, a soft contact shadow receiver plane (`ShadowMaterial`), an engineering CAD coordinate grid (`GridHelper`), and technical measurement rings. _(replaced, thick, cylinder)_
+- **Rank**: #8 Most Critical TypeScript Component Architecture Fix _(critical, typescript, component)_
+- This directory stores older versions of implementation plans, walkthroughs, historical roadmaps, and superseded project documentation. _(directory, stores, older)_
+- Build millimeter-accurate circuit profiles (Silverstone, Spa-Francorchamps, Monza, Monaco, Suzuka) with real elevation changes (Eau Rouge compression, Becketts switchbacks), authentic kerb profiles, grandstands, pit buildings, safety barriers, and paddock architecture. _(build, millimeteraccurate, circuit)_
+- **2026 Track Design Dossier as 3D Build Spec** (added 2026-08-28): Use [.master/documents/track_design_report_2026_calendar.md](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/track_design_report_2026_calendar.md) as the authoritative reference for modeling all 23 2026-calendar circuits — including the new Madring (La Monumental banked corner at ≤13.5° banking, twin under-motorway tunnels, covered paddock), the relocated Bahrain GP at Sepang, and per-venue climate profiles to drive dynamic weather simulation. _(track, design, dossier)_
+- Build millimeter-accurate circuit profiles (Silverstone, Spa-Francorchamps, Monza, Monaco, Suzuka) with real elevation changes (Eau Rouge compression, Becketts switchbacks), authentic kerb profiles, grandstands, pit buildings, safety barriers, and paddock architecture. _(build, millimeteraccurate, circuit)_
+- **Dynamic AI Strategy Reactions**: _(dynamic, strategy, reactions)_
+- Provide an interactive multi-axis exploded CAD viewer with cross-section clipping planes, material analysis, and real-time FIA technical regulation compliance checks. _(provide, interactive, multiaxis)_
+- **Multiplayer Pit Wall Strategy Challenge**: _(multiplayer, strategy, challenge)_
+- ✅ **Vector SVG Team Logos, Large Angled Movement Stripes & Constructor Persistence Fix**: Designed bespoke vector SVG logos and crests for all 10 official Formula 1 constructor teams (McLaren, Ferrari, Red Bull, Mercedes, Aston Martin, Williams, Alpine, Racing Bulls, Kick Sauber, Haas). Built `TeamBanner`, `TeamLogoBadge`, and `TeamAngledBackdrop` with large angled stripes (`-22deg`) and movement velocity streaks. Fixed constructor team selection persistence across landing login portal, 100 Hz physics simulation worker, session storage, and dashboard views (`TeamGraphics.tsx`, `ParallaxAuthScreen.tsx`, `App.tsx`, `PhysicsWorker.ts`, `types.ts`, `AppHeader.tsx`, `HQDashboard.tsx`, `DriverTelemetryPanel.tsx`, `StrategyWorkspace.tsx`, `TimingTower.tsx`, `styles.css`). _(vector, logos, angled)_
+- ✅ **Bespoke Motorsport Vector Icon Suite, 3D Parallax Paddock Auth Gateway & Context+Focus Cards**: Created 14 custom vector SVG motorsport icons (`F1Icons.tsx`), multi-layer 3D parallax access portal with 3D tilting FIA Superlicense card, 10-team constructor credentials, 4-tier operational role switcher, simulated biometric chip scan with audio, and reusable `ContextFocusCard` component supporting compact KPI summary strips and full-screen holographic deep-dive modal inspection across CarLab and Strategy Workspace (`F1Icons.tsx`, `ParallaxAuthScreen.tsx`, `ContextFocusCard.tsx`, `App.tsx`, `AppHeader.tsx`, `CarLab.tsx`, `StrategyWorkspace.tsx`, `styles.css`). _(bespoke, motorsport, vector)_
+- ✅ **3D Car Showroom CAD Viewport Overhaul, HUD Glassmorphism & Staging Polish**: Implemented missing CSS rules for `.car-showroom-3d` and overlay HUD badges, heroic camera framing (36° FOV, close-up orbit), flush carbon inspection pad with CNC titanium bevel rim, CAD coordinate ground grid (`GridHelper`), soft contact shadow plane, and high-contrast monospace typography (`styles.css`, `CarShowroom3D.tsx`). _(showroom, viewport, overhaul)_
+- ✅ **Interactive CAD Cross-Section Clipping Planes (X/Y/Z)**: Hardware-accelerated local clipping plane cutting through ICE cylinders, 350kW MGU-K, lithium-NMC battery cells, and underfloor diffuser with offset slider (`F1Car2026Model.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`). _(interactive, crosssection, clipping)_
+- ✅ **Modular 3D Part-by-Part 2026 F1 Racecar Architecture & CAD Studio**: 30+ inspectable procedural CAD components across Aero, Powertrain, Chassis & Suspension, continuous 0–100% exploded CAD slider, subsystem isolation filters, 3D raycast inspection overlay, Active Aero (Corner/Straight modes) kinematics, and 350kW MGU-K Hybrid Power Unit simulation (`F1Car2026Model.ts`, `carPartsData.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `AeroEngine.ts`, `PowertrainEngine.ts`). _(modular, partbypart, racecar)_
+- ✅ **Collapsible Multi-Panel Workspace System**: Independent collapse controls for Timing Tower, Driver Telemetry, and Strategy Horizon enabling full-screen 3D race canvas (`RaceDashboard.tsx`, `TimingTower.tsx`, `DriverTelemetryPanel.tsx`, `StrategyHorizon.tsx`, `styles.css`). _(collapsible, multipanel, workspace)_
+- ✅ **On-Demand Tactical Race Command Dock Modal**: Modal/drawer strategy dock freeing vertical space for telemetry and pit radio (`DriverTelemetryPanel.tsx`, `styles.css`). _(ondemand, tactical, command)_
+- ✅ **Interactive 3D Pit Lane Sequence & Low-Poly Mechanic Crew**: 3D pit lane architecture, team overalls, 4 vibrating tyre gunners, front/rear quick-lift jacks (+0.14m elevation), red/green lollipop signal controller, and randomized stop durations (1.8s–4.2s) with live 3D stop timer HUD (`createPitCrew.ts`, `RaceScene3D.tsx`, `PhysicsWorker.ts`). _(interactive, sequence, lowpoly)_
+- ✅ **Bespoke Motorsport Command Center Design System**: Deep carbon titanium glassmorphism styling, clean typography hierarchy, zero text overlapping, and tactile interactive controls. _(bespoke, motorsport, command)_
 
 ## Technical Knowledge
 > Code patterns, frameworks, stack details, and structural information
@@ -57,6 +220,639 @@ Add @GRAYMATTER.md to any AI chat to inject this context automatically. _(contai
 - The Vite development server runs on http://localhost:5173. (development, server, httplocalhost) _(development, server, httplocalhost)_
 - https://srephoto.github.io/Formula-1-Legends/ (httpssrephotogithubioformulalegends) _(httpssrephotogithubioformulalegends, httpssrephotogithubioformulalegends)_
 - In the repository's Settings → Pages screen, choose Deploy from a branch, select the published branch and the /docs folder. After this branch is merged, use main and /docs. (repositorys, settings, pages) _(repositorys, settings, pages)_
+- All development, maintenance, and interaction in this repository must adhere to the Standard Operating Procedures established in .master/SOP.md and .agents/rules/sopprotocol.md. _(development, maintenance, interaction)_
+- TL;DR at Top: Every response begins with a concise TL;DR.
+Master Logs Maintenance: Update .master/MasterChangeLog.md, .master/TroubleshootingLog.md (with usage counts), .master/IdeasLog.md, and .master/FileManifest.md.
+End-of-Response Report Card: Include self-grade, checklist, context window health, hallucination check, and 3 improvement ideas. _(response, begins, concise)_
+- **TL;DR at the Top**: Every response must start with a `## TL;DR` summarizing changes and current status. _(response, start, summarizing)_
+- **Master Logs Maintenance**: _(master, maintenance)_
+- Update `.master/MasterChangeLog.md` on any code changes. _(update, mastermasterchangelogmd, changes)_
+- Update `.master/TroubleshootingLog.md` on any bug fixes. Increment usage counters if a known fix was applied and keep sorted by usefulness. _(update, mastertroubleshootinglogmd, fixes)_
+- Update `.master/IdeasLog.md` with new feature and expansion ideas. _(update, masterideaslogmd, feature)_
+- Update `.master/FileManifest.md` on file additions, deletions, renames, or archiving. _(update, masterfilemanifestmd, additions)_
+- Store archive documents in `.master/archive/`. _(store, archive, documents)_
+- **End-of-Response Report Card**: _(endofresponse, report)_
+- Task Completion % (1–100) & itemized checklist. _(completion, itemized, checklist)_
+- Quality of Work % (1–100). _(quality)_
+- Problem & root cause synopsis. _(problem, cause, synopsis)_
+- Master log & manifest update checkoff. _(master, manifest, update)_
+- Hallucination self-check. _(hallucination, selfcheck)_
+- Engineered an interactive 3D FIA Superlicense & Paddock Pass card with procedural gold smart chip, foil shimmer reflection, and 3D perspective tilt (`rotateX/rotateY`). _(engineered, interactive, superlicense)_
+- Added interactive header credential badge allowing instant session switching and re-opening of the credential portal on demand. _(added, interactive, header)_
+- Implemented reusable `ContextFocusCard` component supporting compact KPI summary strips by default, smooth accordion expansion, and full-screen holographic deep-dive modal inspection. _(implemented, reusable, contextfocuscard)_
+- Resolved issue where specification and aerodynamic balance text was rendering unconstrained in standard document flow above the canvas. _(resolved, issue, specification)_
+- Formatted all telemetry and technical overlays into glassmorphism HUD cards with subtle cyan and papaya neon indicators, high-contrast monospace metadata, and responsive positioning. _(formatted, telemetry, technical)_
+- **Heroic 3D Camera Framing & Proportions ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx))**: _(heroic, camera, framing)_
+- Optimized camera projection FOV (36°) and orbit distance coordinates (`(4.4, 2.1, 4.8)` from previous `(8.2, 4.6, 9.2)`), centering the 2026 F1 car prominently in the viewport. _(optimized, camera, projection)_
+- Adjusted model ground clearance (`y = 0.02`) and close-up camera presets (`FRONT_WING`, `COCKPIT`, `POWERTRAIN`, `DIFFUSER`) for crisp component inspection. _(adjusted, model, ground)_
+- **Engineering Stage Floor & Turntable Replacement ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx))**: _(engineering, stage, floor)_
+- Added an authentic CAD coordinate floor grid (`GridHelper(12, 24)`) and concentric technical measurement calibration rings. _(added, authentic, coordinate)_
+- **Dynamic Aerodynamic Aero-Rake Rig ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/graphics/f1_2026/carPartsData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/carPartsData.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx))**: _(dynamic, aerodynamic, aerorake)_
+- Added real-time wake pressure calculation algorithm (`updateAeroRakePressures()`) modeling tyre wake boundary layer loss ($C_p \approx -0.65$ to $-0.95$, purple/blue) and clean inboard underfloor feed ($C_p \approx +0.85$, red/orange) dynamically scaled with velocity and active wing pitch. _(added, realtime, pressure)_
+- Added animated 3D wake streamline particle tracer system and live in-viewport 40-probe pressure matrix HUD overlay. _(added, animated, streamline)_
+- Added dedicated Aero-Rake instrumentation toggle card in the CarLab Aero Platform column and metadata specs in `carPartsData.ts`. _(added, dedicated, aerorake)_
+- Created procedural carbon weave texture engine supporting 4 selectable finishes: Gloss 2x2 Twill, Raw Matte Micro-Grain, Forged Carbon Composite, and Satin Weave. _(created, procedural, carbon)_
+- Configured seamless hot-swapping on 3D meshes while preserving compatibility with CFD pressure heatmaps and FLIR thermal infrared rendering modes. _(configured, seamless, hotswapping)_
+- Engineered 4K UHD (3840×2160) offscreen render pipeline with aspect-corrected camera projection, anti-aliasing, ACESFilmic tone mapping, and PCF soft shadow maps. _(engineered, offscreen, render)_
+- Generated composite technical watermark footer banner displaying car telemetry (Downforce kN, Balance %, Active Mode), FIA Article 3.4 certification badge, and high-contrast typography. _(generated, composite, technical)_
+- **TypeScript Type Hygiene & Bugfix ([src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts))**: _(typescript, hygiene, bugfix)_
+- Fixed pre-existing TypeScript index signature error on telemetry object in steering wheel controller by replacing dynamic index assignment with type-safe `Object.assign`. _(fixed, preexisting, typescript)_
+- Fixed issue where the 3D race was not displaying on the main dashboard due to missing `.race-scene-container` styling. _(fixed, issue, displaying)_
+- Added `.race-scene-container` with explicit flex sizing (`min-height: 280px; flex: 1; position: relative; width: 100%; height: 100%;`). _(added, racescenecontainer, explicit)_
+- Added `ResizeObserver` lifecycle listeners with safe fallback dimensions (`800x500`) to guarantee proper WebGL viewport scaling upon container mount. _(added, resizeobserver, lifecycle)_
+- **Steering Wheel Rear Paddle Illumination & Studio Lighting ([src/components/SteeringWheel3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/SteeringWheel3D.tsx))**: _(steering, wheel, paddle)_
+- Implemented 360° studio lighting with dedicated high-intensity rear key light (`#ffffff`, 2.8), rear cool fill light (`#bad7ff`, 2.4), rear bottom light, and dual rear point lights (`#00f0ff` / `#30d158`) right behind the left and right carbon paddle blades. _(implemented, studio, lighting)_
+- Adjusted `paddles` camera preset perspective (`pos: (0, 0.03, -0.34)`, `lookAt: (0, 0.01, -0.01)`) for clear paddle inspection. _(adjusted, paddles, camera)_
+- **High-Definition Silkscreen Button Decals & Mechanical Detailing ([src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts))**: _(highdefinition, silkscreen, button)_
+- Upgraded rotary dials with circular laser-etched scale graduations and heavy knurled aluminum knobs. _(upgraded, rotary, dials)_
+- Upgraded paddle shifters with glossy clearcoat carbon weave, laser-etched green `+` / crimson `−` symbols, titanium pivot brackets, and neodymium magnetic microswitch cylinders. _(upgraded, paddle, shifters)_
+- **Code Hygiene & Unused Variable Clean-Up ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts))**: _(hygiene, unused, variable)_
+- Resolved unused `speedKmh` in `updateAeroRakePressures` by integrating dynamic velocity scaling into the Kiel probe differential pressure equation. _(resolved, unused, speedkmh)_
+- Added branded F1 hero banner with papaya gradient icon, radial glow, and orange accent underline stripe. _(added, branded, banner)_
+- Added `.step-title` / `.step-desc` typography hierarchy replacing bare `<b><span>` pairs. _(added, steptitle, stepdesc)_
+- Upgraded CTA button to full-width gradient with lift-on-hover animation and glow shadow. _(upgraded, button, fullwidth)_
+- Split the single overloaded header row (title + dropdown + 5 buttons) into three clean zones: **Title Row** (eyebrow + h2 + FIA 2026 / 30+ PARTS spec badges), **Tool Row** (CFD / FLIR / X-RAY / WIND as compact icon-pills), and **Search Bar** (full-width part inspector dropdown). _(split, single, overloaded)_
+- **Camera Director Bar — Compact Pill Format**: _(camera, director, compact)_
+- Replaced verbose full labels (`5: 360° ORBIT`, `1: FRONT WING`) with compact `ORBIT / NOSE / COCKPIT / PU / DIFF` labels with keyboard shortcut badge (`.cam-kbd`) inside each pill. _(replaced, verbose, labels)_
+- Adds `title` tooltip on each pill showing full label + keyboard shortcut. _(title, tooltip, showing)_
+- **Aero Metrics Ribbon Upgrade**: _(metrics, ribbon, upgrade)_
+- Added 5th column **AERO MODE** stat showing `Z-MODE` (green) or `X-MODE` (papaya) with sub-label `HIGH DF` / `-45% DRAG`. _(added, column, showing)_
+- **Neural & Natural Voice Synthesis Engine ([src/services/radioAudioService.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts))**: _(neural, natural, voice)_
+- Implemented strict blacklisting of legacy novelty, robotic, and comedic synthesizer voices (e.g. `Zarvox`, `Trinoids`, `Albert`, `Bad News`, `Fred`, `Boing`, `Cellos`, `Whisper`) that caused broken robotic audio artifacts. _(implemented, strict, blacklisting)_
+- Engineered dynamic Voice Scoring & Selection Algorithm prioritizing Natural, Neural, Enhanced, Apple Siri, Google UK/US Natural, and Microsoft Natural voices. _(engineered, dynamic, voice)_
+- Implemented asynchronous voice discovery via `speechSynthesis.onvoiceschanged` with cached voice registries and fallback guarantees. _(implemented, asynchronous, voice)_
+- **Procedural VHF Team Radio Audio DSP Pipeline ([src/services/radioAudioService.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts))**: _(procedural, radio, audio)_
+- Authentic Push-to-Talk (PTT) Roger chirps with calibrated dual frequencies (Intro: 1850Hz + 2300Hz, Outro: 2200Hz + 1750Hz) and tactile mic switch keying clicks. _(authentic, pushtotalk, roger)_
+- Squelch tail burst generation (filtered noise burst on transmission end) and ducked VHF static ambiance that automatically attenuates background noise while speech is active. _(squelch, burst, generation)_
+- 3 switchable radio acoustic profiles: `📻 Authentic VHF Radio`, `🎙️ Studio HD (Clean)`, and `🏎️ Cockpit Raw`. _(switchable, radio, acoustic)_
+- **2026 Grid Team Radio Transmissions ([src/services/openf1Service.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts))**: _(radio, transmissions, srcservicesopenfservicetsfileuserssamuelagappsformulalegendsformulalegendssrcservicesopenfservicets)_
+- Expanded `getSampleTeamRadio` with authentic radio transmissions for Norris, Piastri, Verstappen, Leclerc, Hamilton, Russell, Alonso, and Sainz. _(expanded, getsampleteamradio, authentic)_
+- **Interactive Radio Controls & Test Comms ([src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/views/LiveTelemetryExplorer.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx))**: _(interactive, radio, controls)_
+- **Resolved All Workspace ESLint Warnings & Errors ([src/components/SteeringWheel3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/SteeringWheel3D.tsx), [src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts), [src/views/SteeringWheelLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/SteeringWheelLab.tsx))**: _(resolved, workspace, eslint)_
+- **3D Procedural Formula 1 Steering Wheel Replica ([src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts))**: _(procedural, formula, steering)_
+- **28+ Interactive Controls & Comprehensive Metadata Registry ([src/graphics/steering_wheel/steeringWheelData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/steeringWheelData.ts))**: _(interactive, controls, comprehensive)_
+- Full catalog of push buttons (`DRS`, `RADIO`, `PL` Pit Limiter, `OT` Overtake, `SOC` Recharge, `N` Neutral, `R` Reverse, `ACK` Marshal Acknowledge, `DRINK`, `PASS` Attack Pace, `BB+`/`BB-` Brake Balance, `EB+`/`EB-` Engine Braking, `PAGE+`/`PAGE-`), rotary thumb dials (`DIFF IN`, `DIFF OUT`), center rotary switches (`STRAT 1-10`, `TYRE`, `MF-SYS`, `CLUTCH BITE`), rear carbon paddle shifters (`SHIFT UP`, `SHIFT DOWN`), and analog launch clutch paddles. _(catalog, buttons, radio)_
+- **Dynamic 4.3" FIA-Spec OLED Telemetry Display & Shift LEDs ([src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts))**: _(dynamic, fiaspec, telemetry)_
+- 60 FPS Canvas-driven LCD texture rendering live gear, speed, RPM, delta times, ERS state of charge, brake balance, tire surface/core temperatures, and 4 switchable display pages (Race Telemetry, Tire Thermals, ERS Energy Flow, Active Aero Diagnostics). _(canvasdriven, texture, rendering)_
+- 15x Progressive RGB Shift LEDs (5 Green -> 5 Red -> 5 Blue) flashing at peak RPM rev-limiter + 6x FIA Track Flag warning LEDs. _(progressive, shift, green)_
+- **Zero-Latency Web Audio Tactile Synthesizer ([src/utils/wheelAudioSynthesizer.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/utils/wheelAudioSynthesizer.ts))**: _(zerolatency, audio, tactile)_
+- Procedural sound synthesis generating authentic microswitch mechanical clicks, heavy rotary detent clunks, magnetic carbon paddle snaps, and team radio alert beeps. _(procedural, sound, synthesis)_
+- **Rich Holographic Engineering HUD Tooltips & Raycasting ([src/components/SteeringWheel3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/SteeringWheel3D.tsx))**: _(holographic, engineering, tooltips)_
+- 3D Raycasting with pointer hover highlighting, spring-loaded depression animations (-3.5mm Z push, 30° rotary detents, -12° paddle pulls), and floating HUD tooltips revealing technical acronyms, FIA rules, real-time values, and physics impact. _(raycasting, pointer, hover)_
+- Added `Cockpit Wheel` to the main application navigation with 7 camera presets (`Front Full Wheel`, `Cockpit POV`, `4.3" LCD Focus`, `Left Thumb`, `Right Thumb`, `Rear Paddles`, `360° Orbit`), Live Simulation Sync vs Manual Test Bench mode, keyboard shortcuts (<kbd>SPACE</kbd>, <kbd>E</kbd>, <kbd>Q</kbd>, <kbd>P</kbd>, <kbd>B</kbd>, <kbd>V</kbd>, <kbd>1-4</kbd>), night cockpit lighting toggle, and interactive controls directory. _(added, cockpit, wheel)_
+- Upgraded Pace Directives with crystal-clear plain-language subtitles (`CONSERVE: Save Tyres & Fuel`, `BALANCED: Standard Target Pace`, `ATTACK: Maximum Push & Pass`). _(upgraded, directives, crystalclear)_
+- Upgraded ERS Hybrid Programs with plain-language subtitles (`HARVEST: Recharge Battery (+15%)`, `BALANCED: 50/50 Electric Split`, `OVERTAKE: Full 350 kW Boost`). _(upgraded, hybrid, programs)_
+- Upgraded Pit Compound Selector with estimated stint lifespan tags (`Soft ~16 laps`, `Medium ~26 laps`, `Hard ~38 laps`, `Inters Wet track`). _(upgraded, compound, selector)_
+- **Timing Tower Tooltips & Column Clarity ([src/components/TimingTower.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TimingTower.tsx))**: _(timing, tower, tooltips)_
+- Replaced ambiguous abbreviations with explicit `GAP TO P1` and `INTERVAL` buttons with tooltips. _(replaced, ambiguous, abbreviations)_
+- Engineered smooth lerping camera director targeting 5 inspection angles: `1: FRONT WING`, `2: COCKPIT`, `3: POWER UNIT`, `4: DIFFUSER`, and `5: 360° ORBIT` with global keyboard hotkeys (`1`-`5`). _(engineered, smooth, lerping)_
+- **Aeroacoustic Wind Tunnel Audio Synthesizer ([src/services/soundEngine.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/soundEngine.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx))**: _(aeroacoustic, tunnel, audio)_
+- Web Audio synthesis generating procedural airflow whoosh, turbulence hiss, and drag reduction resonance when Straight Mode (X-Mode, -45% drag) attaches flow to the rear wing. _(audio, synthesis, generating)_
+- Multi-parameter real-time telemetry card with Speed, Throttle, and Brake curves and a live scrubber needle synchronized to the 75s Silverstone Grand Prix hot lap. _(multiparameter, realtime, telemetry)_
+- Implemented 4 live broadcast & onboard camera modes: **TV Broadcast Chase** (trackside panning with orbit offset), **Helicopter Aerial Chase** (+28m overhead orbit), **Cockpit Halo Driver POV** (+0.72m inside cockpit monocoque behind Halo central spar), and **Nosecone Bumper Cam** (+0.28m low asphalt perspective above front wing). _(implemented, broadcast, onboard)_
+- **Holographic Telemetry Ghost Delta Phantom Car ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx), [src/components/TrackMap.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TrackMap.tsx))**: _(holographic, telemetry, ghost)_
+- Holographic cyan wireframe phantom car (`#00f0ff`) tracking optimal pole reference pace in real time. _(holographic, wireframe, phantom)_
+- Interactive on/off toggle button (`👻 GHOST`) with live real-time pole delta badge (`POLE DELTA: -0.142s PURPLE` / `+0.240s YELLOW`). _(interactive, onoff, toggle)_
+- **Dynamic Wet Tire Spray Roost Particle System ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**: _(dynamic, spray, roost)_
+- 1,200 particle wet spray roost plumes rising and diffusing behind rear wheels and diffuser of cars traveling $>50\text{ km/h}$ in rainy conditions. _(particle, spray, roost)_
+- Plume volume, upward draft, and opacity dynamically coupled to vehicle velocity and precipitation depth. _(plume, volume, upward)_
+- Engineered procedural 380-particle aerodynamic streamline wand tracer with selectable nozzle wands (`ALL WANDS`, `FRONT WING`, `AIRBOX & FIN`, `UNDERFLOOR`) modeling upwash, diffuser vortex expansion, and wake turbulence. _(engineered, procedural, particle)_
+- Implemented FLIR Ironbow thermal spectrum rendering cold composite bodywork ($<40^\circ\text{C}$ indigo), tire tread contact patches ($100^\circ\text{C}$ orange), glowing white-hot brake rotors ($>850^\circ\text{C}$ emissive), and high-heat Inconel exhaust/turbo turbine ($>900^\circ\text{C}$). _(implemented, ironbow, thermal)_
+- **Interactive 24-Round Calendar Modal ([src/views/HQDashboard.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/HQDashboard.tsx))**: _(interactive, round, calendar)_
+- **Interactive Button & Workspace Audit**: _(interactive, button, workspace)_
+- **Track Map**: Added interactive zoom rail (`+` / `−` / reset scale state) and SVG zoom transform (`TrackMap.tsx`). _(track, added, interactive)_
+- **Timing Tower**: Added interactive session switcher dropdown (`Race`, `Qualifying`, `Practice`) with persistent state (`TimingTower.tsx`). _(timing, tower, added)_
+- Added carbon-fiber weave composite textures, high-contrast team livery racing stripes, and giant translucent watermark driver numbers (`#4`, `#16`, `#1`, `#44`) in Barlow Condensed typography across all driver identity cards. _(added, carbonfiber, weave)_
+- **3D Environment Polish & Runoff Safety Barriers ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**: _(environment, polish, runoff)_
+- Added trackside tire safety barriers on high-speed runoffs (Becketts, Stowe, Luffield, Abbey) and 150m/100m/50m distance marker boards approaching heavy braking zones. _(added, trackside, safety)_
+- Interactive continuous offset slider with center reset. _(interactive, continuous, offset)_
+- Procedural CFD pressure mapping rendering stagnation high pressure ($+C_p$, red), free-stream neutral ($C_p \approx 0$, green), and deep suction low pressure ($-C_p$, purple) across all 30+ bodywork components. _(procedural, pressure, mapping)_
+- Dynamic Straight Mode (X-Mode) drag shedding transitions front and rear wing flaps to neutral pressure in real time with floating CFD gradient legend bar. _(dynamic, straight, xmode)_
+- **Multi-Axis Targeted Subsystem Explode ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx))**: _(multiaxis, targeted, subsystem)_
+- Subsystem explosion target filter (`ALL`, `AERO`, `PU`, `CHASSIS`, `SUSP`) enabling independent disassembly of individual assemblies (e.g. exploding only the 350kW Power Unit) while keeping the surrounding chassis intact. _(subsystem, explosion, target)_
+- Interactive **Continuous Exploded View Slider** ($0\% \to 100\%$) translating internal assemblies radially for structural CAD inspection. _(interactive, continuous, exploded)_
+- Subsystem isolation filters (`FULL CAR`, `AERODYNAMICS`, `POWERTRAIN`, `CHASSIS & SAFETY`, `SUSPENSION & BRAKES`) and X-Ray wireframe toggle. _(subsystem, isolation, filters)_
+- **Active Aerodynamics System (AAS) Kinematics & Physics Engine ([src/engine/physics/AeroEngine.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/engine/physics/AeroEngine.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx))**: _(active, aerodynamics, system)_
+- Articulated dual active front flaps and 3-element rear wing upper element between **Corner Mode (Z-Mode)** (high downforce) and **Straight Mode (X-Mode)** (low drag, -45% drag shedding). _(articulated, active, front)_
+- Implemented 2026 partially flat floor ground-effect equations with reduced porpoising sensitivity and narrower 1900mm drag profile. _(implemented, partially, floor)_
+- **2026 Hybrid Power Unit Simulation & Manual Override Mode ([src/engine/physics/PowertrainEngine.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/engine/physics/PowertrainEngine.ts), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx))**: _(hybrid, power, simulation)_
+- Implemented 50/50 power split: 400 kW 1.6L V6 Turbo ICE (100% sustainable drop-in e-fuel) + 350 kW MGU-K electrical generator ($1,006\text{ BHP}$ total output) and $8.5\text{ MJ/lap}$ regenerative braking recovery. _(implemented, power, split)_
+- Implemented **Manual Override Mode (MOM / Overtake Boost)** with speed-dependent power tapering curve (>290 km/h) and full 350 kW boost override up to 337 km/h. _(implemented, manual, override)_
+- Added live regulatory verification badges confirming 3,400 mm wheelbase, 1,900 mm width, 1,450 mm floor, 768 kg minimum weight, 350 kW MGU-K, and 100% sustainable fuel compliance. _(added, regulatory, verification)_
+- Replaced generic template cubic beziers with authentic 18-corner FIA Silverstone track geometry (Hamilton Straight -> Abbey -> Farm Curve -> Village -> The Loop -> Aintree -> Wellington Straight -> Brooklands -> Luffield -> Woodcote -> Copse -> Maggotts -> Becketts -> Chapel -> Hangar Straight -> Stowe -> Vale -> Club). _(replaced, generic, template)_
+- **100% Collision-Free 3D Track Scenery & Start Gantry ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**: _(collisionfree, track, scenery)_
+- Re-positioned all grandstands (Hamilton Infield, Becketts Stadium, Stowe Runoff, Luffield Stadium), the Silverstone Wing Pit Complex, and outfield trees with safe clearance margins outside the track and pit lane envelopes. _(repositioned, grandstands, hamilton)_
+- Added start/finish overhead gantry with 5 red/green FIA starting light pods. _(added, startfinish, overhead)_
+- Replaced the large static bottom command box with a compact status bar and modal trigger (`⚡ RACE COMMAND`). _(replaced, static, bottom)_
+- Added an interactive slide-up strategic modal for Pace mode, ERS programs, tire compound selection, and pit stop calls. _(added, interactive, slideup)_
+- **Authentic Pit Radio Audio Player & OpenF1 Integration ([src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/services/radioAudioService.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts), [src/services/openf1Service.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts))**: _(authentic, radio, audio)_
+- Integrated interactive play/stop controls for driver radio transmissions with live equalizer waveform animations and Web Audio sound processing. _(integrated, interactive, playstop)_
+- Researched and established full baseline engineering specifications according to official FIA 2026 regulations: Agile Nimble Car concept with 3,400 mm wheelbase (-200 mm), 1,900 mm overall width (-100 mm), 1,450 mm maximum floor width (-150 mm), 768 kg minimum weight limit (-30 kg), and narrower 18" tyres (280 mm front, 375 mm rear). _(researched, established, baseline)_
+- **Active Aerodynamics System (AAS) Kinematics & Physics**: _(active, aerodynamics, system)_
+- Formulated active dual-state aerodynamics modeling replacing traditional DRS: **Corner Mode (Z-Mode)** for maximum downforce/braking vs. **Straight Mode (X-Mode)** for low drag with simultaneous front active flap shedding and rear 3-element active wing opening (-45% drag reduction). _(formulated, active, dualstate)_
+- Tripled electrical output with **350 kW MGU-K**, 400 kW 1.6L V6 Turbo ICE (100% sustainable drop-in e-fuel), removal of MGU-H, 8.5 MJ/lap regenerative braking recovery, and **Manual Override Mode (MOM / Overtake Boost)** speed-tapered power mapping. _(tripled, electrical, output)_
+- **Part-by-Part 3D Modular CAD Hierarchy**: _(partbypart, modular, hierarchy)_
+- Formulated hierarchical 3D component breakdown encompassing over 30 inspectable parts across Aerodynamics, Powertrain & Hybrid, Chassis & Safety, and Suspension & Brakes with interactive exploded-view transforms, subsystem filters, and material callouts. _(formulated, hierarchical, component)_
+- **Interactive 3D Pit Lane Sequence & Low-Poly Mechanic Crew ([src/graphics/createPitCrew.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/createPitCrew.ts), [src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**: _(interactive, sequence, lowpoly)_
+- **4 Tyre Gunners** (FL, FR, RL, RR) with pneumatic wheel gun props, crouching posture, and rapid vibration animation during tire swaps. _(gunners, pneumatic, wheel)_
+- **1 Rear Cradle Jack Operator** positioned at the rear diffuser. _(cradle, operator, positioned)_
+- **1 Lollipop Controller** with dynamic two-sided signal disc (RED "STOP" -> GREEN "GO") with LED illumination. _(lollipop, controller, dynamic)_
+- **Stationary Stopwatch HUD**: Real-time 3D pit stop stopwatch display showing elapsed stop duration, target, and multi-step phase indicators (Jacks Up -> Wheel Guns -> Tyre Swap -> Jacks Down -> Green Go). _(stationary, stopwatch, realtime)_
+- **Realistic Randomized Pit Stop Durations ([src/engine/workers/PhysicsWorker.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/engine/workers/PhysicsWorker.ts), [src/types.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/types.ts))**: _(realistic, randomized, durations)_
+- Integrated randomized stationary stop durations between **1.8s and 4.2s** based on pit crew execution and random variation, accurately modeled inside the 100 Hz physics simulation loop. _(integrated, randomized, stationary)_
+- **360° Circular Doppler Radar Sweep**: Continuous rotating radar beam with conical phosphor fading trail and antenna pulse node. _(circular, doppler, radar)_
+- **Concentric Range Rings & Bearings**: 5 KM, 10 KM, 15 KM, 20 KM range markers and cardinal compass notches (N, E, S, W). _(concentric, range, rings)_
+- **Dedicated Radar Mode & Interactive Controls**: Full-screen radar console with instant rainfall adjustment sliders and preset pills (`DRY`, `DRIZZLE`, `RAIN`, `MONSOON`). _(dedicated, radar, interactive)_
+- **3D Atmospheric Weather & Rain Particles ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**: _(atmospheric, weather, particles)_
+- Multi-sector gradient track lines (S1/S2/S3), green DRS activation zones, and start/finish line indicator. _(multisector, gradient, track)_
+- **Animated On-Track Car Position Dots**: Rendered glowing car markers for Driver 1 and Driver 2 dynamically interpolating along the SVG track path using `pathRef.current.getPointAtLength()` and `getTotalLength()`. _(animated, ontrack, position)_
+- **Procedural V6 Turbo-Hybrid Engine Sound Synthesizer ([src/services/soundEngine.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/soundEngine.ts))**: _(procedural, turbohybrid, engine)_
+- Web Audio synthesis modeling 6-cylinder ICE firing harmonics scaling with RPM, waveshaper distortion, turbocharger boost spool whine, MGU-K electrical deployment/harvest whir, and tire skid lockup noise. _(audio, synthesis, modeling)_
+- Added live engine sound toggle button with real-time telemetry streaming in [`src/views/LiveTelemetryExplorer.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx). _(added, engine, sound)_
+- **Dynamic Live Radio Player with Web Audio Synthesis ([src/services/radioAudioService.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts))**: _(dynamic, radio, player)_
+- Dual-tone push-to-talk (PTT) radio key beeps (1850Hz/2300Hz), VHF bandpass filter (1400Hz center, Q=1.8), frequency crunch distortion, and dynamic pink/white cockpit static hiss. _(dualtone, pushtotalk, radio)_
+- Vocal audio playback via SpeechSynthesis API / OpenF1 audio clips with animated equalizer waveform bars and abort controls. _(vocal, audio, playback)_
+- **Paddock News Bookmark & OpenF1 Media Sync ([src/components/PaddockNewsWidget.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/PaddockNewsWidget.tsx))**: _(paddock, bookmark, openf)_
+- Category filter persistence saved to `localStorage` (`f1_paddock_news_category`). _(category, filter, persistence)_
+- Article bookmarking saved to `localStorage` (`f1_paddock_news_bookmarks`). _(article, bookmarking, saved)_
+- **Automated Background Media Sync**: Background sync timer querying [`src/services/f1NewsService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/f1NewsService.ts) for incoming breaking technical bulletins and triggering toast alerts in [`src/views/HQDashboard.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/HQDashboard.tsx). _(automated, background, media)_
+- **OpenF1 Real-Time Telemetry Explorer ([src/views/LiveTelemetryExplorer.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx))**: _(openf, realtime, telemetry)_
+- Head-to-Head driver comparison selector (Norris `#4` vs Verstappen `#1`, Leclerc `#16`, Russell `#63`). _(headtohead, driver, comparison)_
+- High-precision SVG speed profile overlay trace (0–350 km/h) with corner apex annotations (Abbey, Copse, Stowe). _(highprecision, speed, profile)_
+- Throttle & Brake input pressure trace comparison. _(throttle, brake, input)_
+- Team radio pit wall communications audio player & transcripts. _(radio, communications, audio)_
+- Live track weather and atmospheric telemetry (track temp, air temp, wind speed, rain risk). _(track, weather, atmospheric)_
+- **Formula 1 Paddock News Center ([src/components/PaddockNewsWidget.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/PaddockNewsWidget.tsx))**: _(formula, paddock, center)_
+- Live news feed embedded in Team HQ with category filter pills (`Technical`, `Regulations`, `Paddock`, `Race Report`, `Driver Market`). _(embedded, category, filter)_
+- Featured story banner, read-time chips, and article inspection modal. _(featured, story, banner)_
+- **Data Services Layer**: _(services, layer)_
+- Created [`src/services/openf1Service.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts) connecting to `api.openf1.org` with robust offline fallbacks. _(created, srcservicesopenfservicetsfileuserssamuelagappsformulalegendsformulalegendssrcservicesopenfservicets, connecting)_
+- Created [`src/services/f1NewsService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/f1NewsService.ts) for motorsport journalism feeds. _(created, srcservicesfnewsservicetsfileuserssamuelagappsformulalegendsformulalegendssrcservicesfnewsservicets, motorsport)_
+- **Navigation & App Shell**: _(navigation, shell)_
+- Added `Live Telemetry` tab into [`src/components/AppHeader.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx) and updated [`src/types.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/types.ts). _(added, telemetry, srccomponentsappheadertsxfileuserssamuelagappsformulalegendsformulalegendssrccomponentsappheadertsx)_
+- **Standard Operating Procedures System**: _(standard, operating, procedures)_
+- Created automated SOP validation script [`.master/scripts/validate_sop.js`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/scripts/validate_sop.js) with `npm run sop:validate`. _(created, automated, validation)_
+- Added [`.master/archive/archive_index.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/archive/archive_index.md) for archival preservation. _(added, masterarchivearchiveindexmdfileuserssamuelagappsformulalegendsformulalegendsmasterarchivearchiveindexmd, archival)_
+- **Official 2026 Grid & Constructors Integration**: _(official, constructors, integration)_
+- Replaced legacy drivers with the official 2026 Formula 1 Grid (20 drivers across 10 teams). _(replaced, legacy, drivers)_
+- **Race Center Overhaul**: _(center, overhaul)_
+- **3D Graphic Rendering Fixes**: _(graphic, rendering, fixes)_
+- Fixed shadow camera bias (+0.0008) and ribbon normal computations. _(fixed, shadow, camera)_
+- **Car Lab & Team HQ Overhauls**: _(overhauls)_
+- 3-column setup lab and factory R&D upgrade pipeline. _(column, setup, factory)_
+- Fixed invisible 3D track through adaptive winding and double-sided materials. _(fixed, invisible, track)_
+- Added mobile 3D update: Three.js race world, car showroom, mobile telemetry controls. _(added, mobile, update)_
+- Initial 100 Hz Web Worker deterministic physics engine and Vite GitHub Pages deployment setup. _(initial, worker, deterministic)_
+- ---
+- Compiles TypeScript schemas, 3D graphics rigs (createF1Car.ts, createPitCrew.ts), and Web Worker physics engines. _(compiles, typescript, schemas)_
+- Outputs distribution assets into /docs for GitHub Pages. _(outputs, distribution, assets)_
+- Analyzes React 18 hooks, TypeScript type safety, and imports. _(analyzes, react, hooks)_
+- Verifies .master/MasterChangeLog.md, .master/TroubleshootingLog.md, .master/IdeasLog.md, and .master/FileManifest.md. _(verifies, mastermasterchangelogmd, mastertroubleshootinglogmd)_
+- bash
+npm run run:local _(runlocal)_
+- Spawns the local web server on port 5173 / 4173. _(spawns, local, server)_
+- Multi-sector gradient track paths (S1/S2/S3). _(multisector, gradient, track)_
+- Green DRS activation zones with dashed racing centerlines. _(green, activation, zones)_
+- Interactive turn nodes with hover tooltips displaying turn numbers and corner names. _(interactive, nodes, hover)_
+- **Animated On-Track Car Position Dots**: Dynamic glowing car markers for Driver 1 (`#4 NOR`) and Driver 2 (`#1 VER`) interpolating along the SVG track path using `pathRef.current.getPointAtLength()` with real-time lap progress calculations. _(animated, ontrack, position)_
+- Created [`src/services/soundEngine.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/soundEngine.ts) using the Web Audio API: _(created, srcservicessoundenginetsfileuserssamuelagappsformulalegendsformulalegendssrcservicessoundenginets, audio)_
+- **ICE V6 Harmonics**: 4 harmonic oscillators for combustion firing pulses (`fundamental = (RPM / 60) * 3 Hz`). _(harmonics, harmonic, oscillators)_
+- **Manifold & Exhaust Rasp**: Waveshaper non-linear saturation curve and throttle-modulated lowpass filter. _(manifold, exhaust, waveshaper)_
+- **Turbocharger Boost Spool**: High-frequency sine tone (1800Hz–4500Hz) modulated by throttle input. _(turbocharger, boost, spool)_
+- **MGU-K Electrical Deployment/Harvest**: High-pitch electrical whir (3200Hz–6000Hz) during ERS deployment. _(electrical, deploymentharvest, highpitch)_
+- **Tire Skid Screeching**: Filtered bandpass noise burst triggered during heavy braking (>60% brake pressure). _(screeching, filtered, bandpass)_
+- **Telemetry Streaming Loop**: Integrated real-time telemetry streaming in [`src/views/LiveTelemetryExplorer.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx) with a tactile `[V6 ENGINE AUDIO]` toggle. _(telemetry, streaming, integrated)_
+- Created [`src/services/radioAudioService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts) using the Web Audio API: _(created, srcservicesradioaudioservicetsfileuserssamuelagappsformulalegendsformulalegendssrcservicesradioaudioservicets, audio)_
+- **Push-to-Talk (PTT) Beep Tones**: Dual-frequency sine bursts (1850Hz & 2300Hz) simulating pit-to-car radio engagement. _(pushtotalk, tones, dualfrequency)_
+- **Cockpit VHF Filter & Crunch**: BiquadFilter (1400Hz center, Q=1.8 bandpass) and non-linear waveshaping transfer curve. _(cockpit, filter, crunch)_
+- **Cockpit Static Noise**: Dynamic pink/white noise generator providing realistic cockpit interference. _(cockpit, static, noise)_
+- **Speech Synthesis Playback**: Synchronized speech playback for driver and race engineer messages with automatic voice pitch modulation. _(speech, synthesis, playback)_
+- Enhanced [`src/views/LiveTelemetryExplorer.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx) with: _(enhanced, srcviewslivetelemetryexplorertsxfileuserssamuelagappsformulalegendsformulalegendssrcviewslivetelemetryexplorertsx)_
+- VHF Encrypted Channel HUD (`462.550 MHz`). _(encrypted, channel)_
+- Animated 5-band audio equalizer waveform bars during active broadcasts. _(animated, audio, equalizer)_
+- Active transmission glow and instant Stop Audio / abort controls. _(active, transmission, instant)_
+- Updated [`src/components/PaddockNewsWidget.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/PaddockNewsWidget.tsx) and [`src/services/f1NewsService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/f1NewsService.ts): _(updated, srccomponentspaddocknewswidgettsxfileuserssamuelagappsformulalegendsformulalegendssrccomponentspaddocknewswidgettsx, srcservicesfnewsservicetsfileuserssamuelagappsformulalegendsformulalegendssrcservicesfnewsservicets)_
+- Category filter persistence saved to `localStorage` (`f1_paddock_news_category`). _(category, filter, persistence)_
+- Article bookmarking saved to `localStorage` (`f1_paddock_news_bookmarks`). _(article, bookmarking, saved)_
+- Added "Bookmarked" filter pill with live count badge and empty state. _(added, bookmarked, filter)_
+- Added bookmark toggle icon buttons on all cards with golden glow state. _(added, bookmark, toggle)_
+- **Automated Background Media Sync**: 35-second periodic background timer that polls for incoming breaking technical directives (e.g. FIA TD048 Skid Block Wear, Mercedes beam wing evaluation), pushing updates to the feed and triggering live toast alerts. _(automated, background, media)_
+- `npm run lint`: ESLint check completed with **0 warnings or errors**. _(eslint, check, completed)_
+- `npm run sop:validate`: SOP validation audit passed with **100% compliance**. _(sopvalidate, validation, audit)_
+- [`src/services/soundEngine.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/soundEngine.ts) _(srcservicessoundenginetsfileuserssamuelagappsformulalegendsformulalegendssrcservicessoundenginets)_
+- [`src/services/radioAudioService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts) _(srcservicesradioaudioservicetsfileuserssamuelagappsformulalegendsformulalegendssrcservicesradioaudioservicets)_
+- [`src/services/f1NewsService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/f1NewsService.ts) _(srcservicesfnewsservicetsfileuserssamuelagappsformulalegendsformulalegendssrcservicesfnewsservicets)_
+- [`src/views/LiveTelemetryExplorer.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx) _(srcviewslivetelemetryexplorertsxfileuserssamuelagappsformulalegendsformulalegendssrcviewslivetelemetryexplorertsx)_
+- [`src/components/PaddockNewsWidget.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/PaddockNewsWidget.tsx) _(srccomponentspaddocknewswidgettsxfileuserssamuelagappsformulalegendsformulalegendssrccomponentspaddocknewswidgettsx)_
+- [`src/views/HQDashboard.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/HQDashboard.tsx) _(srcviewshqdashboardtsxfileuserssamuelagappsformulalegendsformulalegendssrcviewshqdashboardtsx)_
+- [`.master/MasterChangeLog.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/MasterChangeLog.md) _(mastermasterchangelogmdfileuserssamuelagappsformulalegendsformulalegendsmastermasterchangelogmd)_
+- [`.master/TroubleshootingLog.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/TroubleshootingLog.md) _(mastertroubleshootinglogmdfileuserssamuelagappsformulalegendsformulalegendsmastertroubleshootinglogmd)_
+- [`.master/IdeasLog.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/IdeasLog.md) _(masterideaslogmdfileuserssamuelagappsformulalegendsformulalegendsmasterideaslogmd)_
+- [`.master/FileManifest.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/FileManifest.md) _(masterfilemanifestmdfileuserssamuelagappsformulalegendsformulalegendsmasterfilemanifestmd)_
+- Integrate the **OpenF1 API** to enable real-world Formula 1 race session telemetry, driver comparison traces (speed, RPM, throttle, brake, DRS), tire stint timelines, and team radio clips. _(integrate, openf, enable)_
+- Add a dedicated **Live F1 Telemetry** navigation tab in the application header. _(dedicated, telemetry, navigation)_
+- [`src/services/openf1Service.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts): _(srcservicesopenfservicetsfileuserssamuelagappsformulalegendsformulalegendssrcservicesopenfservicets)_
+- [`src/services/f1NewsService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/f1NewsService.ts): _(srcservicesfnewsservicetsfileuserssamuelagappsformulalegendsformulalegendssrcservicesfnewsservicets)_
+- Provides categorized F1 news stories (Technical Upgrades, Regulations, Paddock Rumors, Race Reports) with live refresh and linkouts. _(provides, categorized, stories)_
+- [`src/components/PaddockNewsWidget.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/PaddockNewsWidget.tsx): _(srccomponentspaddocknewswidgettsxfileuserssamuelagappsformulalegendsformulalegendssrccomponentspaddocknewswidgettsx)_
+- News digest widget embedded in Team HQ with category filters and breaking alerts. _(digest, widget, embedded)_
+- [`src/views/LiveTelemetryExplorer.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx): _(srcviewslivetelemetryexplorertsxfileuserssamuelagappsformulalegendsformulalegendssrcviewslivetelemetryexplorertsx)_
+- Interactive multi-driver telemetry analyzer: _(interactive, multidriver, telemetry)_
+- Session & Grand Prix selector (e.g. Silverstone, Spa, Monza, Monaco). _(session, grand, selector)_
+- Head-to-Head Driver Telemetry Overlay (Norris `#4` vs Verstappen `#1` / Leclerc `#16`): Speed curve, Throttle/Brake traces, Gear, DRS status. _(headtohead, driver, telemetry)_
+- Tire Stint History & Compound matrix. _(stint, history, compound)_
+- Team Radio Transcript & Audio player. _(radio, transcript, audio)_
+- Live Weather & Track Conditions readout. _(weather, track, conditions)_
+- [`src/components/AppHeader.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx): _(srccomponentsappheadertsxfileuserssamuelagappsformulalegendsformulalegendssrccomponentsappheadertsx)_
+- Add `live-telemetry` navigation tab. _(livetelemetry, navigation)_
+- Lint check: `npm run lint` _(check)_
+- SOP check: `npm run sop:validate` _(check, sopvalidate)_
+- **OpenF1 Live & Session Telemetry Explorer** (`src/views/LiveTelemetryExplorer.tsx` & `src/services/openf1Service.ts`). _(openf, session, telemetry)_
+- **Formula 1 Paddock News & Tech Bulletins** (`src/components/PaddockNewsWidget.tsx` & `src/services/f1NewsService.ts`). _(formula, paddock, bulletins)_
+- **Application Shell Integration**: Added `Live Telemetry` tab into `AppHeader.tsx` and routed it in `App.tsx`. _(application, shell, integration)_
+- OpenF1 API client interfacing with `https://api.openf1.org/v1/`. _(openf, client, interfacing)_
+- News service providing categorized motorsport articles (Technical, Paddock, Regulations, Race Reports, Driver Market). _(service, providing, categorized)_
+- Includes read times, source attributions, author credits, and timestamps. _(includes, times, source)_
+- Interactive news feed embedded directly in **Team HQ** (`HQDashboard.tsx`). _(interactive, embedded, directly)_
+- Category filter pills, featured story banner, refresh trigger, and article preview modal. _(category, filter, pills)_
+- Dedicated Live Telemetry workspace: _(dedicated, telemetry, workspace)_
+- **Head-to-Head Driver Deck**: Compare reference driver (e.g. Norris `#4`) vs rival (Verstappen `#1`, Leclerc `#16`, Hamilton `#44`). _(headtohead, driver, compare)_
+- **Multi-Layer SVG Charts**: Speed profile trace (0–350 km/h) and Throttle/Brake apex traces with Turn annotations. _(multilayer, charts, speed)_
+- **Team Radio Comms**: Pit wall transcripts and audio playback buttons. _(radio, comms, transcripts)_
+- **Track Atmosphere**: Live track/air temperature, wind speed/direction, and rain risk. _(track, atmosphere, trackair)_
+- Added full responsive carbon glassmorphism styling for all telemetry charts, stint bars, radio cards, and news cards. _(added, responsive, carbon)_
+- Integrated `[📡 Live Telemetry]` into top navigation bar. _(integrated, telemetry, navigation)_
+- `eslint .`: Passed with 0 errors. _(eslint, passed, errors)_
+- `npm run sop:validate`: 100% compliant. _(sopvalidate, compliant)_
+- Updated `src/data/drivers.ts` with the official 2026 Formula 1 driver and constructor lineup: _(updated, srcdatadriversts, official)_
+- **McLaren F1 Team** (Managed Player Team): Lando Norris (`#4 NOR`), Oscar Piastri (`#81 PIA`). _(mclaren, managed, player)_
+- **Scuderia Ferrari HP**: Charles Leclerc (`#16 LEC`), Lewis Hamilton (`#44 HAM`). _(scuderia, ferrari, charles)_
+- **Oracle Red Bull Racing**: Max Verstappen (`#1 VER`), Liam Lawson (`#30 LAW`). _(oracle, racing, verstappen)_
+- **Mercedes-AMG PETRONAS**: George Russell (`#63 RUS`), Kimi Antonelli (`#12 ANT`). _(mercedesamg, petronas, george)_
+- **Aston Martin Aramco**: Fernando Alonso (`#14 ALO`), Lance Stroll (`#18 STR`). _(aston, martin, aramco)_
+- **Williams Racing**: Carlos Sainz (`#55 SAI`), Alexander Albon (`#23 ALB`). _(williams, racing, carlos)_
+- **BWT Alpine F1 Team**: Pierre Gasly (`#10 GAS`), Jack Doohan (`#7 DOO`). _(alpine, pierre, gasly)_
+- **Visa Cash App RB**: Yuki Tsunoda (`#22 TSU`), Isack Hadjar (`#6 HAD`). _(tsunoda, isack, hadjar)_
+- **Stake F1 Team Kick Sauber (Audi)**: Nico Hülkenberg (`#27 HUL`), Gabriel Bortoleto (`#5 BOR`). _(stake, sauber, hlkenberg)_
+- **MoneyGram Haas F1 Team**: Esteban Ocon (`#31 OCO`), Oliver Bearman (`#87 BEA`). _(moneygram, esteban, oliver)_
+- Updated initial selected driver in `src/App.tsx` to `'nor'`. _(updated, initial, selected)_
+- **Deep Carbon / Titanium Glassmorphism**: High-contrast, low-eyestrain dark palette (`#07090e`, `#0f131a`, `#141923`) with crisp borders (`#1e2634`). _(carbon, titanium, glassmorphism)_
+- **Typography & No More Text Collisions**: _(typography, collisions)_
+- Distinct units (`KM/H`, `RPM`, `°C`, `mm`, `psi`, `kg`, `kN`, `Cd`) rendered clearly with dedicated typography. _(distinct, units, rendered)_
+- **Tactile Interactive Affordances**: _(tactile, interactive, affordances)_
+- High-impact, unambiguous action buttons (e.g., `[🏎️ BOX THIS LAP]` / `[❌ CANCEL PIT STOP]`). _(highimpact, unambiguous, action)_
+- **Timing Tower (`src/components/TimingTower.tsx`)**: _(timing, tower, srccomponentstimingtowertsx)_
+- **3D Scene Shadow Fix (`src/components/RaceScene3D.tsx`)**: _(scene, shadow, srccomponentsracescenedtsx)_
+- Corrected shadow bias (`+0.0008`) and ribbon normal generation to eliminate black polygon spikes and shadow acne. _(corrected, shadow, ribbon)_
+- Floating camera toggle (`Broadcast View` vs `Cockpit Onboard`). _(floating, camera, toggle)_
+- **Driver Telemetry Panel (`src/components/DriverTelemetryPanel.tsx`)**: _(driver, telemetry, panel)_
+- **Driver Hero**: Number badge `#4`, full name, country, team, and current P1 stint status. _(driver, number, badge)_
+- **Cockpit Gauges**: 8-LED RPM shift-light tachometer (green → yellow → red), digital speedometer, gear readout, and throttle/brake gradient pressure meters. _(cockpit, gauges, shiftlight)_
+- **4-Corner Thermal Matrix**: FL, FR, RL, RR tire cards with surface temp, core temp, life %, and optimal window badge. _(corner, thermal, matrix)_
+- **Tactical Command Dock**: Segmented Pace buttons, ERS mode buttons, tire compound selector, and high-impact Box action button. _(tactical, command, segmented)_
+- **Managed Driver Switcher**: Toggle between Lando Norris and Oscar Piastri. _(managed, driver, switcher)_
+- **Delta & Degradation Chart**: High-contrast SVG line chart showing projected gap vs leader with pit window zone and non-overlapping lap ticks. _(delta, degradation, chart)_
+- **Left**: Front/Rear Wing Angles, Engine Cooling, Front/Rear Ride Heights with porpoising alert. _(frontrear, angles, engine)_
+- **Center**: Interactive 3D Showroom + live computed aero telemetry ribbon (Downforce kN, Drag Cd, Top Speed km/h, Aero Balance %). _(center, interactive, showroom)_
+- **Right**: Front Brake Bias, Front/Rear Tire Pressures, Cornering vs Straightline performance radar. _(front, brake, frontrear)_
+- **Top KPI Cards**: Available Factory Budget ($42.8M), FIA Cost Cap ($92.2M / $135.0M), Constructors Championship (P1 · 312 PTS), ATR Period 2 Allowance. _(cards, available, factory)_
+- **R&D Upgrade Pipeline**: Department tabs (Aerodynamics, Chassis, Powertrain), active upgrade cards with progress bars, ETA days, and performance gain. _(upgrade, pipeline, department)_
+- **ATR Allocation Slider**: Interactive compute balance between Underfloor vs Front Wing. _(allocation, slider, interactive)_
+- **2026 Standings & Calendar**: Complete 2026 constructors standings table and Grand Prix calendar. _(standings, calendar, complete)_
+- **PBR 3D Car Meshes**: Detailed 3D car models with carbon weave normal maps, accurate venturi sidepods, Pirelli tire sidewall decals, rotating wheels, and DRS flap opening/closing animations. _(meshes, detailed, models)_
+- **Environmental FX & Audio**: Dynamic trackside engine sounds, tire screech, and rain spray particles. _(environmental, audio, dynamic)_
+- **Main Carbon Faceplate & Monocoque Body**: Multi-bevel extruded carbon composite chassis with titanium allen mounting bolts. _(carbon, faceplate, monocoque)_
+- **Ergonomic Polyurethane / Alcantara Handgrips**: Sculpted left and right handgrips with textured stippling, contoured thumb shelves, and palm rests. _(ergonomic, polyurethane, alcantara)_
+- **Dynamic 60 FPS Canvas Texture**: _(dynamic, canvas, texture)_
+- **Page 1 (Race Main Telemetry)**: Big Gear number, Speed (km/h), RPM numerical readout, Lap Delta (electric green / crimson red), ERS battery SOC %, Brake Bias %, and active indicators. _(telemetry, number, speed)_
+- **Page 3 (350kW MGU-K & Energy Flow)**: Battery State of Charge bar, instantaneous MGU-K power, remaining lap MJ allocation, and fuel mass (kg). _(energy, battery, state)_
+- **Page 4 (Active Aero & Diagnostics)**: Front wing flap angle, rear beam flap mode (Z-mode vs X-mode), and clutch bite-point calibration. _(active, diagnostics, front)_
+- **15x Progressive RGB Shift LEDs**: 5 Green -> 5 Red -> 5 Blue progressive lighting flashing at peak RPM rev-limiter. _(progressive, shift, green)_
+- **6x FIA Flag Warning LEDs**: Left and right 3-LED warning strips illuminating with active Track Flag status (Green, Yellow, VSC, Safety Car, Red). _(warning, warning, strips)_
+- **3D Raycasting & Physical Motion**: _(raycasting, physical, motion)_
+- Clicking any button depresses it by -3.5mm along the Z-axis with smooth spring return. _(clicking, button, depresses)_
+- Pulling paddle shifters rotates them by -12° towards the wheel rim with magnetic snap release. _(pulling, paddle, shifters)_
+- **Procedural Sound Synthesis (`wheelAudioSynthesizer.ts`)**: _(procedural, sound, synthesis)_
+- Authentic microswitch mechanical click transient + subharmonic thud. _(authentic, microswitch, mechanical)_
+- Heavy mechanical rotary switch detent clunk. _(heavy, mechanical, rotary)_
+- Carbon fiber magnetic paddle shifter snap with plate resonance. _(carbon, fiber, magnetic)_
+- Pit limiter audible beeps and team radio transmission tones. _(limiter, audible, beeps)_
+- Hovering any button, dial, or paddle displays a high-tech floating HUD tooltip providing: _(hovering, button, paddle)_
+- Component Acronym & Name (`[DRS] DRS & Active Aero Override`, `[PL] Pit Lane Speed Limiter`, `[OT] ERS Overtake Boost`, `[BB+] Brake Balance Forward`, etc.). _(component, acronym, active)_
+- Technical Category & Steering Wheel Location. _(technical, category, steering)_
+- FIA Technical / Sporting Regulation Citation. _(technical, sporting, regulation)_
+- Live Parameter Value & Action Hint. _(parameter, value, action)_
+- **Navigation Item**: Added `Cockpit Wheel` directly to the top application header. _(navigation, added, cockpit)_
+- **7 Camera Angle Presets**: _(camera, angle, presets)_
+- `Front Full Wheel` _(front, wheel)_
+- `Cockpit POV` _(cockpit)_
+- `4.3" LCD Focus` _(focus)_
+- `Left Thumb` _(thumb)_
+- `Right Thumb` _(thumb)_
+- `Rear Paddles` _(paddles)_
+- `360° Orbit` _(orbit)_
+- **Live Sim Sync vs Test Bench Sandbox**: Switch between synchronizing with the active race physics engine or manually adjusting engine RPM, shifting gears, and testing flag alerts. _(bench, sandbox, switch)_
+- **Keyboard Shortcuts**: _(keyboard, shortcuts)_
+- <kbd>SPACE</kbd>: DRS / Active Aero Toggle _(kbdspacekbd, active, toggle)_
+- <kbd>E</kbd> / <kbd>Shift</kbd>: Shift Up a gear _(kbdekbd, kbdshiftkbd, shift)_
+- <kbd>Q</kbd> / <kbd>Z</kbd>: Shift Down a gear _(kbdqkbd, kbdzkbd, shift)_
+- <kbd>P</kbd>: Pit Lane Limiter (80 km/h) _(kbdpkbd, limiter)_
+- <kbd>B</kbd> / <kbd>V</kbd>: Brake Bias Forward (+0.5%) / Rearward (-0.5%) _(kbdbkbd, kbdvkbd, brake)_
+- <kbd>R</kbd>: Team Radio _(kbdrkbd, radio)_
+- <kbd>1-4</kbd>: Switch LCD Display Page _(kbdkbd, switch, display)_
+- ---
+- Terrain & surroundings: Rolling, forested hillside amphitheatre near Ise Bay; the western half climbs, the eastern half runs along the valley. Adjacent amusement park (Motopia) and Honda facilities are part of the campus. _(terrain, surroundings, rolling)_
+- Identity: Semi-permanent street course (2022, Tilke) wrapped around the Hard Rock Stadium campus in Miami Gardens, 25 km north of downtown Miami. 5.412 km, 19 turns, clockwise, three DRS zones, FIA Grade 1; also carries a Sprint weekend history. _(identity, semipermanent, street)_
+- Weather: Early May: hot and humid, 26–30 °C air, 30–34 °C track, high UV and dewpoints; 40%+ chance of an afternoon convective thunderstorm on any given day, which has already produced qualifying chaos here. _(weather, early, humid)_
+- Seating: Main grandstand, Super Gold stands at T1–2 and the top of the hill, Gold 1–7 around the valley bowl, and general admission on the hillsides; from many seats 80% of the lap is visible. Capacity 100,000 race day; weekend 250,000. _(seating, grandstand, super)_
+- Weather: Late July: hot and humid, 27–31 °C afternoons, occasional 35 °C heatwaves, with late-afternoon thunderstorms a known feature; track temperatures can exceed 50 °C. _(weather, humid, afternoons)_
+- Identity: The Temple of Speed (1922), inside the Royal Park of Monza 15 km north of Milan; 5.793 km, 11 turns, clockwise, FIA Grade 1; the calendar's highest sustained top speed (350+ km/h) with 80% of the lap at full throttle. _(identity, temple, speed)_
+- Seating: Main grandstand ( Tribuna Monte/Pit), Central, Primo/Secondo/Laterale Paraninf red-bone stands at Parabolica, Lesmo 1–2 and Ascari stands; capacity 118,000 race day, weekend totals 300,000+ with the tifosi. _(seating, grandstand, tribuna)_
+- Weather: Early September northern Italy: 24–27 °C afternoons, 15–17 °C mornings, humidity 60%; late-summer thunderstorms remain a realistic threat; otherwise classic warm, still, low-downforce conditions. _(weather, early, september)_
+- Seating: Main grandstand, Foro Sol (both baseball-stadium halves — 30,000 seats combined), Turn 1 and Champions' Club stands; race-day capacity 85,000–90,000; the 2024 weekend drew a record 404,000 across three days — the largest attendance in F1. _(seating, grandstand, baseballstadium)_
+- Terrain & surroundings: Flat ex-lakebed basin of the Valley of Mexico ringed by volcanic peaks (Popocatépetl and Iztaccíhuatl visible on clear days); cypress-lined parkland, urban sprawl, and intense city-smog-vs-clean-morning-air contrast. _(terrain, surroundings, exlakebed)_
+- Weather: Late October/early November is the dry-season onset: afternoons 21–24 °C, mornings 10–13 °C, very large diurnal range, 40% lower air density, low rain risk but occasional afternoon showers; the thin air makes cooling the primary engineering constraint. _(weather, octoberearly, november)_
+- Seating: Main grandstand (Tribuna), M/N/Q/S/O stands around the infield bowl, plus the G/A banks; capacity 71,000 seated, weekend totals 250,000–265,000. _(seating, grandstand, tribuna)_
+- Weather: November is São Paulo's early summer: 24–27 °C afternoons, 17–19 °C mornings, 75% humidity, and a high probability of rain (statistically among the wettest F1 venues; the 2026 grid carried a Brazil Sprint-history with mixed conditions). Thermal instability, rain and safety-car chaos are structural features of this race. _(weather, november, paulos)_
+- ---
+- Replace ambiguous elements with clear, tactile, high-contrast motorsport components. _(replace, ambiguous, elements)_
+- Use **bespoke, crafted graphics and custom SVGs** (custom tire compound badges, tachometer gauges, pedal meters, sector chips) — **no generic or low-effort styling**. _(bespoke, crafted, graphics)_
+- **2026 Official Drivers & Constructors Grid**: _(official, drivers, constructors)_
+- Update all 20 drivers and 10 constructor teams to the **official 2026 Formula 1 Grid** (McLaren, Ferrari with Hamilton/Leclerc, Red Bull, Mercedes with Russell/Antonelli, Aston Martin with Alonso/Stroll, Williams with Sainz/Albon, Alpine, Racing Bulls, Kick Sauber/Audi, Haas). _(update, drivers, constructor)_
+- Set McLaren (Lando Norris `NOR #4` & Oscar Piastri `PIA #81`) as the managed player team. _(mclaren, lando, norris)_
+- **Fix Current 3D Rendering Glitches**: _(current, rendering, glitches)_
+- Eliminate the black polygon shadow spikes / shadow acne by adjusting shadow camera bias (`+0.0008`) and clean normal computations. _(eliminate, black, polygon)_
+- Dedicated roadmap for authentic real-world tracks (Silverstone, Spa, Monaco, Monza with real elevation profiles), authentic 3D car models with PBR textures, suspension geometry, DRS flap animation, and broadcast camera tracking. _(dedicated, roadmap, authentic)_
+- All 10 teams and 20 drivers with 2026 liveries, driver ratings, tire skill, wet skill, and numbers. _(teams, drivers, liveries)_
+- Team Standings updated to 2026 constructor standings. _(standings, updated, constructor)_
+- Carbon Chassis `#080a0f`, Matte Slate `#10141c`, Brushed Titanium `#1a212d`, High-Gloss Border `#283244`. _(carbon, chassis, matte)_
+- Neon Telemetry Accents: McLaren Papaya `#ff8000`, Ferrari Rosso `#e8002d`, Mercedes Cyan `#00d2be`, Soft Red `#ff3b30`, Medium Yellow `#ffd60a`, Hard White `#f5f5f7`, Inter Green `#30d158`, Wet Blue `#0a84ff`. _(telemetry, accents, mclaren)_
+- Distinct spacing between labels, values, and units (e.g. `SPEED` · `275` · `KM/H`). _(distinct, spacing, between)_
+- Tactile interactive buttons with glowing active borders, hover animations, and pressed feedback. _(tactile, interactive, buttons)_
+- Multi-column flex and grid systems with minimum constraints so panels expand elegantly on all desktop & laptop screens. _(multicolumn, systems, minimum)_
+- **Timing Tower (`TimingTower.tsx`)**: _(timing, tower, timingtowertsx)_
+- Highlighting active selected driver with glowing border and live telemetry pin. _(highlighting, active, selected)_
+- **3D Race Scene (`RaceScene3D.tsx`)**: _(scene, racescenedtsx)_
+- Fix shadow camera bias and ribbon vertex normals to remove black shadow spikes. _(shadow, camera, ribbon)_
+- Custom floating camera toggle bar: `[🎥 Broadcast View]` / `[🏎️ Cockpit Onboard]`. _(custom, floating, camera)_
+- **Telemetry & Tactical Command Deck (`DriverTelemetryPanel.tsx`)**: _(telemetry, tactical, command)_
+- **Driver Hero**: Number `#4`, Lando Norris, Team McLaren, current P1, stint status. _(driver, number, lando)_
+- **Live Tachometer & Pedals**: Digital speed, gear indicator (N/1-8), live RPM LED tachometer bar (green -> amber -> red shift lights), Throttle & Brake gradient pressure bars. _(tachometer, pedals, digital)_
+- **Interactive Tactical Command Dock**: _(interactive, tactical, command)_
+- **Pace Mode**: 3 tactile segmented buttons (`[🐢 Conserve]`, `[⚖️ Balanced]`, `[⚡ Attack]`). _(tactile, segmented, buttons)_
+- **ERS Mode**: 3 segmented buttons (`[🔋 Harvest]`, `[⚖️ Balanced]`, `[🚀 Deploy/Overtake]`). _(segmented, buttons, harvest)_
+- **Pit Command Deck**: Tire compound selectors (`[🔴 S]`, `[🟡 M]`, `[⚪ H]`, `[🟢 I]`) + High-contrast `[🏎️ BOX THIS LAP]` / `[❌ CANCEL PIT CALL]` action button. _(command, compound, selectors)_
+- **Driver Switcher**: Toggle between managed drivers (Norris / Piastri). _(driver, switcher, toggle)_
+- **Pit Window & Race Delta Curve**: _(window, delta, curve)_
+- Clean graph with shaded pit loss window and non-overlapping, evenly distributed lap tick numbers. _(clean, graph, shaded)_
+- **Degradation Breakdown & Weather Radar**: _(degradation, breakdown, weather)_
+- Stint-by-stint degradation projection cards and rain probability timeline. _(stintbystint, degradation, projection)_
+- **Center 3D Engineering Showroom**: Smooth car inspection with aero stream particles. _(center, engineering, showroom)_
+- **Engineering Setup Cards**: _(engineering, setup, cards)_
+- **Aerodynamic Platform**: Front Wing Angle (°), Rear Wing Angle (°), Engine Cooling (%) with clean sliders and real-time impact readouts. _(aerodynamic, platform, front)_
+- **Ground Effect Floor**: Front / Rear Ride Height (mm), Rake Angle, Porpoising Gauge. _(ground, effect, floor)_
+- **Mechanical**: Brake Bias (F/R %), Front/Rear Tire Pressures (psi). _(mechanical, brake, frontrear)_
+- **Live Aero Stats Bar**: Downforce (kN), Drag (Cd), Top Speed Est (km/h), Aero Balance (% Front). _(stats, downforce, speed)_
+- **Top Financial & Operational KPI Cards**: Available Budget ($42.8M), Cost Cap ($92.2M / $135.0M), Championship Standing (P1 Constructors), ATR Allowance. _(financial, operational, cards)_
+- **R&D Upgrade Pipeline**: Active upgrades with progress bars, department filter (`[💨 Aero]`, `[🔧 Chassis]`, `[⚡ Powertrain]`), days remaining, time gain (`+0.18s`), and `[+ NEW UPGRADE]` modal. _(upgrade, pipeline, active)_
+- **ATR Allocation Slider**: Interactive CFD split with performance gain preview. _(allocation, slider, interactive)_
+- **Constructors Standings Table**: 2026 team points and gaps. _(constructors, standings, table)_
+- **Realistic 3D F1 Car Meshes & PBR Materials**: Multi-part high-detail car model with accurate sidepod venturi tunnels, complex front/rear wing cascade elements, carbon-fiber weave normal maps, real tire compounds with Pirelli sidewall decals, rotating wheels, and DRS flap opening/closing animations. _(realistic, meshes, materials)_
+- **Immersive Audio & Environmental FX**: Dynamic engine audio synthesis, wind noise, tire screech on lockups, dynamic rain droplet shaders on cockpit view, and wet track spray particle systems. _(immersive, audio, environmental)_
+- ---
+- Technical breakdown and code changes. _(technical, breakdown, changes)_
+- Exact file links (clickable markdown format filename). _(exact, links, clickable)_
+- Task Completion Grade: (0–100% or Score 1–100). _(completion, grade, score)_
+- Quality of Work Grade: (0–100% or Score 1–100). _(quality, grade, score)_
+- Master Log Updates Checklist: Verification that MasterChangeLog.md, TroubleshootingLog.md, IdeasLog.md, and FileManifest.md were properly updated. _(master, updates, checklist)_
+- Hallucination Self-Check: Clear declaration confirming zero hallucinations or highlighting any unverified assumptions. _(hallucination, selfcheck, clear)_
+- Must be updated on every single code change, feature addition, or file modification. _(updated, single, change)_
+- Must follow reverse chronological versioning with date stamps, categorized by component. _(follow, reverse, chronological)_
+- Deduplication & Usage Counter: _(deduplication, usage, counter)_
+- If a problem has already been logged, do not create a duplicate entry. _(problem, already, logged)_
+- Increment its Usage / Fix Count (Count: N). _(increment, usage, count)_
+- Keep the log sorted by Usefulness & Frequency of Use. _(sorted, usefulness, frequency)_
+- Authoritative inventory of all files, directories, active documentation, and archives in the repository. _(authoritative, inventory, files)_
+- Must be updated whenever files are created, moved, renamed, or deleted. _(updated, whenever, files)_
+- Run the SOP validation script before committing changes: _(validation, script, committing)_
+- bash
+npm run sop:validate _(sopvalidate)_
+- Last updated: 2026-08-27 _(updated)_
+- This manifest tracks the repository directory tree, active source modules, documentation assets, and archives. _(manifest, tracks, repository)_
+- ---
+- ---
+- ---
+- **Fix Count**: 1 _(count)_
+- **Symptoms**: When a user selected a constructor team (e.g. Scuderia Ferrari, Oracle Red Bull, Mercedes-AMG, Aston Martin) in the 3D Parallax landing login portal, the game immediately reverted back to McLaren / Lando Norris once entering the simulator. _(symptoms, selected, constructor)_
+- **Root Cause**: _(cause)_
+- `ParallaxAuthScreen.tsx` emitted credentials without a `teamCode` or `primaryDriverId` property. _(parallaxauthscreentsx, emitted, credentials)_
+- `App.tsx` state `selectedDriverId` was hardcoded to `'nor'`, and `handleAuthenticate` never updated `selectedDriverId` based on the chosen team. _(apptsx, state, selecteddriverid)_
+- `PhysicsWorker.ts` initialized drivers with a static `isManaged: true` flag hardcoded only on McLaren drivers (`nor` and `pia`), with no mechanism to reassign management status to other constructor teams. _(physicsworkerts, initialized, drivers)_
+- **Resolution**: _(resolution)_
+- Added `teamCode` and `primaryDriverId` to `PaddockCredentials`. _(added, teamcode, primarydriverid)_
+- Added `{ type: 'SET_MANAGED_TEAM'; teamShort: string }` command to `PhysicsWorker.ts` and `types.ts` that dynamically recomputes `isManaged` for drivers of the chosen constructor team. _(added, setmanagedteam, teamshort)_
+- Updated `App.tsx` to automatically set `selectedDriverId` to the matching team's lead driver upon authentication and persist both `f1l-paddock-creds` and `f1l-selected-driver-id` in `sessionStorage`. _(updated, apptsx, automatically)_
+- Added sticky team restoration on app startup so reloads preserve the player's selected team. _(added, sticky, restoration)_
+- **Files Modified**: `src/App.tsx`, `src/components/ParallaxAuthScreen.tsx`, `src/engine/workers/PhysicsWorker.ts`, `src/types.ts` _(files, modified, srcapptsx)_
+- **Rank**: #1 Most Critical 3D Track Fix _(critical, track)_
+- **Fix Count**: 1 _(count)_
+- **Root Cause**: _(cause)_
+- `RaceScene3D.tsx` scenery coordinates (`[-2, 3, -15]`, `[-27.5, 2.75, 14.5]`, `[2, 14]`) were placed without clearance buffer checks against spline points. _(racescenedtsx, scenery, coordinates)_
+- **Resolution**: _(resolution)_
+- Re-positioned all grandstands (Hamilton Infield, Becketts Stadium, Stowe Runoff, Luffield Stadium), the Silverstone Wing Pit Complex, and vegetation with safe clearance margins outside the track and pit lane envelopes. _(repositioned, grandstands, hamilton)_
+- **Fix Count**: 3 _(count)_
+- **Root Cause**: _(cause)_
+- Ribbon track mesh generation had dynamic triangle-by-triangle winding logic that could produce colinear face normals, yielding `(0,0,0)` cross vectors and `NaN` vertex normals upon normalization, which corrupts shadow projection matrices in shaders. _(ribbon, track, generation)_
+- **Resolution**: _(resolution)_
+- Set `sun.shadow.bias = 0.0008` (positive bias) and added `sun.shadow.normalBias = 0.02`. _(sunshadowbias, positive, added)_
+- **Files Modified**: `src/components/RaceScene3D.tsx` _(files, modified, srccomponentsracescenedtsx)_
+- **Fix Count**: 2 _(count)_
+- **Root Cause**: `vite.config.ts` was configured with `outDir: 'docs'` and `emptyOutDir: true` (or Vite cleans `outDir` before writing production assets for GitHub Pages). _(cause, viteconfigts, configured)_
+- **Resolution**: _(resolution)_
+- `/docs` is reserved strictly as the automated GitHub Pages output directory. _(reserved, strictly, automated)_
+- **Files Modified**: `.master/`, `package.json`, `.master/scripts/validate_sop.js` _(files, modified, master)_
+- **Fix Count**: 2 _(count)_
+- **Symptoms**: Numbers, min/max range limits, and labels mashed together with zero spacing (e.g. `SPEED275KM/H`, `10°50°Rear wing`, `L39L42L45L48...`). _(symptoms, numbers, minmax)_
+- **Root Cause**: _(cause)_
+- Range sliders rendered min and max bounds inside the same inline span as titles. _(range, sliders, rendered)_
+- **Resolution**: _(resolution)_
+- Implemented custom `.setup-slider-card` with separate title row, current value badge, and slider track flanked by `.bound-tag.min` and `.bound-tag.max`. _(implemented, custom, setupslidercard)_
+- **Rank**: #4
+- **Fix Count**: 1 _(count)_
+- **Symptoms**: Clickable buttons, static labels, and chips shared identical flat dark styling, making interactive state unclear. _(symptoms, clickable, buttons)_
+- **Resolution**: _(resolution)_
+- Created tactile segmented command button groups with glowing neon borders when active. _(created, tactile, segmented)_
+- Implemented high-contrast `[BOX THIS LAP]` button with dual confirmation/cancel states. _(implemented, highcontrast, button)_
+- Added dedicated preset pills with hover and active illumination. _(added, dedicated, preset)_
+- **Rank**: #5 Audio Synthesis & Lifecycle Fix _(audio, synthesis, lifecycle)_
+- **Fix Count**: 1 _(count)_
+- **Symptoms**: Modern web browsers block unprompted audio playback or throw `AudioContext was not allowed to start` errors before user gesture. _(symptoms, modern, browsers)_
+- **Resolution**: _(resolution)_
+- Automatically checks `audioCtx.state === 'suspended'` and invokes `resume()`. _(automatically, checks, audioctxstate)_
+- **Files Modified**: `src/services/radioAudioService.ts`, `src/views/LiveTelemetryExplorer.tsx` _(files, modified, srcservicesradioaudioservicets)_
+- **Rank**: #6 Graphics & Performance Optimization _(graphics, performance, optimization)_
+- **Fix Count**: 1 _(count)_
+- **Symptoms**: Generating procedural 2D radar scans and 3D rain particles across scene mount/unmount cycles causes GPU memory bloat and context loss if not systematically garbage-collected. _(symptoms, generating, procedural)_
+- **Resolution**: _(resolution)_
+- Encapsulated low-poly mechanics into `disposePitCrew(pitCrewRig)` traversing all nested materials and buffer geometries. _(encapsulated, lowpoly, mechanics)_
+- Added explicit `.dispose()` calls on `radarTex`, `rainGeo`, `rainMat`, `pitRoadGeometry`, `pitWallGeo`, and `radarGeo` in `RaceScene3D.tsx`'s unmount cleanup effect. _(added, explicit, dispose)_
+- **Files Modified**: `src/graphics/createPitCrew.ts`, `src/components/RaceScene3D.tsx` _(files, modified, srcgraphicscreatepitcrewts)_
+- **Rank**: #7 3D Graphics & React State Integration Fix _(graphics, react, state)_
+- **Fix Count**: 1 _(count)_
+- **Root Cause**: _(cause)_
+- Direct type-casting `telemetry as Record<string, unknown>` triggers TypeScript strict overlap error `TS2352`. _(direct, typecasting, telemetry)_
+- **Resolution**: _(resolution)_
+- Switched telemetry updates to idiomatic `Object.assign(telemetry, data)` with automatic dynamic `needsUpdate = true` on the 1024x640 OLED canvas texture. _(switched, telemetry, updates)_
+- **Files Modified**: `src/graphics/steering_wheel/F1SteeringWheelModel.ts`, `src/components/SteeringWheel3D.tsx`, `src/views/SteeringWheelLab.tsx` _(files, modified, srcgraphicssteeringwheelfsteeringwheelmodelts)_
+- **Rank**: #4 Most Critical Audio Quality & Voice Synthesis Fix _(critical, audio, quality)_
+- **Fix Count**: 1 _(count)_
+- **Root Cause**: _(cause)_
+- Web Speech voice list loading is asynchronous; synchronous initial reads returned `[]`, triggering low-quality OS fallback synthesizers. _(speech, voice, loading)_
+- Extreme manual pitch shifting (`1.15` / `0.95`) caused metallic vocoder distortion in browser speech synthesis. _(extreme, manual, pitch)_
+- Background static played at constant gain without dynamic speech ducking, muddling voice clarity. _(background, static, played)_
+- **Resolution**: _(resolution)_
+- Created a dynamic Natural Voice Scoring & Ranking engine prioritizing Apple Siri/Enhanced, Google Natural, and Microsoft Natural voices. _(created, dynamic, natural)_
+- Added asynchronous voice caching via `speechSynthesis.onvoiceschanged`. _(added, asynchronous, voice)_
+- Created dedicated speaker persona mappings with character-appropriate accents, rates, and natural pitches for Race Engineers (Will Joseph, Gianpiero Lambiase, Bono, Bryan Bozzi) and Drivers (Norris, Piastri, Verstappen, Leclerc, Hamilton, Russell, Alonso, Sainz). _(created, dedicated, speaker)_
+- Integrated dynamic Web Audio speech ducking (reducing background VHF noise by 75% during active speech) with authentic Roger PTT beeps, mic keying clicks, and squelch release tail bursts. _(integrated, dynamic, audio)_
+- **Files Modified**: `src/services/radioAudioService.ts`, `src/services/openf1Service.ts`, `src/components/DriverTelemetryPanel.tsx`, `src/views/LiveTelemetryExplorer.tsx` _(files, modified, srcservicesradioaudioservicets)_
+- **Rank**: #5 Most Critical 3D Viewport & Rendering Fix _(critical, viewport, rendering)_
+- **Fix Count**: 1 _(count)_
+- **Symptoms**: _(symptoms)_
+- Main race screen showed a blank/black center stage where 3D race cars and track should render. _(screen, showed, blankblack)_
+- **Root Cause**: _(cause)_
+- `SteeringWheel3D.tsx` only had directional lighting from the front (+Z), casting total shadow on the rear paddles and boss when rotated or using the `paddles` camera preset. _(steeringwheeldtsx, directional, lighting)_
+- **Resolution**: _(resolution)_
+- Added `.race-scene-container` with `min-height: 280px; flex: 1; position: relative; width: 100%; height: 100%;` and integrated a `ResizeObserver` lifecycle listener inside `RaceScene3D.tsx` with fallback dimensions. _(added, racescenecontainer, minheight)_
+- Added 360-degree studio lighting in `SteeringWheel3D.tsx` with high-intensity rear key light (`#ffffff`, 2.8), rear cool fill light (`#bad7ff`, 2.4), rear bottom light, and dedicated left/right paddle accent point lights (`#00f0ff` / `#30d158`). _(added, degree, studio)_
+- **Rank**: #6 Most Critical TypeScript & 3D Texture Management Fix _(critical, typescript, texture)_
+- **Fix Count**: 1 _(count)_
+- **Symptoms**: _(symptoms)_
+- Switching between custom liveries and CFD / FLIR modes wiped custom canvas textures or rendered blank black bodywork meshes. _(switching, between, custom)_
+- **Root Cause**: _(cause)_
+- Dynamic key iteration in `updateTelemetry` cast `telemetry` to `Record<string, unknown>` and indexed via `k in data`, which was not allowed under strict TypeScript type definitions. _(dynamic, iteration, updatetelemetry)_
+- Three.js materials replaced during livery customization did not update `child.userData.originalMaterial`, causing subsequent CFD/FLIR toggle resets to restore the initial stock material instead of the user's custom livery. _(threejs, materials, replaced)_
+- **Resolution**: _(resolution)_
+- Refactored `updateTelemetry` in `F1SteeringWheelModel.ts` to use type-safe `Object.assign(telemetry, data)`. _(refactored, updatetelemetry, fsteeringwheelmodelts)_
+- Updated `updateLivery` in `F1Car2026Model.ts` to assign new canvas-textured `MeshStandardMaterial` instances directly onto `child.userData.originalMaterial`, ensuring seamless transitions when entering and leaving CFD or FLIR thermal modes. _(updated, updatelivery, fcarmodelts)_
+- **Files Modified**: `src/graphics/steering_wheel/F1SteeringWheelModel.ts`, `src/graphics/f1_2026/F1Car2026Model.ts` _(files, modified, srcgraphicssteeringwheelfsteeringwheelmodelts)_
+- **Fix Count**: 1 _(count)_
+- **Symptoms**: _(symptoms)_
+- The 3D race car model appeared minuscule in the center of the screen. _(model, appeared, minuscule)_
+- The car appeared to sit atop an oversized, thick round cylinder resembling a dining platter. _(appeared, oversized, thick)_
+- **Root Cause**: _(cause)_
+- Three.js camera distance was positioned far at `(8.2, 4.6, 9.2)` with a narrow FOV, reducing the car to <25% of viewport height. _(threejs, camera, distance)_
+- Turntable geometry was defined as a thick `CylinderGeometry(4.8, 5.15, 0.36)` floating in empty space without ground integration or contact shadows. _(turntable, geometry, defined)_
+- **Resolution**: _(resolution)_
+- Re-positioned default orbit camera closer to `(4.4, 2.1, 4.8)` with target `(0, 0.35, 0)` and adjusted close-up presets, bringing the car into heroic, high-detail focus. _(repositioned, default, orbit)_
+- **Fix Count**: 1 _(count)_
+- **Root Cause**: _(cause)_
+- Lucide icons use `ForwardRefExoticComponent` whose `size` prop validator accepts `string | number | undefined`, whereas the custom `ComponentType` restricted `size` strictly to `number | undefined`. _(lucide, icons, forwardrefexoticcomponent)_
+- **Resolution**: _(resolution)_
+- Changed `navItems` item `icon` definition to `React.ElementType`, allowing both `lucide-react` icons and bespoke `F1Icons` SVG components to be passed interchangeably with type safety. _(changed, navitems, definition)_
+- **Files Modified**: `src/components/AppHeader.tsx`, `src/components/F1Icons.tsx` _(files, modified, srccomponentsappheadertsx)_
+- ---
+- | Archive Date | Document              | Original Purpose       | Superseded By       |
+| :----------- | :-------------------- | :--------------------- | :------------------ |
+| 2026-08-27   | READMER4legacy.md | Legacy R4 README notes | Current 2026 README | _(archive, document, original)_
+- **Local 3D Tooling & MCP Integration**: _(local, tooling, integration)_
+- **Blender + Blender MCP Server**: Utilize local Blender instance via Blender MCP to programmatically generate, inspect, modify, and optimize 3D car models, wing components, and export GLTF/GLB binary assets directly into the web engine. _(blender, blender, server)_
+- **Deep-Dive 3D Tech Stack Upgrades (Web & Native)**: _(deepdive, stack, upgrades)_
+- **Three.js WebGPU Renderer**: Migrate from WebGL to Three.js WebGPU / TSL (Three.js Shading Language) for compute shaders, realistic particle physics (wet tire spray, tire smoke, sparks), and real-time screen-space reflections (SSR). _(threejs, webgpu, renderer)_
+- **Photorealistic 3D Car Meshes & PBR Materials**: _(photorealistic, meshes, materials)_
+- Multi-part modular 2026 chassis with authentic floor venturi tunnels, active DRS wing flap animation, rotating wheels, glowing brake rotors, and Pirelli tire sidewall textures. _(multipart, modular, chassis)_
+- **Live Weather & Environmental FX**: _(weather, environmental)_
+- Dynamic rain screen shaders on cockpit camera view and water spray particle trails. _(dynamic, screen, shaders)_
+- **WebGL Instanced Rendering with LOD**: _(webgl, instanced, rendering)_
+- Implement instanced rendering and level-of-detail meshes in `RaceScene3D.tsx` to maintain 60 FPS on mobile and low-spec laptops when rendering full grids. _(implement, instanced, rendering)_
+- **Dynamic Web Audio Engine**: _(dynamic, audio, engine)_
+- Procedural / sampled V6 Turbo-Hybrid engine sound synthesis scaling with RPM, throttle, and gear. _(procedural, sampled, turbohybrid)_
+- Turbocharger spool whine and MGU-K electrical deployment whir. _(turbocharger, spool, whine)_
+- Dynamic wind noise on high-speed straights and tire lockup screech. _(dynamic, noise, highspeed)_
+- **Web Audio Sound Profile Presets**: _(audio, sound, profile)_
+- Add an audio toggle in the header allowing users to select sound profiles (e.g. Modern 2026 Turbo-Hybrid, 2004 V10 Screamer, or Muted Broadcast). _(audio, toggle, header)_
+- Implement dynamic AI undercut/overcut triggers in `PhysicsWorker.ts` so rival teams (e.g. Verstappen / Leclerc) respond reactively to player pit stop calls and dirty air. _(implement, dynamic, undercutovercut)_
+- **Dynamic 3D Safety Car & VSC Intervention Sequence**: _(dynamic, safety, intervention)_
+- Procedural safety car model deploying from pit lane to bunch up the pack during yellow flag incidents with delta delta speed restrictions. _(procedural, safety, model)_
+- **Live Brake Rotor Thermal Glow & Titanium Spark Particles**: _(brake, rotor, thermal)_
+- Emissive carbon brake disc shaders glowing cherry-red (>900°C) on heavy braking zones (Stowe, Vale) with floor titanium skid sparks on curbs. _(emissive, carbon, brake)_
+- Add real-time CFD particle vectors flowing over front wing active flaps, sidepod undercuts, and 3-element rear wing showing low-pressure vortex sheets in Corner vs. Straight modes. _(realtime, particle, vectors)_
+- **2026 350kW MGU-K Thermal Inverter & Battery Cell Balance Simulation**: _(thermal, inverter, battery)_
+- Simulate cell-by-cell temperature distribution, cooling jacket glycol loop, and state-of-health degradation under aggressive 8.5 MJ/lap regenerative braking cycles. _(simulate, cellbycell, temperature)_
+- **Interactive Part-by-Part 3D Blueprint & CAD Disassembly Studio**: _(interactive, partbypart, blueprint)_
+- **Driver Radio Voice Customization & Custom Pit Calls**: _(driver, radio, voice)_
+- Allow user to customize race engineer and driver voices via Web Speech API accents or ElevenLabs Web Audio audio buffers. _(allow, customize, engineer)_
+- WebRTC peer-to-peer synchronization allowing 2 players to compete head-to-head as rival team strategists. _(webrtc, peertopeer, synchronization)_
+- ✅ **Broadcast-Quality Natural Team Radio Voices & VHF Squelch DSP**: Strict blacklisting of novelty/robotic voices, dynamic natural/neural voice scoring, persona matching for Race Engineers and Drivers, auto-ducking VHF pink noise static, authentic Roger PTT beeps, squelch tail bursts, acoustic profile presets (`Authentic VHF`, `Studio HD`, `Cockpit Raw`), and interactive Test Comms previews (`radioAudioService.ts`, `openf1Service.ts`, `DriverTelemetryPanel.tsx`, `LiveTelemetryExplorer.tsx`). _(broadcastquality, natural, radio)_
+- ✅ **Exact 3D F1 Steering Wheel Replica & Cockpit Lab**: Photo-realistic procedural 3D steering wheel with 28+ interactive buttons, rotary dials, carbon paddle shifters, live 4.3" OLED telemetry canvas display, 15x RGB shift LEDs, zero-latency Web Audio mechanical click/detent synthesis, rich holographic HUD tooltips, and bi-directional 100 Hz simulation integration (`F1SteeringWheelModel.ts`, `steeringWheelData.ts`, `SteeringWheel3D.tsx`, `SteeringWheelLab.tsx`, `wheelAudioSynthesizer.ts`). _(exact, steering, wheel)_
+- ✅ **Aeroacoustic Wind Tunnel Audio Synthesizer**: Web Audio bandpass-filtered airflow whoosh and drag drop resonance modulated with airspeed and Active Aero modes (`soundEngine.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`). _(aeroacoustic, tunnel, audio)_
+- ✅ **Multi-Axis Targeted Subsystem Explode Orbit**: Subsystem-specific explosion target filters (`ALL`, `AERO`, `PU`, `CHASSIS`, `SUSP`) enabling isolated disassembly of individual component assemblies (`F1Car2026Model.ts`, `CarLab.tsx`). _(multiaxis, targeted, subsystem)_
+- ✅ **100% Collision-Free 3D Track Scenery & Start Gantry**: Recalculated safe placement of grandstands, pit complexes, FIA starting lights gantry, and vegetation outside track and pit lane envelopes (`RaceScene3D.tsx`). _(collisionfree, track, scenery)_
+- ✅ **Interactive F1 Team Radio Audio Playback**: Authentic driver-to-pit radio playback with animated equalizer waveform bars and Web Audio sound processing (`DriverTelemetryPanel.tsx`, `radioAudioService.ts`, `openf1Service.ts`). _(interactive, radio, audio)_
+- ✅ **Procedural V6 Turbo-Hybrid Engine Audio Synthesizer**: Web Audio synthesis of 6-cylinder ICE firing harmonics, turbocharger boost whine, MGU-K electrical deployment/harvest, and brake lockup tire skid screeching (`soundEngine.ts`). _(procedural, turbohybrid, engine)_
+- ✅ **Paddock News OpenF1 Media Sync & Breaking Alert System**: Automated interval background sync pulling breaking FIA Technical Directives and dispatching toast notifications (`f1NewsService.ts`, `PaddockNewsWidget.tsx`). _(paddock, openf, media)_
+- ✅ **Dynamic Web Audio Team Radio Engine**: Synthesized PTT beeps, bandpass VHF filtering, static crunch, and live frequency HUD with animated equalizer waveforms (`radioAudioService.ts`). _(dynamic, audio, radio)_
+- ✅ **Paddock News Bookmark & Filter Persistence**: LocalStorage persistence for user categories and bookmarked technical articles with custom empty states (`PaddockNewsWidget.tsx`). _(paddock, bookmark, filter)_
+- ✅ **OpenF1 Real-Time Telemetry Explorer**: Interactive multi-driver telemetry analyzer (`LiveTelemetryExplorer.tsx`) comparing speed traces, throttle/brake inputs, tire stints, and team radio audio clips. _(openf, realtime, telemetry)_
+- ✅ **Formula 1 Paddock News Feed Widget**: Live categorized technical and paddock media feed (`PaddockNewsWidget.tsx`) embedded in Team HQ. _(formula, paddock, widget)_
+- ✅ **2026 Official Grid & Constructors Integration**: Replaced legacy grid with 20 official 2026 F1 drivers and 10 constructor teams across all views. _(official, constructors, integration)_
+- ✅ **3D Track Shadow Acne & Spike Resolution**: Fixed shadow camera bias (+0.0008) and ribbon normal generation in `RaceScene3D.tsx`. _(track, shadow, spike)_
+- ✅ **Master Governance & SOP Automation**: Established `.master/` documentation system, `FileManifest.md`, `TroubleshootingLog.md` with usage counts, and `npm run sop:validate`. _(master, governance, automation)_
+
+## Events & History
+> Past conversations, meetings, milestones, and timeline events
+
+- Context window health report & recommendation on new conversation. _(context, window, health)_
+- Grand Prix meeting and session selector for real-world circuits (Silverstone, Spa, Monza, Monaco). _(grand, meeting, session)_
+- Created [`.master/SOP.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/SOP.md), [`.agents/rules/sop_protocol.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.agents/rules/sop_protocol.md), and [`AGENTS.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/AGENTS.md) for persistent universal rule injection on all new conversations. _(created, mastersopmdfileuserssamuelagappsformulalegendsformulalegendsmastersopmd, agentsrulessopprotocolmdfileuserssamuelagappsformulalegendsformulalegendsagentsrulessopprotocolmd)_
+- Created [`src/data/circuitData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts) defining precise 2D SVG track geometries, turn metadata, corner names (e.g. Abbey, Copse, Stowe, Eau Rouge, Tarzanbocht, Senna S), DRS activation zones, and official lap records across all 24 Grand Prix meetings in the 2026 calendar. _(created, srcdatacircuitdatatsfileuserssamuelagappsformulalegendsformulalegendssrcdatacircuitdatats, defining)_
+- Fetches meetings, sessions (Practice, Qualifying, Race), driver list, lap times, tire stints, car telemetry streams, and radio messages from `https://api.openf1.org/v1/`. _(fetches, meetings, sessions)_
+- Fetches meetings (British GP, Belgian GP, Italian GP, Monaco GP), drivers, lap telemetry samples (speed, RPM, gear, throttle, brake, DRS), tire stints, and team radio audio snippets. _(fetches, meetings, british)_
+- **Grand Prix Meeting Selector**: Switch across all 24 official Grand Prix rounds (Silverstone, Spa, Monza, Monaco, Suzuka, Austin, Interlagos, Singapore, Las Vegas, etc.). _(grand, meeting, selector)_
+- **Protective Aluminum Button Bezels**: Raised safety collars around every pushbutton preventing accidental activation. _(protective, aluminum, button)_
+- Seating: Multiple permanent grandstands along the pit straight (Main, Brabham, Schumacher, Senna, Fangio), plus temporary grandstands around the lake and extensive general-admission parkland berms. Event capacity is roughly 100,000+ per day, with a four-day attendance record in the 450,000+ range (2023). _(seating, multiple, permanent)_
+- Seating: Permanent grandstands at the main straight, S-Curves (S-kanwa), hairpin, Spoon, 130R and the chicane; general admission on the wooded hillsides. Event capacity 85,000–100,000 per day; grand total over the weekend regularly exceeds 200,000. _(seating, permanent, grandstands)_
+- Seating: Main grandstand, Start/Ziel-Nord, Red Bull Tribune at T3, T6 hillside stands and general admission slopes; 44,000 permanent capacity, event peaks near 100,000 per day across the weekend. _(seating, grandstand, startzielnord)_
+- Seating: Permanent main grandstand inside the Wing (10,000), plus Abbey, Farm, Luffield, Copse, Becketts, Hangar/Stowe, Club and Vale stands; total event attendance peaked at 480,000–500,000 across the 2024 weekend (largest in F1). Capacity 150,000 race day. _(seating, permanent, grandstand)_
+- Terrain & surroundings: Flat Caspian shoreline promenade meeting the UNESCO-listed walled Icherisheher old town; oil-economy boulevards, Icherisheher's alleys, and the Flame Towers skyline; sea-level humidity with a brackish wind. _(terrain, surroundings, caspian)_
+- Identity: Night street race (2008, the original F1 night event) around Singapore's Marina Bay waterfront; 4.940 km, 19 turns (2023 layout removed the old Turns 16–17 chicane), anticlockwise, FIA Grade 1; the physical and thermal longest-grind race on the calendar (2 hours at 70–80% humidity). _(identity, night, street)_
+- Pits & buildings: Permanent integrated pit building at the Singapore Flyer end (part of the Pit Building complex used year-round for events), with garages, race control and hospitality; the rest of the venue is temporary barrier walls, fencing and gantries built over 3 months each year and removed afterward. _(buildings, permanent, integrated)_
+- Pits & buildings: Permanent pit building with 40+ garages, race control, media centre, team hospitality and the Ferrari World/ Warner Bros. World theme-park complex adjacent; the W Abu Dhabi (Yas Island) hotel literally straddles the track; permanent multipurpose event infrastructure year-round. _(buildings, permanent, building)_
+- Context Window Health: Assessment of current context utilization and clear recommendation on whether to start a new conversation. _(context, window, health)_
+- | File | Purpose | Status |
+| :--- | :--- | :--- |
+| src/graphics/steeringwheel/steeringWheelData.ts | Registry of 28+ steering wheel controls, FIA rules, metadata, and sound mappings | Active |
+| src/graphics/steeringwheel/F1SteeringWheelModel.ts | Procedural 3D F1 steering wheel model, dynamic LCD canvas, shift LEDs, and spring animations | Active |
+| src/utils/wheelAudioSynthesizer.ts | Web Audio synthesizer for tactile switch clicks, rotary detents, and paddle shifts | Active |
+| src/data/circuitData.ts | 2D SVG track geometry, DRS paths, and turn metadata for all 24 GP rounds | Active |
+| src/services/soundEngine.ts | Procedural V6 Turbo-Hybrid ICE harmonics, turbo spool, and skid sound engine | Active |
+| src/services/radioAudioService.ts | Neural & Natural Voice Synthesis Engine, driver/engineer personas, PTT Roger beeps, and VHF squelch DSP | Active |
+| src/services/openf1Service.ts | OpenF1 API client for meetings, drivers, telemetry & authentic team radio | Active |
+| src/services/f1NewsService.ts | Paddock news data provider with categorized feeds | Active |
+| src/data/drivers.ts | 2026 driver grid (20 drivers), teams, liveries, and standings | Active |
+| src/engine/physics/AeroEngine.ts | Aerodynamic downforce, drag, and ground-effect porpoising math | Active |
+| src/engine/physics/PowertrainEngine.ts | ERS harvest/deployment, fuel consumption, engine wear | Active |
+| src/engine/physics/TireThermodynamics.ts | Two-layer tire surface vs core temperature & degradation | Active |
+| src/engine/workers/PhysicsWorker.ts | 100 Hz simulation loop with 10 Hz telemetry snapshots & pit timer | Active |
+| src/hooks/useRaceSimulation.ts | Web Worker lifecycle hook and command dispatch | Active |
+| src/graphics/f12026/carPartsData.ts | 30+ 2026 F1 modular CAD components database, Aero-Rake rig metadata, dimensions, FIA articles | Active |
+| src/graphics/f12026/F1Car2026Model.ts | Procedural 2026 F1 3D model builder with 3D Aero-Rake Kiel grid, procedural carbon weaves & custom livery engine | Active |
+| src/graphics/createF1Car.ts | Procedural 3D car mesh generator for custom team liveries | Active |
+| src/graphics/createPitCrew.ts | Low-poly 3D animated pit crew mechanics, tyre gunners, jacks & lollipop | Active |
+| src/utils/format.ts | Formatting helpers for lap times, race clocks, gaps, and currency | Active | _(purpose, status, srcgraphicssteeringwheelsteeringwheeldatats)_
+- Added global `stop()` handler that cancels both active `AudioBufferSourceNode` buffers, oscillator schedules, and `window.speechSynthesis` utterances to prevent audio leaks when navigating tabs. _(added, global, handler)_
+- **Symptoms**: Frequent pointer raycasting events and keyboard shortcuts in complex Three.js viewports captured stale React state closures, or triggered TypeScript index signature mismatch warnings during partial state merges. _(symptoms, frequent, pointer)_
+- Native DOM `pointermove`, `wheel`, and `keydown` event listeners bound inside `useEffect` capture initial closure state unless synchronized via mutable `useRef` bridges. _(native, pointermove, wheel)_
+- Attached interaction callbacks and camera target positions to mutable `stateRef` and `handleControlInteractRef` instances, preventing listener re-attachment churn and eliminating closure staleness. _(attached, interaction, callbacks)_
+
+## Preferences & Style
+> Personal tastes, language preferences, opinions, and personality
+
+- Cleaned up prefer-const, unused variables, and hook references to achieve 100% clean lint audit. _(cleaned, preferconst, unused)_
+- Turning rotaries rotates them by 30° with detent feel. _(turning, rotaries, rotates)_
+- Terrain & surroundings: Hilly urban parkland inside São Paulo's sprawl; the Guarapiranga reservoir nearby; dense city on all sides; the bowl shape and local vegetation create a cauldron-like atmosphere. _(terrain, surroundings, hilly)_
+- **Symptoms**: Black fan-like polygons and shadow streaks radiated from cars across the Silverstone track. _(symptoms, black, fanlike)_
+- **Symptoms**: Team radio voices sounded horribly robotic, squeaky, or like glitching vintage synthesizers ("like robots but worse"); background static noise clashed harshly with voice playback. _(symptoms, radio, voices)_
 
 ## Visual & Design
 > UI/UX preferences, design system rules, and visual patterns
@@ -68,6 +864,365 @@ Add @GRAYMATTER.md to any AI chat to inject this context automatically. _(contai
 - bash
 npm run lint
 npm run build _(build)_
+- # Formula 1 Application Run Workflow (`/run`)
+
+This workflow defines the standard operational procedure when executing `/run` to compile, validate, and launch the Formula 1 application.
+
+## Execution Sequence
+
+When the user triggers `/run`, execute the following phases in order:
+
+### 1. Build Verification
+
+Execute a clean TypeScript build and Vite production bundle:
+
+```bash
+npm run build
+```
+
+- Compiles all TypeScript files via `tsc -b`.
+- Builds optimized chunks into `/docs` (GitHub Pages distribution target).
+- Ensures zero compile errors.
+
+### 2. Governance & SOP Audit
+
+Run the automated SOP validator:
+
+```bash
+npm run sop:validate
+```
+
+- Validates `.master/` documentation files (`MasterChangeLog.md`, `TroubleshootingLog.md`, `IdeasLog.md`, `FileManifest.md`, `SOP.md`).
+- Confirms zero broken links or missing inventory.
+
+### 3. Linting Check
+
+Run ESLint to verify code quality:
+
+```bash
+npm run lint
+```
+
+### 4. Local Execution & Preview
+
+Launch the Vite preview or development server:
+
+```bash
+npm run preview
+```
+
+or for live hot-reload development:
+
+```bash
+npm run dev
+```
+
+### 5. Git Synchronization (When Requested)
+
+When the user asks to update the repository after running:
+
+1. Check modified files: `git status`
+2. Stage changes: `git add .`
+3. Commit with semantic message: `git commit -m "..."`
+4. Push to remote: `git push` _(formula, application, workflow)_
+- 3 Improvement ideas (gameplay, graphics, UI/UX, SEO, security, profitability, etc.). _(improvement, ideas, gameplay)_
+- Compiled a ~52 KB research dossier covering all **23 circuits** on the verified 2026 FIA F1 calendar, sourced via live web research (Formula1.com official calendar, Wikipedia 2026 season article, Wikipedia Madring article with raw Layout/Site sections). _(compiled, research, dossier)_
+- **Bespoke Motorsport Vector Icon Suite ([src/components/F1Icons.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/F1Icons.tsx))**: _(bespoke, motorsport, vector)_
+- **3D Parallax Paddock & Telemetry Auth Gateway ([src/components/ParallaxAuthScreen.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ParallaxAuthScreen.tsx), [src/App.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/App.tsx), [src/components/AppHeader.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(parallax, paddock, telemetry)_
+- Built an immersive multi-layer 3D parallax access portal featuring real-time mouse/cursor tracking, speed streak light beams, and ambient Silverstone/Monza topography gridlines. _(built, immersive, multilayer)_
+- Added 10-team constructor credential selector with live theme color reactivity, 4-tier operational role switcher (_Lead Race Strategist, Chief Aerodynamicist, Telemetry Systems Engineer, FIA Technical Delegate_), callsign name input, and simulated biometric fingerprint/FIA chip scan animation with audio feedback. _(added, constructor, credential)_
+- **3D Car Showroom CAD Viewport & HUD Overlay Styling ([src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(showroom, viewport, overlay)_
+- Implemented missing CSS rules for `.car-showroom-3d`, `.showroom-3d-canvas`, `.showroom-grid`, `.showroom-title`, `.showroom-help`, and `.showroom-stat` (`.showroom-stat.front`, `.showroom-stat.load`). _(implemented, missing, rules)_
+- Implemented 3D Pitot-tube / Kiel probe Aero-Rake Grid mounted behind both front tyres (titanium perimeter frames, 4 horizontal and 5 vertical lattice struts, carbon mounting arms to chassis/uprights, and 40 forward-facing Kiel probes with conical shrouds and dynamic color-coded pressure tip spheres). _(implemented, pitottube, probe)_
+- **Custom Livery Color & Sponsor Decal Studio ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(custom, livery, color)_
+- Developed dynamic 1024x512 livery canvas map generator (`createSponsorCanvasTexture`) applying racing color block gradients, driver number roundels, and custom sponsor decals to sidepods, nose cone, shark fin, and rear wing elements. _(developed, dynamic, livery)_
+- Integrated interactive Livery Studio drawer panel in CarLab with 7 preset themes (Apex Racing, Cyber Silver, Gulf Legacy, Stealth Carbon, Papaya Speed, British Racing, Neon Cyberpunk), primary/accent HTML5 color pickers, carbon finish selector, and custom text inputs for team sponsor decals. _(integrated, interactive, livery)_
+- **High-Resolution 4K Studio Snapshot Export ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(highresolution, studio, snapshot)_
+- Added camera shutter action button in CAD toolbar with audio-visual camera flash animation and automatic PNG file download. _(added, camera, shutter)_
+- **3D Race View Container Sizing & ResizeObserver Fix ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(container, sizing, resizeobserver)_
+- Built procedural high-res canvas decal generators: `createButtonDecalTexture`, `createPaddleDecalTexture`, and `createDialScaleTexture`. _(built, procedural, highres)_
+- Upgraded all 16 pushbuttons with laser-etched silkscreen typography (`DRS`, `RAD`, `ACK`, `PL`, `OT`, `N`, `R`, `SOC`, `PASS`, `EB+`, `EB-`, `BB+`, `BB-`, `DRK`, `P+`, `P-`), outer colored bezel rings, concave tactile dish gradients, and raised CNC anodized aluminum collars with titanium chamfer accents. _(upgraded, pushbuttons, laseretched)_
+- **Fixed critical CSS class mismatch**: component used `onboarding-overlay` but CSS defined `onboarding-backdrop` — causing the entire Race Guide modal to render as an unstyled, unconstrained text wall covering the race view. _(fixed, critical, class)_
+- Rebuilt step cards using all existing CSS classes (`.guide-step`, `.step-num`, `.onboarding-body`, `.onboarding-footer`, `.got-it-btn`) that were defined but never connected. _(rebuilt, cards, existing)_
+- Added `.step-icon-wrap` papaya-tinted icon containers alongside numbered circles for visual hierarchy. _(added, stepiconwrap, papayatinted)_
+- **Car Lab Center Panel 2-Row Header Restructure ([src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(center, panel, header)_
+- Added `.cad-panel-title-row`, `.cad-spec-badges`, `.cad-spec-badge`, `.cad-tool-row`, `.cad-tool-group`, `.cad-tool-btn`, `.cad-search-bar` CSS classes. _(added, cadpaneltitlerow, cadspecbadges)_
+- `cad-tool-btn.active.thermal` variant: red glow for FLIR mode to distinguish from papaya CFD mode. _(cadtoolbtnactivethermal, variant, distinguish)_
+- Ribbon now uses divider-line column layout (`border-right`) instead of gap grid for a cleaner dashboard look. _(ribbon, dividerline, column)_
+- Added `.aero-mode-stat`, `.stat-mode-badge.corner`, `.stat-mode-badge.straight`, `.stat-mode-sub` CSS classes. _(added, aeromodestat, statmodebadgecorner)_
+- Fixed missing `.stat-value.highlight-green` class (was referenced in JSX but undefined in CSS). _(fixed, missing, statvaluehighlightgreen)_
+- Built character-specific speaker personas with dedicated cadence, pitch, and accent profiling for Race Engineers (Will Joseph, Gianpiero Lambiase, Peter Bonnington, Bryan Bozzi) and Drivers (Lando Norris, Oscar Piastri, Max Verstappen, Lewis Hamilton, Charles Leclerc, George Russell, Fernando Alonso, Carlos Sainz). _(built, characterspecific, speaker)_
+- Added acoustic profile toggle chips and instant "Test Comms" preview buttons to audition voice clarity directly in the UI. _(added, acoustic, profile)_
+- Engineered photo-realistic 3D procedural steering wheel model adhering to 2026 FIA technical regulations with carbon fiber composite faceplate weave, sculpted silicone/Alcantara handgrips with thumb rests, titanium mounting bolts, aluminum protective button bezels, CNC knurled rotaries, and rear magnetic carbon paddle shifters with quick-release steering hub. _(engineered, photorealistic, procedural)_
+- **Dedicated Interactive Cockpit Wheel Lab View & Navigation ([src/views/SteeringWheelLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/SteeringWheelLab.tsx), [src/App.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/App.tsx), [src/components/AppHeader.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx), [src/types.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/types.ts), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(dedicated, interactive, cockpit)_
+- **Tactical Command Modal Clarity & Subtitles ([src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(tactical, command, modal)_
+- **Camera Viewport Director & Keyboard Shortcuts ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(camera, viewport, director)_
+- **Interactive 2D Telemetry Lap Trace Scrubber ([src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(interactive, telemetry, trace)_
+- **Dynamic 4-Angle 3D Camera System ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx), [src/components/TrackMap.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TrackMap.tsx), [src/types.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/types.ts), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(dynamic, angle, camera)_
+- **Wind Tunnel Streamline Smoke Inserter ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(tunnel, streamline, smoke)_
+- **Thermal Infrared Tire & Brake FLIR Camera ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(thermal, infrared, brake)_
+- **3D Telemetry Synchronized Playback Deck ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(telemetry, synchronized, playback)_
+- Live 75-second Grand Prix hot lap simulation loop driving wheel rotation ($\omega = v / r$), dynamic aerodynamic suspension squish/dive, active wing flap transitions (Z/X modes), and high-voltage MGU-K energy flow conduit pulsing (350 kW deploy green vs. 8.5 MJ regen amber) with real-time 3D cockpit HUD overlay. _(second, grand, simulation)_
+- **All 24 Grand Prix Circuits Extreme Precision Mapping ([src/data/circuitData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts), [src/components/CircuitMapPreview.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx))**: _(grand, circuits, extreme)_
+- Engineered distinct, mathematically verified SVG path definitions, genuine corner counts, turn names, and multi-DRS zones for every track from Sakhir, Melbourne, and Monaco to Suzuka (Figure-8 with bridge/underpass), Spa, Monza, and Yas Marina. _(engineered, distinct, mathematically)_
+- Enabled clicking any round on the 2026 World Championship calendar to open a modal displaying the full 2D interactive circuit map, telemetry statistics, lap records, and animated driver cars. _(enabled, clicking, round)_
+- **Rich Graphical Driver Cards ([src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css), [src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx))**: _(graphical, driver, cards)_
+- **CFD Surface Pressure Heatmap Shader & Mode ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(surface, pressure, heatmap)_
+- Direct 3D component click raycasting and quick-select dropdown displaying material composition, mass (kg), dimensions (mm), and official FIA regulation article citations. _(direct, component, click)_
+- **2026 FIA Regulatory Compliance Checklist ([src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(regulatory, compliance, checklist)_
+- **Authentic 18-Corner Silverstone Grand Prix Circuit Geometry ([src/data/circuitData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts), [src/components/TrackMap.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TrackMap.tsx), [src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx))**: _(authentic, corner, silverstone)_
+- Configured authentic layouts, corner coordinates, DRS zones, and start/finish lines for all 24 World Championship circuits. _(configured, authentic, layouts)_
+- Enables the 3D race canvas to expand dynamically to full width and height with smooth CSS grid transitions. _(enables, canvas, expand)_
+- **On-Demand Tactical Race Command Dock Modal ([src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**: _(ondemand, tactical, command)_
+- Engineered procedural low-polygon humanoid pit crew mechanics in team overalls (matching primary & secondary team liveries) with detailed helmets, visors, harnesses, and role-specific equipment. _(engineered, procedural, lowpolygon)_
+- **1 Front Quick-Lift Jack Operator** with lever pivot mechanism, lifting the car chassis by `+0.14m`. _(front, quicklift, operator)_
+- **Weather Radar Doppler Precipitation Overlay ([src/components/DopplerRadarOverlay.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DopplerRadarOverlay.tsx), [src/components/TrackMap.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TrackMap.tsx), [src/components/CircuitMapPreview.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx))**: _(weather, radar, doppler)_
+- **Meteorological Rain Density Heatmap**: Dynamic multi-cell precipitation clusters with official Doppler dBZ color palette (Green drizzle -> Yellow moderate -> Orange heavy -> Red downpour -> Pink monsoon). _(meteorological, density, heatmap)_
+- 2,800 falling rain particle streaks reacting to storm intensity, dynamic overcast storm fog, darkened wet asphalt surface with enhanced specular gloss, and atmospheric 3D rotating Doppler scanning ring hovering over the circuit. _(falling, particle, streaks)_
+- **Interactive 2D Circuit Map Preview ([src/components/CircuitMapPreview.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx))**: _(interactive, circuit, preview)_
+- Added comprehensive 2D SVG track layout datasets for all 24 Formula 1 World Championship rounds in [`src/data/circuitData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts). _(added, comprehensive, track)_
+- Interactive corner hover tooltips with turn numbers, corner naming (Abbey, Copse, Stowe, Eau Rouge, Tarzanbocht, etc.), and circuit telemetry metrics. _(interactive, corner, hover)_
+- Replaced entire compressed stylesheet with deep carbon and brushed titanium UI. _(replaced, entire, compressed)_
+- F1 TV leaderboard layout in Timing Tower and 8-LED RPM shift-light tachometer. _(leaderboard, layout, timing)_
+- Added on-screen build badge (`BUILD R3`). _(added, onscreen, build)_
+- Added interactive onboarding overlay guide. _(added, interactive, onboarding)_
+- The /run command provides an end-to-end automated pipeline for building, validating, testing, and previewing the Formula 1 Management Simulator. _(command, provides, endtoend)_
+- mermaid
+graph TD
+    A["User triggers /run"] --> B["Step 1: npm run build"]
+    B --> C["Step 2: npm run lint"]
+    C --> D["Step 3: npm run sop:validate"]
+    D --> E["Step 4: Launch Vite Preview / Dev"]
+    E --> F["Step 5: Git Stage, Commit & Push"] _(mermaid, graph, auser)_
+- Updates remote repository with all source code, assets, documentation, and build bundles. _(updates, remote, repository)_
+- Built [`src/components/CircuitMapPreview.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx) rendering: _(built, srccomponentscircuitmappreviewtsxfileuserssamuelagappsformulalegendsformulalegendssrccomponentscircuitmappreviewtsx, rendering)_
+- Circuit statistics badge (length in KM, turn count, DRS zone count, country pin, and official lap record). _(circuit, statistics, badge)_
+- Connected the circuit switcher in [`src/views/LiveTelemetryExplorer.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx) so the map dynamically updates when toggling between the 24 rounds. _(connected, circuit, switcher)_
+- `npm run build`: Compiled TypeScript and bundled Vite with **0 errors**. _(build, compiled, typescript)_
+- [`src/data/circuitData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts) _(srcdatacircuitdatatsfileuserssamuelagappsformulalegendsformulalegendssrcdatacircuitdatats)_
+- [`src/components/CircuitMapPreview.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx) _(srccomponentscircuitmappreviewtsxfileuserssamuelagappsformulalegendsformulalegendssrccomponentscircuitmappreviewtsx)_
+- [`src/styles.css`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css) _(srcstylescssfileuserssamuelagappsformulalegendsformulalegendssrcstylescss)_
+- Build a live **Paddock News & Technical Media Center** with real motorsport feeds, category filters, and breaking news alerts. _(build, paddock, technical)_
+- Built-in cached session fallback for seamless instant loading and offline capability. _(builtin, cached, session)_
+- Build check: `npm run build` _(build, check, build)_
+- Built-in instant fallback dataset ensuring 100% offline capability and immediate UI responsiveness. _(builtin, instant, fallback)_
+- `tsc -b && vite build`: Compiled cleanly and updated `/docs`. _(build, compiled, cleanly)_
+- Rebuilt all numeric cards, progress bars, and labels with explicit semantic spacing and hierarchy. _(rebuilt, numeric, cards)_
+- Clear compound badges with official F1 tire colors (🔴 Soft, 🟡 Medium, ⚪ Hard, 🟢 Inter, 🔵 Wet). _(clear, compound, badges)_
+- F1 TV leaderboard layout with team color indicator, position, code, tire badge with stint age, gap to leader, and sector performance dots. _(leaderboard, layout, color)_
+- **Balanced 3-Column Layout**: _(balanced, column, layout)_
+- **Quick Setup Presets**: One-click `[BALANCED]`, `[HIGH DOWNFORCE]`, `[LOW DRAG]` presets. _(quick, setup, presets)_
+- **Authentic Real-World GPS Spline Circuits**: Accurate track elevation, kerb profiles, and run-off geometry for Silverstone, Spa-Francorchamps, Monza, and Monaco. _(authentic, realworld, spline)_
+- **CNC Knurled Rotaries & Thumb Wheels**: Textured dials with colored pointer indicators and 30-degree detent steps. _(knurled, rotaries, thumb)_
+- **Rear Carbon Paddle Shifters & Quick-Release Boss**: Left downshift paddle (-), right upshift paddle (+), dual analog launch clutches, and quick-release steering column boss. _(carbon, paddle, shifters)_
+- **Page 2 (Tire Thermals & Pressures)**: 4-corner tire surface and core temperatures (°C) with dynamic thermal color ramp + tire pressures (PSI). _(thermals, pressures, corner)_
+- Compiled from established reference data: circuit lengths, turn counts, corner names, grandstand structures, site terrain and climatological profiles for the returning venues are drawn from the circuits' well-established public documentation (FIA Grade-1 homologation-era specs, circuit official sites, and encyclopedic references). Figures such as spectator capacities are the commonly cited operational numbers and should be treated as "best available" rather than audited. _(compiled, established, reference)_
+- Anomaly note (high confidence, verified): Round 16 is officially titled "FORMULA 1 GULF AIR BAHRAIN GRAND PRIX IN MALAYSIA 2026" (Oct 2–4) — i.e. the Bahrain-name round is staged at Sepang International Circuit, Malaysia. Neither Sakhir nor Jeddah appears on the 2026 schedule; both are listed as "Returning (2027)" alongside Algarve and Istanbul on the season article's circuit index. The precise reason for the relocation is not detailed in the sources captured for this report. _(anomaly, confidence, verified)_
+- | Rd | Dates | Grand Prix | Circuit | Location |
+| -- | ------------- | --------------------------------------- | ------------------------------ | ------------------------- |
+| 1 | Mar 06–08 | Qatar Airways Australian GP | Albert Park Circuit | Melbourne, Australia |
+| 2 | Mar 13–15 | Heineken Chinese GP | Shanghai International Circuit | Shanghai, China |
+| 3 | Mar 27–29 | Aramco Japanese GP | Suzuka International Racing Course | Suzuka, Japan |
+| 4 | May 01–03 | Crypto.com Miami GP | Miami International Autodrome | Miami Gardens, USA |
+| 5 | May 22–24 | Lenovo Grand Prix du Canada | Circuit Gilles Villeneuve | Montreal, Canada |
+| 6 | Jun 05–07 | Louis Vuitton Grand Prix de Monaco | Circuit de Monaco | Monte Carlo, Monaco |
+| 7 | Jun 12–14 | MSC Cruises Gran Premio de Barcelona-Catalunya | Circuit de Barcelona-Catalunya | Montmeló, Spain |
+| 8 | Jun 26–28 | Lenovo Austrian GP | Red Bull Ring | Spielberg, Austria |
+| 9 | Jul 03–05 | Pirelli British GP | Silverstone Circuit | Silverstone, UK |
+| 10 | Jul 17–19 | Moët & Chandon Belgian GP | Circuit de Spa-Francorchamps | Stavelot, Belgium |
+| 11 | Jul 24–26 | AWS Hungarian GP | Hungaroring | Mogyoród, Hungary |
+| 12 | Aug 21–23 | Heineken Dutch GP | Circuit Zandvoort | Zandvoort, Netherlands |
+| 13 | Sep 04–06 | Pirelli Gran Premio d'Italia | Autodromo Nazionale Monza | Monza, Italy |
+| 14 | Sep 11–13 | TAG Heuer Gran Premio de España | Madring (Circuito de Madring) | Madrid, Spain (NEW) |
+| 15 | Sep 24–26 | Qatar Airways Azerbaijan GP | Baku City Circuit | Baku, Azerbaijan |
+| 16 | Oct 02–04 | Gulf Air Bahrain GP in Malaysia | Sepang International Circuit | Sepang, Malaysia (relocated round) |
+| 17 | Oct 09–11 | Singapore Airlines Singapore GP | Marina Bay Street Circuit | Singapore |
+| 18 | Oct 23–25 | MSC Cruises United States GP | Circuit of the Americas | Austin, USA |
+| 19 | Oct 30–Nov 01 | Gran Premio de la Ciudad de México | Autódromo Hermanos Rodríguez | Mexico City, Mexico |
+| 20 | Nov 06–08 | MSC Cruises Grande Prêmio de São Paulo | Autódromo José Carlos Pace (Interlagos) | São Paulo, Brazil |
+| 21 | Nov 19–21 | Heineken Las Vegas GP | Las Vegas Strip Circuit | Las Vegas, USA |
+| 22 | Nov 27–29 | Qatar Airways Qatar GP | Lusail International Circuit | Lusail, Qatar |
+| 23 | Dec 04–06 | Etihad Airways Abu Dhabi GP | Yas Marina Circuit | Abu Dhabi, UAE | _(dates, grand, circuit)_
+- Pre-season testing ran twice at Bahrain International Circuit, Sakhir (Feb 11–13 and Feb 18–20, "Aramco Pre-Season Testing 1 & 2"). _(preseason, testing, twice)_
+- Identity: Semi-permanent road circuit in Albert Park, 3 km south of Melbourne CBD, FIA Grade 1. Has opened the F1 season since 1996 (WEC races 1953–58, 1985–95 Adelaide era aside). 5.278 km, 14 turns, clockwise, four DRS zones; among the fastest average lap circuits of the street-parkland type (237 km/h average at qualifying pace). _(identity, semipermanent, circuit)_
+- Pits & buildings: Permanent two-storey pit-and-paddock building along the main straight (rebuilt for the 1996 GP, upgraded repeatedly), permanent race control, media and hospitality suites above the garages; temporary structures cover the rest of the paddock village. _(buildings, permanent, twostorey)_
+- Terrain & surroundings: Essentially flat reclaimed lakeside parkland with grassy embankments; ornamental lake at the centre, mature fig and gum tree lines, city skyline backdrop, Port Phillip Bay a short walk away. Very little elevation change (a few metres total). _(terrain, surroundings, essentially)_
+- Weather: Late southern-summer Melbourne: typical daytime highs of 23–27 °C, nights 13–16 °C. Notoriously changeable — "four seasons in one day" — with sunny spells, cool sea-breeze southerly changes and fast-moving showers. 2026 race day was dry and warm (Russell won from pole). _(weather, southernsummer, melbourne)_
+- Pits & buildings: One of the largest pit complexes in world motorsport — a grand, palace-scaled main building spanning the start/finish straight with garages below, race control, timing, media centre and hospitality above, topped by a viewing tower. Team motorhomes permanent; paddock is vast. _(buildings, largest, complexes)_
+- Seating: Main grandstand seats 29,000 along the pit straight, with stands at the Turn 1–2 spiral (largest spectator bowl), Turn 6 hairpin, the back-straight braking zone and Turn 14. Circuit-wide capacity is cited at 200,000; typical F1 operation is far lower. _(seating, grandstand, seats)_
+- Terrain & surroundings: Built on extremely soft, waterlogged marsh/wetland — the entire construction floats on a deep concrete piling platform (famously one pile per square metre under the main buildings). The site is visually flat, ringed by drainage lakes and new-town development in Jiading. _(terrain, surroundings, built)_
+- Weather: Mid-March: cool and damp, daytime 12–15 °C, nights 6–8 °C, humidity 65–75%. Spring drizzle and light rain are a persistent threat; track temperature and tyre warm-up are usually the engineering headline. 2026 saw Antonelli win the 2nd round. _(weather, midmarch, daytime)_
+- Pits & buildings: Long pit building with garages beneath the main grandstand; separate race control and Honda-owned administration; permanent Paddock Club and media centre; the crossover bridge is structural to the lap itself. _(buildings, building, garages)_
+- Weather: Late March on Japan's Pacific side: mild, 13–17 °C days, 6–9 °C nights; cherry-blossom season. Rain risk is genuine (the 2022 typhoon weekend being the extreme case) but early spring is generally drier than summer. _(weather, march, japans)_
+- Pits & buildings: Permanent multi-storey pit building and paddock built into the stadium footprint, with rooftop hospitality; the famous "fake marina" with docked yachts beside Turn 14–15; temporary structures elsewhere; a bespoke campus built inside and around stadium car parks. _(buildings, permanent, multistorey)_
+- Seating: Temporary grandstands at Turns 1, 11, 17 and the campus-wide hospitality suites; stadium seating used for viewing/hospitality. Daily capacity 55,000–65,000; weekend totals around 270,000–300,000 (2024 record 275,000). _(seating, temporary, grandstands)_
+- Identity: Semi-permanent street course on Île Notre-Dame in the St. Lawrence River (1978), site of Expo 67 and the 1976 Olympic rowing basin. 4.361 km, 14 turns, clockwise, two DRS zones, FIA Grade 1; home of the "Wall of Champions" on the exit of the final chicane. _(identity, semipermanent, street)_
+- Pits & buildings: Compact permanent pit building with the unique pit-exit running underneath the circuit itself (tunnel under the track back to the main straight); modest permanent race control/media structures; otherwise temporary. The Olympic Basin sits adjacent to the paddock. _(buildings, compact, permanent)_
+- Seating: Main grandstand over the pits, stands at T1–2, the hairpin, T13–15 and the chicane; extensive general admission around the island's parkland. Daily capacity 90,000–100,000. _(seating, grandstand, stands)_
+- Terrain & surroundings: Flat man-made island parkland in the middle of the river, mature trees, views of downtown Montreal and the Biosphere geodesic dome; Metro (Jean-Drapeau) access. _(terrain, surroundings, manmade)_
+- Weather: Late May is volatile: days 17–22 °C, mornings 8–12 °C. Cool, greasy conditions and damp patches are a recurring storyline; occasional outright rain. Long-range sun angles make visibility a factor into Turn 1. _(weather, volatile, mornings)_
+- Identity: The original street circuit (1950 world-championship pedigree, 1929 origins), twisting through Monte Carlo and La Condamine around Port Hercule. 3.337 km, 19 turns, clockwise, FIA Grade 1; shortest lap on the calendar and the slowest average (157 km/h). _(identity, original, street)_
+- Pits & buildings: Temporary pit building and paddock erected on the port quay opposite Tabac, with team motorhomes stacked as multi-storey hospitality on the harbour; the pit complex is dismantled within weeks. Permanent infrastructure is limited to city buildings; grandstands are scaffold-built each year. _(buildings, temporary, building)_
+- Seating: 37,000 grandstand seats (K, L, P, T, R, V stands etc.) plus balcony/terrace and yacht hospitality; the tightest capacity-to-demand ratio in F1. _(seating, grandstand, seats)_
+- Identity: Permanent circuit (1991) at Montmeló, 20 km north of Barcelona, FIA Grade 1; retained on the 2026 calendar alongside the new Madrid round (dual-Spanish-race season). 4.657 km, 14 turns since the 2023 removal of the final chicane, clockwise, two DRS zones. _(identity, permanent, circuit)_
+- Pits & buildings: Long permanent pit building with 40+ garages, media centre, race control, permanent Paddock Club and hospitality tower; extensive permanent team buildings on the infield; pit-lane exit reprofiled for safety (2018–19 work) with a sub-tunnel route. _(buildings, permanent, building)_
+- Seating: Main (Gran Premi) grandstand over the pits, plus permanent stands at T1–2, Turn 4, Turn 5, the back straight and Turn 10; general admission on hillsides. Capacity cited at 140,700 across the venue. _(seating, premi, grandstand)_
+- Terrain & surroundings: Gently rolling Vallès plain with the Montseny massif and Collserola ridge on the horizon; dry Mediterranean vegetation; the nearby Montmeló/Granollers suburbs. _(terrain, surroundings, gently)_
+- Weather: Mid-June: warm and dry, 24–27 °C afternoons, 15–17 °C mornings, sea-breeze afternoons that can gust to 20+ km/h; rain probability low but a 2026 thunderstorm is possible. _(weather, midjune, afternoons)_
+- Identity: Rebuilt (2011, Tilke) from the 1969 Österreichring on the same hillside in Styria; owned by Red Bull. 4.318 km, 10 turns, clockwise, FIA Grade 1; with the 2026 regulations it is the shortest-lap, highest-turn-speed venue (1:05 laps, 232 km/h average). _(identity, rebuilt, tilke)_
+- Pits & buildings: Modern pit building and paddock in the valley floor, permanent race control/media centre, Red Bull hospitality structures, and the bull-ring amphitheatre feel created by permanent stands. _(buildings, modern, building)_
+- Terrain & surroundings: Alpine foothills of the Mur valley at 660–740 m above sea level; forested slopes surround the bowl, with views of the Austrian Alps; the small town of Spielberg and its green hills make this the most park-like permanent circuit on the calendar after Suzuka. _(terrain, surroundings, alpine)_
+- Weather: Alpine summer volatility: 20–25 °C afternoons, 10–13 °C mornings, with a well-known pattern of sudden thunderstorm cells and 10 °C temperature drops; wet qualifying is a genuine statistical risk. _(weather, alpine, summer)_
+- Identity: Former WWII RAF bomber base (circuits on airfield perimeter roads since 1948) in Northamptonshire; hosted the 1950 world championship's first round. 5.891 km, 18 turns, clockwise, FIA Grade 1; fast average 236 km/h. _(identity, former, bomber)_
+- Pits & buildings: The Silverstone Wing (2011): a 390 m long, 40,000 m² pit/paddock/conference complex with 41 garages, race control, media centre and Paddock Club; plus permanent BRDC Clubhouse, hospitality villages and The Wing's signature roofline. _(buildings, silverstone, pitpaddockconference)_
+- Terrain & surroundings: Rolling Northamptonshire/ Buckinghamshire countryside around a flat airfield core; open fields, hedgerows, and long sightlines; two runways still visible inside the circuit. _(terrain, surroundings, rolling)_
+- Weather: Classic British summer: 20–23 °C afternoons, 12–14 °C mornings, westerly airflow with fast-moving showers — a wet session here is close to an annual certainty somewhere in the weekend. _(weather, classic, british)_
+- Identity: Semi-permanent road course (1921 origins) through the Ardennes forest in the Belgian Eifel; 7.004 km — the longest lap in F1 — 19 turns, FIA Grade 1, two DRS zones; average 230 km/h with the calendar's most extreme top speed (330–345 km/h on the Kemmel Straight). _(identity, semipermanent, course)_
+- Pits & buildings: Modernized pit building and paddock (2021–22 works) with permanent garages, race control and a two-storey paddock hospitality wing; new pit-lane exit tunnel (2022) rejoining the track after Eau Rouge; extensive temporary paddock structures given the length of the venue. _(buildings, modernized, building)_
+- Seating: Permanent grandstands at La Source, Eau Rouge (new 2022 stand), Kemmel/Les Combes, Pouhon, Bruxelles/Rivage, Blanchimont and the Bus Stop, plus general admission forest banks; weekend attendance record 380,000 (2023). Race-day capacity 70,000+. _(seating, permanent, grandstands)_
+- Terrain & surroundings: Forested Ardennes hills and microclimate valleys — famously, rain can fall at Les Combes while La Source is dry. The Francorchamps village, the old Spa town, and the Malmedy/Stavelot region define the setting. _(terrain, surroundings, forested)_
+- Weather: Ardennes summer: 18–23 °C afternoons, 11–13 °C mornings, 50% historical chance of rain in some form during the weekend, with cold, damp, low-grip dawn conditions common. _(weather, ardennes, summer)_
+- Identity: Permanent circuit (1986, first F1 race behind the Iron Curtain) in a natural valley at Mogyoród, 19 km north-east of Budapest. 4.381 km, 14 turns, clockwise, FIA Grade 1; nicknamed "Monaco without walls" for its slow, twisty, hard-to-overtake character. _(identity, permanent, circuit)_
+- Pits & buildings: Permanent pit building with garages under the main grandstand, race control/media centre, modern paddock buildings (2016–18 renovation), plus circuit-owned hospitality. _(buildings, permanent, building)_
+- Terrain & surroundings: The circuit sits in a dry, scrubby valley bowl of the Gödöllő hills with vineyards and sunflower fields around; Budapest skyline visible from the top of the circuit. _(terrain, surroundings, circuit)_
+- Pits & buildings: Renovated pit building and new race control, plus permanent grandstand-backed pit garages; the beach-club and dune hospitality infrastructure is permanent since the 2020 rebuild. _(buildings, renovated, building)_
+- Seating: Main grandstand, Tarzan stand, dune terraces and banked-corner viewing decks; capacity 105,000 (2023 figure); Dutch-crowd atmosphere is the loudest on the calendar. _(seating, grandstand, tarzan)_
+- Terrain & surroundings: Coastal dune reserve between the circuit and the beach; sea breeze, sand-laden air, and North Sea salt spray; the town of Zandvoort and the Kennemerland national park envelope the site. _(terrain, surroundings, coastal)_
+- Weather: Dutch coastal August: 19–22 °C afternoons, 14–16 °C mornings, humidity 70–80%, with drizzle and sea fog both possible; wind off the North Sea alters the aero balance notably. _(weather, dutch, coastal)_
+- Pits & buildings: Historic pit building (1922 heritage), modernized garages, race control/media in the same complex; permanent paddock buildings, plus the Monza circuit museum and royal-park infrastructure; grandstands largely permanent stone-and-steel structures. _(buildings, historic, building)_
+- Valdebebas linked corners — a fast flowing left-right complex in the Valdebebas zone. _(valdebebas, linked, corners)_
+- The Bunker — a technical, tight complex (named for its enclosed, walled feel) that breaks up the flow and rewards braking stability. _(bunker, technical, tight)_
+- Two tunnel sections running beneath an elevated motorway (the M-11 corridor) — a first for a modern F1 street track. _(tunnel, sections, running)_
+- A sharp downhill drop between Turns 7 and 9, giving the lap genuine elevation drama. _(sharp, downhill, between)_
+- Long straights with big stops to promote overtaking under the 2026 rules; mixture of slow, medium and fast corners. _(straights, stops, promote)_
+- Identity: Walled street circuit (2016) through the old city and seaside boulevard of Baku on the Caspian coast. 6.003 km, 20 turns, anticlockwise, FIA Grade 1, two DRS zones; combines the calendar's longest full-throttle section with its narrowest section (7.6 m around the castle). _(identity, walled, street)_
+- Pits & buildings: Permanent-feeling but largely permanent-structure pit building on the main straight with garages; the old-city section uses existing buildings as hospitality; the venue reuses Baku's boulevard infrastructure; grandstands are temporary steel structures rebuilt annually. _(buildings, permanentfeeling, largely)_
+- Seating: Main grandstand, Absheron (T1), Boulevard/Neftchilar stands, old-city balcony and rooftop hospitality (unique private terraces in the castle complex); capacity 65,000–70,000 per day. _(seating, grandstand, absheron)_
+- Weather: Late September: 21–26 °C afternoons, 15–17 °C mornings, 65% humidity, warm Caspian wind; rain is possible but typically short-lived; the walled sections block the wind and create local grip imbalances. _(weather, september, afternoons)_
+- Identity: Tilke-built permanent circuit (1999) 45 km south of Kuala Lumpur. 5.543 km, 15 turns, clockwise, FIA Grade 1; the 2026 calendar's relocated round — the Gulf Air Bahrain Grand Prix is staged at Sepang (Sakhir and Jeddah are both off the 2026 schedule, listed as returning in 2027). _(identity, tilkebuilt, permanent)_
+- Seating: Main grandstand (30,000), K1/F stand at Turn 1/2, C2 hillside at the back straight, plus general admission; capacity 120,000–130,000. _(seating, grandstand, stand)_
+- Weather: Equatorial October: air 31–34 °C, humidity 75–85%, track temps 50 °C+, and the famous 4 pm tropical downpour risk that has shaped many Sepang races; cooling and visibility in the rain are the engineering headlines. _(weather, equatorial, october)_
+- Identity: Purpose-built circuit (2012, Tilke) in the Texas Hill Country 24 km south-east of Austin. 5.513 km, 20 turns, anticlockwise, FIA Grade 1; widely regarded as the best purpose-built Tilke track. _(identity, purposebuilt, circuit)_
+- Pits & buildings: Permanent pit/paddock building with garages, media centre and race control; the 25-storey COTA Observation Tower at Turn 1 (with hospitality at the top); permanent team motorhome pads, main-stage and concert infrastructure, plus the on-site Austin360 Amphitheater. _(buildings, permanent, pitpaddock)_
+- Seating: Main grandstand, Turn 1 Grandstand (the money seat), Turn 4, 9, 12 (stadium section), 15, 19, 21 and turn-12 terrace bleachers; capacity 120,000 race day, 400,000 weekend. _(seating, grandstand, grandstand)_
+- Terrain & surroundings: Rolling former ranch land with oak and juniper savanna; the circuit's climbs and dips are natural; hot, dry hill-country character; nearby Lockheed Martin/airport corridor and Austin's growth visible on the horizon. _(terrain, surroundings, rolling)_
+- Weather: Late October central Texas: 24–28 °C afternoons, 14–16 °C mornings, humidity 55–65%; rain risk is moderate (autumn fronts); large temperature swings between morning and afternoon affect setup windows. _(weather, october, central)_
+- Identity: Public-park permanent circuit (1962) inside the Magdalena Mixhuca sports complex in south-east Mexico City; 4.304 km, 17 turns (2021 layout), clockwise, FIA Grade 1; the calendar's highest-altitude venue at 2,200 m — the thinnest air in F1 (20–25% less downforce/aero efficiency and reduced engine cooling margin). _(identity, publicpark, permanent)_
+- Pits & buildings: Permanent pit building with garages, race control and media centre; the Foro Sol stands and stadium are permanent concert/sports infrastructure; a modernized paddock with permanent team buildings. _(buildings, permanent, building)_
+- Pits & buildings: Modernized (2015–16, 2023) permanent pit building with garages, race control and media centre; permanent paddock buildings and grandstand infrastructure; the venue's compact footprint makes everything visible from the infield bowl. _(buildings, modernized, permanent)_
+- Identity: Night street circuit (2023) using the public roads of the Las Vegas Strip and the Paradise corridor; 6.201 km, 17 turns, anticlockwise, FIA Grade 1; the second-longest lap on the calendar and the coldest race of 2026. _(identity, night, street)_
+- Pits & buildings: The permanent 300,000 sq ft pit building at the Harmon/Koval corner (the only permanent structure on the circuit) houses garages, race control, media centre and rooftop hospitality with grandstand seating; everything else is temporary walls, lighting and grandstands constructed each fall. _(buildings, permanent, building)_
+- Seating: Grandstand seating integrated into the permanent pit building roof plus 30 temporary stands along the Strip, hospitality suites in casino towers and rooftop venues (private casino-hotel balconies act as premium hospitality); race-day capacity 100,000; weekend 315,000 (2024 record). _(seating, grandstand, seating)_
+- Terrain & surroundings: Flat Mojave Desert basin at 610 m; neon canyon of the Strip, desert mountains on the horizon; the public-road setting means the circuit is dismantled and the streets reopened each season. _(terrain, surroundings, mojave)_
+- Weather: Mid-November desert nights: air 10–16 °C at race time, dropping below 8 °C after midnight, 30% humidity; rain probability low but non-zero; cold-tyre performance and track-timing (22:00 local start) are the unique setup inputs. _(weather, midnovember, desert)_
+- Identity: Purpose-built desert circuit (2004) 40 km north of Doha; 5.419 km, 16 turns, clockwise, FIA Grade 1; fully floodlit night venue with artificial grass and turf; a Sprint-venue staple. _(identity, purposebuilt, desert)_
+- Pits & buildings: Extensively renovated (2023) permanent pit/paddock building with 38+ garages, race control, media centre, permanent team buildings and VIP hospitality towers; the modern facility is one of the region's best. _(buildings, extensively, renovated)_
+- Seating: Main grandstand (20,000), Turn 1 and Turn 16 stands, VIP tower suites, and temporary additional stands; capacity 55,000–60,000. _(seating, grandstand, stands)_
+- Terrain & surroundings: Flat coastal desert plain of the Qatari peninsula; sand encroachment is an operational factor (artificial turf and regular sweeping); arid, open, with Lusail's futuristic skyline district to the south. _(terrain, surroundings, coastal)_
+- Weather: Late November nights: air 22–27 °C early evening, cooling to 18–20 °C, humidity rises with the Gulf, 35–45%; rain is essentially absent; the challenge is the fine sand on track and brake/tyre temperature windows. _(weather, november, nights)_
+- Identity: Purpose-built island circuit (2009, Tilke) on Yas Island; 5.281 km, 16 turns (2021 re-profile removed the tight hairpins 5–6 and the flowing Turns 11–12 replaced the old double-apex, restoring 12 seconds of flow), anticlockwise, FIA Grade 1; the traditional season finale, run at dusk into night under permanent floodlights. _(identity, purposebuilt, island)_
+- Seating: Main grandstand, Marina/ North/ West/ South grandstands, the Turn 11 hotel-view stands and general admission; capacity 60,000–65,000; weekend attendance 150,000–200,000 with the finale crowd. _(seating, grandstand, marina)_
+- Terrain & surroundings: Flat reclaimed island on the Persian Gulf; marina berths, mangroves, Ferris wheel and the theme-park skyline; sea-level heat with high salinity air (corrosion management for equipment). _(terrain, surroundings, reclaimed)_
+- Weather: Early December dusk-to-night: air 23–26 °C at race start falling to 19–21 °C, humidity 55–65%, rainfall negligible; the sunset transition is a setup puzzle (track temperature drops 10 °C during the race). _(weather, early, december)_
+- ---
+- | Circuit | Length (km) | Turns | Direction | Elevation character | Venue type | Notes for 2026 regs |
+| --- | --- | --- | --- | --- | --- | --- |
+| Albert Park | 5.278 | 14 | CW | Flat (lakeside park) | Semi-street | Fast average, low downforce |
+| Shanghai | 5.451 | 16 | CW | 12 m T1 spiral drop | Permanent | High-energy Turn 1 spiral |
+| Suzuka | 5.807 | 18 | CW | 30–40 m valley/hill | Permanent | Aero balance benchmark |
+| Miami | 5.412 | 19 | CW | Flat (fill land) | Semi-street | 3 straights, override zones |
+| Gilles Villeneuve | 4.361 | 14 | CW | Flat island | Semi-street | Bumpiest venue |
+| Monaco | 3.337 | 19 | CW | 45 m | Street | Slowest, narrowest |
+| Barcelona-Catalunya | 4.657 | 14 | CW | 20 m | Permanent | Aero testing benchmark |
+| Red Bull Ring | 4.318 | 10 | CW | 63 m/lap climb | Permanent | Shortest lap, highest avg speed |
+| Silverstone | 5.891 | 18 | CW | 20 m | Permanent | Maggotts–Becketts aero test |
+| Spa | 7.004 | 19 | CW | 100 m | Semi-permanent | Longest lap, Eau Rouge |
+| Hungaroring | 4.381 | 14 | CW | 36 m bowl | Permanent | Slow, twisty, hot |
+| Zandvoort | 4.259 | 14 | CW | Dune profile | Permanent | 32% max banking |
+| Monza | 5.793 | 11 | CW | Flat park | Permanent | Highest top speed |
+| Madring | 5.416 | 22 | CW | Plateau, T7–9 drop | Semi-street (NEW) | Most corners 2026; covered paddock |
+| Baku | 6.003 | 20 | ACW | Flat (sea level) | Street | Longest straight 2.1 km |
+| Sepang (Rd16) | 5.543 | 15 | CW | 20–25 m rolling | Permanent | Hottest, most humid |
+| Marina Bay | 4.940 | 19 | ACW | Flat (reclaimed) | Street | Night, thermal grind |
+| COTA | 5.513 | 20 | ACW | 30–40 m rolling | Permanent | 41 m blind uphill T1 |
+| Hnos. Rodríguez | 4.304 | 17 | CW | Flat @ 2,200 m alt | Permanent | Thinnest air |
+| Interlagos | 4.309 | 15 | ACW | 40 m oscillation | Permanent | Anticlockwise, rain-prone |
+| Las Vegas | 6.201 | 17 | ACW | Flat (basin) | Street | Coldest, 1.92 km straight |
+| Lusail | 5.419 | 16 | CW | Flat desert | Permanent | Night, sand, Sprint |
+| Yas Marina | 5.281 | 16 | ACW | Flat island | Permanent | Dusk-to-night finale | _(circuit, length, turns)_
+- Formula1.com — Official 2026 race calendar page (rounds, dates, titles, results): fetched 2026-08-28.
+Wikipedia — 2026 FIA Formula One World Championship (season article; standings venue codes; circuit status navbox listing Sakhir/Jeddah/Algarve/Istanbul as "Returning 2027" and Sepang/Madring as current): fetched 2026-08-28.
+Wikipedia — Madring (infobox: 5.416 km / 22 turns / 110,000 / FIA Grade 1 / €83.2M / Jarno Zaffelli; raw sections: History, Site, Layout incl. La Monumental 24%-gradient cap via F1.com Roberts 2026 quote of Madring COO Carlos Jiménez, four overtaking zones at T1/5/11/17, two tunnels under an elevated motorway, T7–9 downhill drop, first covered paddock in F1, Line 8 Metro access, expansion to 140,000): fetched 2026-08-28.
+Returning-circuit data: FIA Grade-1 era circuit specifications, official circuit websites and encyclopedic references as commonly published (lengths, turn counts, capacities, corner names, climate normals). Where operational figures vary year-to-year (capacities, attendance), the widely cited figure is used and flagged as such. _(formulacom, official, calendar)_
+- **Complete UI Overhaul across All 4 Workspaces**: _(complete, overhaul, across)_
+- Eliminate all mashed text, overlapping numbers, and cramped layouts. _(eliminate, mashed, overlapping)_
+- **Color Tokens**: _(color, tokens)_
+- **Typography & Structural Layout**: _(typography, structural, layout)_
+- Official F1 TV timing leaderboard style: Position (P1–P20), team color bar, driver code (`NOR`, `VER`, `LEC`), tire badge (`S`, `M`, `H`, `I`, `W`) + stint age, gap to leader, and interval. _(official, timing, leaderboard)_
+- **4-Corner Thermal Tire Matrix**: 4 distinct corner cards (FL, FR, RL, RR) with Surface Temp (°C), Core Temp (°C), and Wear % with intuitive status colors (❄️ Cold / 🟢 Optimal / 🔥 Overheating). _(corner, thermal, matrix)_
+- **Quick Preset Bar**: `[⚖️ Balanced]`, `[🏎️ High Downforce]`, `[⚡ Low Drag / Monza]`, `[🌧️ Wet Setup]`. _(quick, preset, balanced)_
+- **Accurate Real-World Circuit Layouts**: Import exact GPS spline coordinates, track elevation changes, kerb profiles, and run-off areas for Silverstone, Spa-Francorchamps, Monza, and Monaco. _(accurate, realworld, circuit)_
+- Automated quality checks (npm run build, npm run lint, npm run sop:validate). _(automated, quality, checks)_
+- Task Checklist: Itemized list of asked requirements with checkmarks [x]. _(checklist, itemized, asked)_
+- 3 Improvement Ideas: 3 actionable ideas spanning gameplay, graphics, security, profitability, SEO, UI/UX, or automation. _(improvement, ideas, actionable)_
+- All project logs and documentation reside exclusively within the .master/ directory to ensure they are never wiped by Vite build pipelines: _(project, documentation, reside)_
+- Must be updated whenever any bug, visual artifact, build error, or runtime issue is fixed. _(updated, whenever, visual)_
+- | File | Purpose | Status |
+| :--- | :--- | :--- |
+| .github/workflows/deploy.yml | GitHub Actions workflow deploying production bundle to GitHub Pages | Active |
+| package.json | NPM scripts, dependencies (React, Three.js, Lucide) | Active |
+| vite.config.ts | Vite bundler config with /docs output directory | Active |
+| tsconfig.json | TypeScript root configuration | Active |
+| eslint.config.js | ESLint configuration | Active |
+| docs/ | Production build distribution directory for GitHub Pages | Active | _(purpose, status, githubworkflowsdeployyml)_
+- **Rank**: #1 Most Critical Gameplay/UX State Fix _(critical, gameplayux, state)_
+- **Symptoms**: Grandstands, trees, and pit buildings were clipping through the asphalt track and pit lane ribbons; 2D and 3D circuit layouts were generic rounded bezier loops rather than real FIA F1 track layouts. _(symptoms, grandstands, trees)_
+- Track paths in `circuitData.ts` and `RaceScene3D.tsx` used template cubic bezier curves rather than real-world 18-corner Silverstone coordinates (Abbey -> Village -> Loop -> Wellington -> Brooklands -> Luffield -> Copse -> Maggotts/Becketts -> Stowe -> Vale -> Club). _(track, paths, circuitdatats)_
+- Replaced track spline with verified 18-turn Silverstone coordinates and updated all 24 World Championship circuit definitions. _(replaced, track, spline)_
+- **Files Modified**: `src/components/RaceScene3D.tsx`, `src/components/TrackMap.tsx`, `src/data/circuitData.ts` _(files, modified, srccomponentsracescenedtsx)_
+- **Rank**: #2 Most Critical Visual Fix _(critical, visual)_
+- Rebuilt `createRibbon` with consistent quad indexing (`base, base+2, base+1` & `base+1, base+2, base+3`) and explicit up-facing normal vectors `(0, 1, 0)`. _(rebuilt, createribbon, consistent)_
+- **Symptoms**: Vite build (`vite build`) wiped manual documentation folders stored inside `/docs`. _(symptoms, build, build)_
+- **Rank**: #3 Most Critical UI/UX Fix _(critical)_
+- Previous CSS had micro line-heights, compressed grid columns with zero gaps, missing `display: flex` / `display: block` separation, and tiny font sizes (8px–10px) with negative margins. _(previous, micro, lineheights)_
+- **Root Cause**: Lack of dedicated button classes, missing active glow states, and unstyled radio/pace selectors. _(cause, dedicated, button)_
+- **Files Modified**: `src/styles.css`, `src/components/DriverTelemetryPanel.tsx`, `src/views/CarLab.tsx` _(files, modified, srcstylescss)_
+- **Root Cause**: Web Audio API requires lazy initialization upon direct user click gesture, explicit `ctx.resume()` handling, and cleanup of oscillators and noise source nodes on playback abort. _(cause, audio, requires)_
+- Implemented singleton `RadioAudioService` with deferred `AudioContext` acquisition upon user click. _(implemented, singleton, radioaudioservice)_
+- **Root Cause**: Three.js requires explicit disposal of dynamic `CanvasTexture`, custom geometries (`RingGeometry`, `BufferGeometry` for rain points), and custom mesh materials when tearing down scenes or hot-reloading components. _(cause, threejs, requires)_
+- `radioAudioService.ts` picked a random voice (`Math.random() * englishVoices.length`) without filtering out built-in OS novelty/robotic voices (e.g. `Zarvox`, `Trinoids`, `Albert`, `Bad News`, `Fred`, `Boing`, `Cellos`, `Whisper`). _(radioaudioservicets, picked, random)_
+- Implemented strict blacklisting of all novelty, robotic, and alien synthesizer voices across macOS, Windows, Linux, and iOS. _(implemented, strict, blacklisting)_
+- Steering wheel rear paddle shifters and quick-release hub were pitch black / shadowed in 3D viewport. _(steering, wheel, paddle)_
+- Steering wheel buttons were plain solid-color cylinders without real silkscreen labels, making tactile affordance difficult to read. _(steering, wheel, buttons)_
+- `RaceScene3D.tsx` rendered `<div className="race-scene-container" ref={containerRef} />`, but `styles.css` only defined `.race-scene-3d`. Without explicit flex styling and `height: 100%`, `container.clientHeight` initialized to 0, resulting in a 0-height WebGL viewport. _(racescenedtsx, rendered, classnameracescenecontainer)_
+- Button caps lacked high-resolution decal textures, laser-etched font faceplates, and protective double-beveled safety collars. _(button, lacked, highresolution)_
+- Upgraded `F1SteeringWheelModel.ts` with procedural high-resolution canvas decals (`createButtonDecalTexture`, `createPaddleDecalTexture`, `createDialScaleTexture`) featuring laser-etched silkscreen typography (`DRS`, `RAD`, `PL`, `OT`, `SOC`, `N`, `R`, `ACK`, `DRK`, `PASS`, `BB+`, `BB-`, `EB+`, `EB-`, `P+`, `P-`), outer colored bezel rings, concave tactile dish gradients, raised CNC anodized aluminum collars, knurled dial scales, and green `+` / red `−` paddle engravings with titanium magnetic switch cylinders. _(upgraded, fsteeringwheelmodelts, procedural)_
+- **Files Modified**: `src/styles.css`, `src/components/RaceScene3D.tsx`, `src/components/SteeringWheel3D.tsx`, `src/graphics/steering_wheel/F1SteeringWheelModel.ts` _(files, modified, srcstylescss)_
+- `npm run build` failed with TypeScript error TS7053: `Element implicitly has an 'any' type because type 'Record<string, unknown>' has no index signature`. _(build, failed, typescript)_
+- **Rank**: #7 Most Critical 3D Staging & Layout Fix _(critical, staging, layout)_
+- `styles.css` was missing class definitions for `.car-showroom-3d`, `.showroom-3d-canvas`, `.showroom-grid`, `.showroom-title`, `.showroom-help`, and `.showroom-stat`, leaving overlay HUD divs as unstyled block elements. _(stylescss, missing, class)_
+- Added CSS definitions for `.car-showroom-3d` (`position: absolute; inset: 0; width: 100%; height: 100%`) and transformed all floating text into semi-transparent glassmorphic HUD badges (`.showroom-title`, `.showroom-help`, `.showroom-stat`) positioned over the canvas with Barlow and Inter typography. _(added, definitions, carshowroomd)_
+- **Files Modified**: `src/styles.css`, `src/components/CarShowroom3D.tsx` _(files, modified, srcstylescss)_
+- **Symptoms**: `npm run build` failed with TypeScript error TS2322: `Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ size?: number; color?: string; }>'`. _(symptoms, build, failed)_
+- `AppHeader.tsx` defined `navItems` array with an overly restrictive prop type `React.ComponentType<{ size?: number; color?: string }>`. _(appheadertsx, defined, navitems)_
+- **Accurate Real-World GPS Spline Circuits with Elevation**: _(accurate, realworld, spline)_
+- **Godot Engine & Unity Integration**: Explore WebGL/WebAssembly exports or standalone desktop builds for ultra-high-fidelity physics, ray-traced reflections, and cinematic replays. _(godot, engine, unity)_
+- **Accurate Real-World GPS Spline Circuits with Elevation**: _(accurate, realworld, spline)_
+- Real-time weather API integration fetching actual track conditions (air/track temperature, rain radar, wind speed/direction) for Grand Prix circuits. _(realtime, weather, integration)_
+- **2026 Active Aero Wind Tunnel CFD Particle Streamline Visualizer**: _(active, tunnel, particle)_
+- ✅ **Dynamic Aerodynamic Aero-Rake Rig & 3D Kiel Boundary Layer Wake Matrix**: 40-probe Pitot-tube / Kiel probe grid mounted behind front tyres, dynamic wake turbulence calculation ($C_p \approx -0.65$ to $-0.95$), 3D streamline wake particle tracer system, live in-viewport 40-probe pressure matrix HUD overlay, and Article 3.4 part metadata (`F1Car2026Model.ts`, `carPartsData.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`). _(dynamic, aerodynamic, aerorake)_
+- ✅ **Custom Livery Color & Sponsor Decal Studio**: Procedural carbon weave textures (Gloss Twill, Raw Matte, Forged Carbon, Satin), dynamic 1024x512 livery canvas map generator with custom team sponsor decals on sidepods, nose cone, shark fin, and rear wing, 7 preset livery themes, and color pickers seamlessly hot-swapped onto 3D CAD meshes (`F1Car2026Model.ts`, `CarLab.tsx`, `styles.css`). _(custom, livery, color)_
+- ✅ **High-Resolution 4K Studio Snapshot Export Pipeline**: High-res 3840×2160 offscreen render pipeline with aspect-corrected camera, ACESFilmic tone mapping, PCF soft shadows, composite technical watermark footer banner with live telemetry metrics and FIA certification badge, CAD shutter button with audio-visual camera flash, and automated PNG download (`CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`). _(highresolution, studio, snapshot)_
+- ✅ **Camera Viewport Director & Keyboard Shortcuts**: 5 dedicated camera inspection angles (`1: FRONT WING`, `2: COCKPIT`, `3: PU`, `4: DIFFUSER`, `5: ORBIT`) with smooth mathematical lerping and hotkeys (`CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`). _(camera, viewport, director)_
+- ✅ **Interactive 2D Telemetry Lap Trace Scrubber Graph**: Multi-trace Speed, Throttle, and Brake card with real-time synchronized scrubber needle (`CarLab.tsx`, `styles.css`). _(interactive, telemetry, trace)_
+- ✅ **Wind Tunnel Streamline Smoke Inserter**: Multi-nozzle particle streamline generator (380 particles) with selectable wands (`ALL`, `FRONT WING`, `AIRBOX`, `UNDERFLOOR`) modeling upwash and diffuser curl (`CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`). _(tunnel, streamline, smoke)_
+- ✅ **Thermal Infrared Tire & Brake FLIR Camera**: FLIR Ironbow thermal camera view with real-time temperature gradients on tires ($100^\circ\text{C}$ orange), glowing white-hot brake rotors ($>850^\circ\text{C}$), and high-heat exhaust (`F1Car2026Model.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`). _(thermal, infrared, brake)_
+- ✅ **3D Telemetry Synchronized Playback Deck**: Real-time 75-second Grand Prix hot lap simulation loop driving wheel rotation ($\omega = v / r$), aerodynamic suspension squish/dive, active wing flap transitions (Z/X modes), 350kW MGU-K energy flow conduit pulsing, and cockpit HUD overlay (`CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`). _(telemetry, synchronized, playback)_
+- ✅ **CFD Surface Pressure Heatmap Shader & Mode**: Real-time aerodynamic surface pressure distribution rendering (+Cp Stagnation Red -> Neutral Green -> -Cp Suction Purple) with dynamic Straight Mode (X-Mode) load shedding and floating legend (`F1Car2026Model.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`). _(surface, pressure, heatmap)_
+- ✅ **Authentic 18-Corner Silverstone & 24 Grand Prix Circuit Geometries**: Verified FIA turn sequences, accurate 2D SVG paths, and accurate 3D spline ribbons (`circuitData.ts`, `TrackMap.tsx`, `RaceScene3D.tsx`). _(authentic, corner, silverstone)_
+- ✅ **Weather Radar Doppler Precipitation Overlay**: Animated 360° circular Doppler radar sweep, 5–20 KM range rings, multi-cell precipitation heatmaps with official dBZ reflectivity palette, and 3D rain particle storm simulation (`DopplerRadarOverlay.tsx`, `TrackMap.tsx`, `RaceScene3D.tsx`, `CircuitMapPreview.tsx`). _(weather, radar, doppler)_
+- ✅ **Interactive On-Track Car Position Dots (2D Circuit Map)**: Animated glowing car markers for both reference drivers interpolating along SVG track paths using `getPointAtLength()` with real-time lap progress (`CircuitMapPreview.tsx`). _(interactive, ontrack, position)_
+- ✅ **Interactive 2D Circuit Map Previews (All 24 Grand Prix Rounds)**: 2D SVG track geometries with DRS zones, corner tooltips, and circuit specs across all 24 championship rounds (`circuitData.ts`, `CircuitMapPreview.tsx`). _(interactive, circuit, previews)_
 
 ---
-_Last updated: 2026-08-27T14:01:59.707Z_
+_Last updated: 2026-08-28T08:20:04.069Z_

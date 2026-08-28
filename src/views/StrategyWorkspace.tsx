@@ -11,6 +11,7 @@ import type { DriverState, RaceSnapshot, TireCompound, WorkerCommand } from '../
 import { TireBadge } from '../components/TimingTower'
 import { ContextFocusCard } from '../components/ContextFocusCard'
 import { F1TelemetryWaveIcon } from '../components/F1Icons'
+import { TeamLogoBadge } from '../components/TeamGraphics'
 
 interface StrategyWorkspaceProps {
   snapshot: RaceSnapshot
@@ -119,7 +120,7 @@ export function StrategyWorkspace({
           <h1 className="workspace-title">Pit Window &amp; Degradation Strategy</h1>
         </div>
 
-        {/* Managed Driver Switcher */}
+        {/* Managed Driver Switcher with Team Graphics */}
         <div className="driver-selector-deck">
           {managedDrivers.map((driver) => {
             const isSelected = driver.id === selectedDriver.id
@@ -128,11 +129,15 @@ export function StrategyWorkspace({
                 key={driver.id}
                 className={`driver-select-card ${isSelected ? 'active' : ''}`}
                 onClick={() => onSelectDriver(driver.id)}
-                style={{ '--team-color': driver.teamColor } as React.CSSProperties}
+                style={{ '--team-color': driver.teamColor, '--team-secondary': driver.secondaryColor } as React.CSSProperties}
               >
-                <span className="select-num">#{driver.number}</span>
+                <div className="driver-select-angled-stripes" />
+                <div className="select-badge-row">
+                  <span className="select-num">#{driver.number}</span>
+                  <TeamLogoBadge teamCode={driver.teamShort} size={18} glow={false} />
+                </div>
                 <div className="select-meta">
-                  <strong>{driver.code}</strong>
+                  <strong>{driver.code} ({driver.shortName})</strong>
                   <small>P{driver.position} · {driver.tireAge}L on {driver.tire}</small>
                 </div>
                 <TireBadge compound={driver.tire} small />

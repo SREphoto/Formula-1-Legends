@@ -4,6 +4,108 @@ All notable project changes, releases, revisions, and architecture updates are d
 
 ---
 
+## [Build R27 / Authentic 2026 Circuit Geometry, Calendar Sync & Satellite Asset Integration] — 2026-08-28
+
+### 08-28E Added & Overhauled
+
+- **Authentic Circuit Geometries & Rich 2026 Dossier ([src/data/circuitData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts))**:
+  - Completely overhauled `circuitData.ts` based on the verified 2026 Track Design Report (`track_design_report_2026_calendar.md`).
+  - Replaced all copy-pasted placeholder SVG paths with handcrafted, authentic FIA track geometries, DRS activation lines, start/finish line vectors, and interactive corner markers for all 23 official 2026 Championship rounds plus Sakhir pre-season testing.
+  - Added new 2026 tracks: **Madring** (Round 14, circuitKey: 153 — 5.416 km, 22 turns, La Monumental 24% banking, two M-11 tunnels, first covered paddock in F1) and **Sepang** (Round 16, circuitKey: 16 — Bahrain GP in Malaysia).
+  - Added comprehensive metadata fields: `round`, `officialName`, `direction` (`clockwise` | `anticlockwise`), `venueType` (`street` | `semi-street` | `permanent` | `semi-permanent`), `elevationChangeM`, `signatureFeature`, `weatherProfile`, `notes2026`, `mapAssetUrl`, and `aerialAssetUrl`.
+- **23-Round 2026 Calendar Harmonization ([src/services/openf1Service.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts), [src/views/HQDashboard.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/HQDashboard.tsx))**:
+  - Synchronized `DEFAULT_MEETINGS` in `openf1Service.ts` and `FULL_RACE_CALENDAR` in `HQDashboard.tsx` to the authentic 23-round 2026 schedule starting at Melbourne (Albert Park) and culminating at Abu Dhabi (Yas Marina).
+- **Multi-Modal Circuit Visualizer ([src/components/CircuitMapPreview.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Added 3 switchable preview modes: **VECTOR LAYOUT** (interactive SVG with real-time simulated driver dots and corner tooltips), **SATELLITE AERIAL** (high-resolution Earth observation photography from Planet Labs SkySat series), and **FIA TRACK MAP** (homologated circuit drawings).
+  - Added track intel strip detailing key venue features and 2026 active aero/power-unit regulations impact.
+  - Deployed 47MB asset library from `.master/assets/tracks_2026/` to `public/assets/tracks/` for high-speed client delivery.
+- **Verification**:
+  - `npm run build` (0 errors), `npm run lint` (0 errors), `npm run sop:validate` (100% compliant).
+
+---
+
+## [Build R26 / Live Broadcast Delay Sync, GPS Spline Projection & Audio Visualizer] — 2026-08-28
+
+### 08-28D Added & Implemented
+
+- **Broadcast Delay Synchronization Engine & Scrubber UI ([src/components/RaceStatusBar.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceStatusBar.tsx), [src/App.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/App.tsx), [src/services/radioAudioService.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts))**:
+  - Implemented interactive TV Broadcast Delay Scrubber pill in `RaceStatusBar` with quick presets (`LIVE 0s`, `F1 TV 20s`, `SKY / ESPN 35s`, `STREAM 60s`) and custom 0–90s slider popover.
+  - State lifted to `App.tsx` with browser session storage persistence (`f1l-broadcast-delay-sec`) and synced directly to `radioAudioService.setBroadcastDelaySec()`.
+  - Added real-time TV Delay buffer status chip in `LiveTelemetryExplorer` header controls cluster.
+- **Real GPS Coordinate to 3D Track Spline Interpolation Engine ([src/utils/splineProjection.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/utils/splineProjection.ts), [src/services/openf1Service.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts))**:
+  - Created `SplineTrackProjector` mathematical projection engine: equidistant Catmull-Rom arc-length lookup table, binary search segment location, orthogonal projection $(P - A) \cdot (B - A) / |B - A|^2$, lateral offset computation, and FIA track limits compliance checking.
+  - Added `OpenF1LocationSample`, `fetchOpenF1Locations()`, and `generateSyntheticGpsTrace()` in `openf1Service.ts`.
+  - Created new interactive **GPS TRACK PROJECTION** tab in `LiveTelemetryExplorer.tsx` featuring frame scrubbing, real-time Cartesian $(X, Y, Z)$ coordinates, normalized track progress $t \in [0, 1]$, lateral racing line offset delta, and on-track compliance badges for both competing drivers.
+- **Real-Time Fourier Spectrum Audio Visualizer & Enhanced Pit Radio ([src/components/AudioWaveformVisualizer.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AudioWaveformVisualizer.tsx), [src/components/DriverTelemetryPanel.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DriverTelemetryPanel.tsx), [src/views/LiveTelemetryExplorer.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/LiveTelemetryExplorer.tsx))**:
+  - Built `AudioWaveformVisualizer` rendering animated Fourier frequency spectrum bars via Canvas and `AnalyserNode` with team livery color styling and peak-hold caps.
+  - Upgraded `radioAudioService.ts` to route all oscillator, noise, and transmission streams through `AnalyserNode` and `masterGainNode`.
+  - Added role badges (`🎧 RACE ENGINEER`, `🏎️ DRIVER`) and category filter tabs (`ALL COMMS`, `PIT WALL`, `DRIVER`, `BOX / TIRES`) in `DriverTelemetryPanel.tsx`.
+- **Motorsport Styling & Production Build ([src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Added full CSS for `.tv-sync-pill-btn`, `.tv-sync-popover`, `.sync-presets-grid`, `.audio-waveform-container`, `.gps-projection-workspace`, and `.speaker-role-badge`.
+  - Verified `npm run build` (0 errors), `npm run lint` (0 errors), and `npm run sop:validate` (100% compliant).
+
+---
+
+## [Build R26 / 2026 Track Imagery Pipeline & Report Embedding] — 2026-08-28
+
+### 08-28C Added & Verified
+
+- **Track Imagery Asset Library ([.master/assets/tracks_2026/](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/assets/tracks_2026/))**:
+  - **23/23 track maps** downloaded or rendered for every 2026 circuit round (r01–r23), sourced from Wikimedia Commons via infobox `File:` extraction and GeoJSON `Data:*.map` maplink rasterization.
+  - **19/23 circuit aerials** captured — 14 from the Commons "SkySat" (Planet Labs, CC BY-SA 4.0) 2018 satellite series, plus Melbourne, Suzuka, Montréal, Sepang (earlier pass), Zandvoort (Otto Karikoski CC BY-SA 4.0), Silverstone (geograph CC BY-SA 2.0), COTA (in-flight photo), and Yas Marina. Explicitly marked "no aerial available": Miami, Madring (construction-era only), Las Vegas, Lusail.
+  - **2 venue photos**: Marina Bay pit building (6720×4480, skyline backdrop) and Las Vegas Sphere displaying the F1 driver face over the circuit.
+  - Every file magic-byte-validated (`file`) — HTML throttle pages can never masquerade as images in the asset set; Madring search results were manually image-reviewed to reject Jarama/Barajas false matches.
+- **Attribution & Manifest ([.master/assets/tracks_2026/image_manifest.json](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/assets/tracks_2026/image_manifest.json))**:
+  - Per-asset `source_file`, `source_url`, `author`, `license` captured via the Commons `imageinfo` + `extmetadata` API in the same request as the thumbnail URL (one API call per file).
+  - Manifest reconciled against the directory: stale entries removed, SVG-vs-raster extensions corrected (12 rasterized "SVG" files renamed `.png`), duplicates pruned.
+- **Report Embedding ([.master/documents/track_design_report_2026_calendar.md](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/track_design_report_2026_calendar.md))**:
+  - `*Imagery:*` link line under each of the 23 Round dossiers (relative `../assets/tracks_2026/...` paths; all 82 links verified to resolve).
+  - New **§6 Imagery Index** table: per-round map/aerial links plus Commons attribution (source file, author, license).
+- **Scripts (paced download pipeline)**: `fetch_track_images_final.py` (imageinfo-driven gap-fill: 25 s pacing, 429/5xx backoff, magic-byte validation, manifest attribution), `fetch_track_images_retry.py` (targeted alternate-query retry), `embed_track_imagery.py` (idempotent report embedding). Supersedes `fetch_track_images.py` / `fetch_track_images_v2.py` / `fetch_track_images_fixup.py`.
+- Validation: `npm run sop:validate` — all SOP documents & logs 100% compliant.
+
+---
+
+## [Build R25 / Live F1 Telemetry, Team Radio & Race Data Streaming Architecture] — 2026-08-28
+
+### 08-28B Added & Researched
+
+- **Live F1 Telemetry, Team Radio & Race Data Streaming Blueprint ([.master/documents/live_f1_telemetry_radio_streaming_architecture.md](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/live_f1_telemetry_radio_streaming_architecture.md))**:
+  - Researched all public and official Formula 1 live data infrastructure, endpoints, protocols, and stream formats for live in-browser consumption.
+  - Deep-dive on **OpenF1 API** (`api.openf1.org/v1/`): REST, WebSocket, and MQTT streams covering 11+ core endpoints: `/car_data` (3.7 Hz speed, RPM, throttle, brake, gear, DRS), `/location` (3.7 Hz X,Y,Z GPS coordinates), `/team_radio` (live MP3 audio URLs + transcripts), `/intervals` (gap to leader and car ahead), `/laps` (mini-sectors, sector times, speed traps), `/position` (running order), `/race_control` (flags, SC/VSC status, steward notices), `/stints` (tire compound, stint length, tyre age), `/pit` (pit stop durations), `/weather` (track/air temps, rain radar), and `/sessions`/`/meetings`/`/drivers`.
+  - Deep-dive on **Official F1 Live Timing SignalR Hub** (`livetiming.formula1.com/signalr` or `/signalrcore`): Hub subscriptions (`CarData.z`, `Position.z`, `TeamRadio`, `TimingData`, `TrackStatus`, `WeatherData`), Base64 binary decoding, and raw DEFLATE streaming decompression via native Web Streams `DecompressionStream('deflate-raw')`.
+  - Mapped complete live feature matrix for Formula 1 Legends: 3D car GPS path tracking in `RaceScene3D.tsx`, dual-mode audio engine combining real MP3 audio files with Web Audio VHF DSP and natural neural voice fallback in `radioAudioService.ts`, live steering wheel shift LED and OLED sync in `SteeringWheelLab.tsx`, live weather radar integration, and TV broadcast synchronization delay engine (0–90s buffer).
+
+---
+
+## [Build R25 / 2026 F1 Car Design Research for Blender] — 2026-08-28
+
+### 08-28B Added & Documented
+
+- **2026 Car Design Research ([.master/documents/f1_2026_car_design_research.md](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/f1_2026_car_design_research.md))**:
+  - Compiled what is actually public for 2026 F1 cars: no team CAD/STEP; closest sources are the FIA Technical Regulations envelopes, Mercedes W17 published box (5505 × 1900 × 950 mm, 3400 mm wheelbase, 772 kg), Ferrari SF-26 official PU/ERS sheet, and McLaren’s 2026 aero explainer.
+  - Locked modeling facts: Venturi tunnels removed, beam wing deleted, active front+rear (Corner/Straight modes), DRS replaced by Overtake Mode, 18" rims retained, tyres 280 mm F / 375 mm R, real min mass 770–772 kg vs 768 kg target.
+  - Documented the 11-car 2026 grid (W17, SF-26, MCL40, RB22, VCARB 03, AMR26, A526, FW48, VF-26, R26, MAC-26) and called out pull-rod front on RB22 vs push-rod F+R on Mercedes/Ferrari.
+  - Flagged that `src/graphics/f1_2026/` still describes 2022-style Venturi floors; Blender GLB should become the new source of truth.
+- **Blender photo board ([.master/documents/references/f1_2026_car/](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/references/f1_2026_car/))**:
+  - Six Wikimedia Commons Austria 2026 stills (W17, SF-26, RB22, MCL40, Audi R26, Cadillac MAC-26), resized 1920×960 (~270–320 KB each) for image-plane reference.
+
+---
+
+## [Build R24 / 2026 Calendar Track Design Research Dossier] — 2026-08-28
+
+### 08-28A Added & Documented
+
+- **2026 Track Design Report ([.master/documents/track_design_report_2026_calendar.md](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/track_design_report_2026_calendar.md))**:
+  - Compiled a ~52 KB research dossier covering all **23 circuits** on the verified 2026 FIA F1 calendar, sourced via live web research (Formula1.com official calendar, Wikipedia 2026 season article, Wikipedia Madring article with raw Layout/Site sections).
+  - Per-circuit dossiers: identity/grading, track layout & corner design, pit complexes & buildings, grandstands & seating capacities, terrain & surroundings, and climate/weather profiles.
+  - **Verified calendar anomalies captured**: 23-round season; new **Madring (Madrid)** as Round 14 (5.416 km / 22 turns / Studio Dromo–Jarno Zaffelli / €83.2M build / La Monumental banked corner capped at 24% gradient / two tunnels under an elevated motorway / first fully covered paddock in F1 / 110,000→140,000 capacity plan); **Round 16 "Gulf Air Bahrain Grand Prix in Malaysia"** staged at Sepang (Sakhir & Jeddah listed as returning 2027); Barcelona-Catalunya retained alongside Madrid.
+  - Added comparative technical summary table (length/turns/direction/elevation/venue type) and a 2026-regulations design-impact analysis (active aero X-Mode/Z-Mode, MGU-K override deployment).
+
+---
+
+---
+
 ## [Build R23 / Bespoke F1 Motorsport Icons, 3D Parallax Auth Gateway & Context+Focus Cards] — 2026-08-27
 
 ### 08-27S Added & Enhanced
@@ -14,7 +116,7 @@ All notable project changes, releases, revisions, and architecture updates are d
 - **3D Parallax Paddock & Telemetry Auth Gateway ([src/components/ParallaxAuthScreen.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ParallaxAuthScreen.tsx), [src/App.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/App.tsx), [src/components/AppHeader.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
   - Built an immersive multi-layer 3D parallax access portal featuring real-time mouse/cursor tracking, speed streak light beams, and ambient Silverstone/Monza topography gridlines.
   - Engineered an interactive 3D FIA Superlicense & Paddock Pass card with procedural gold smart chip, foil shimmer reflection, and 3D perspective tilt (`rotateX/rotateY`).
-  - Added 10-team constructor credential selector with live theme color reactivity, 4-tier operational role switcher (*Lead Race Strategist, Chief Aerodynamicist, Telemetry Systems Engineer, FIA Technical Delegate*), callsign name input, and simulated biometric fingerprint/FIA chip scan animation with audio feedback.
+  - Added 10-team constructor credential selector with live theme color reactivity, 4-tier operational role switcher (_Lead Race Strategist, Chief Aerodynamicist, Telemetry Systems Engineer, FIA Technical Delegate_), callsign name input, and simulated biometric fingerprint/FIA chip scan animation with audio feedback.
   - Added interactive header credential badge allowing instant session switching and re-opening of the credential portal on demand.
 - **Compact Context + Focus Card Architecture ([src/components/ContextFocusCard.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ContextFocusCard.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/views/StrategyWorkspace.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/StrategyWorkspace.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
   - Implemented reusable `ContextFocusCard` component supporting compact KPI summary strips by default, smooth accordion expansion, and full-screen holographic deep-dive modal inspection.

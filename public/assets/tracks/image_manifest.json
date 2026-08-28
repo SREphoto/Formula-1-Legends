@@ -1,0 +1,294 @@
+[
+  {
+    "slug": "r01_melbourne",
+    "article": "Albert_Park_Circuit",
+    "map_file": "File:Albert Lake Park Street Circuit in Melbourne, Australia.svg",
+    "map_local": "r01_melbourne_trackmap.png"
+  },
+  {
+    "slug": "r02_shanghai",
+    "article": "Shanghai_International_Circuit",
+    "map_file": "File:Shanghai International Circuit moto map.svg",
+    "map_local": "r02_shanghai_trackmap.png",
+    "aerial_local": "r02_shanghai_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Shanghai International Circuit, April 7, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Shanghai_International_Circuit%2C_April_7%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 960
+    }
+  },
+  {
+    "slug": "r03_suzuka",
+    "article": "Suzuka_International_Racing_Course"
+  },
+  {
+    "slug": "r04_miami",
+    "article": "Miami_International_Autodrome",
+    "map_file": "File:Hard Rock Stadium Circuit 2022.svg",
+    "map_local": "r04_miami_trackmap.png",
+    "aerial_note": "no freely-licensed circuit aerial identified on Commons (generic-geo matches reviewed and rejected) as of 2026-08-28"
+  },
+  {
+    "slug": "r05_montreal",
+    "article": "Circuit_Gilles_Villeneuve",
+    "map_file": "File:Gilles Villeneuve Circuit Montreal (94-95).svg",
+    "map_local": "r05_montreal_trackmap.png"
+  },
+  {
+    "slug": "r06_monaco",
+    "article": "Circuit_de_Monaco",
+    "map_file": "File:Monte Carlo Formula 1 track map.svg",
+    "map_local": "r06_monaco_trackmap.png",
+    "aerial_local": "r06_monaco_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Circuit de Monaco, April 1, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Circuit_de_Monaco%2C_April_1%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 1281
+    }
+  },
+  {
+    "slug": "r07_catalunya",
+    "article": "Circuit_de_Barcelona-Catalunya",
+    "map_file": "File:Formula1 Circuit Catalunya 2021.svg",
+    "map_local": "r07_catalunya_trackmap.png",
+    "aerial_local": "r07_catalunya_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Circuit de Barcelona-Catalunya, April 19, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Circuit_de_Barcelona-Catalunya%2C_April_19%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 960
+    }
+  },
+  {
+    "slug": "r08_redbullring",
+    "article": "Red_Bull_Ring",
+    "map_file": "File:Circuit A1 Ring.svg",
+    "map_local": "r08_redbullring_trackmap.png",
+    "aerial_local": "r08_redbullring_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Red Bull Ring, April 18, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Red_Bull_Ring%2C_April_18%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 960
+    }
+  },
+  {
+    "slug": "r09_silverstone",
+    "article": "Silverstone_Circuit",
+    "map_file": "File:Silverstone Circuit 2020.png",
+    "map_local": "r09_silverstone_trackmap.png",
+    "aerial_local": "r09_silverstone_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Silverstone Circuit, with Silverstone village behind, aerial 2017 - geograph.org.uk - 5436774.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Silverstone_Circuit%2C_with_Silverstone_village_behind%2C_aerial_2017_-_geograph.org.uk_-_5436774.jpg",
+      "author": "Chris",
+      "license": "CC BY-SA 2.0",
+      "width": 1280,
+      "height": 750
+    }
+  },
+  {
+    "slug": "r10_spa",
+    "article": "Circuit_de_Spa-Francorchamps",
+    "aerial_local": "r10_spa_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Circuit de Spa-Francorchamps, April 22, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Circuit_de_Spa-Francorchamps%2C_April_22%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 1280
+    }
+  },
+  {
+    "slug": "r11_hungaroring",
+    "article": "Hungaroring",
+    "map_file": "File:Hungaroring_circuit_1989-2002.svg",
+    "map_local": "r11_hungaroring_trackmap.png",
+    "aerial_local": "r11_hungaroring_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Hungaroring, April 28, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Hungaroring%2C_April_28%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 1279
+    }
+  },
+  {
+    "slug": "r12_zandvoort",
+    "article": "Circuit_Zandvoort",
+    "map_file": "File:Zandvoort Circuit.png",
+    "map_local": "r12_zandvoort_trackmap.png"
+  },
+  {
+    "slug": "r13_monza",
+    "article": "Autodromo_Nazionale_Monza",
+    "map_local": "r13_monza_trackmap.png",
+    "map_attribution": {
+      "source_file": "File:Monza track map.svg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Monza_track_map.svg",
+      "author": "Will Pittenger",
+      "license": "CC BY-SA 3.0",
+      "width": 1280,
+      "height": 654
+    },
+    "aerial_local": "r13_monza_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Autodromo Nazionale Monza, April 22, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Autodromo_Nazionale_Monza%2C_April_22%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 1280
+    }
+  },
+  {
+    "slug": "r14_madring",
+    "article": "Madring",
+    "aerial_note": "no freely-licensed circuit aerial identified on Commons (generic-geo matches reviewed and rejected) as of 2026-08-28"
+  },
+  {
+    "slug": "r15_baku",
+    "article": "Baku_City_Circuit",
+    "map_local": "r15_baku_trackmap.png",
+    "map_attribution": {
+      "source_file": "File:Baku Formula One circuit map.svg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Baku_Formula_One_circuit_map.svg",
+      "author": "HumanBodyPiloter5",
+      "license": "CC0",
+      "width": 1280,
+      "height": 949
+    },
+    "aerial_local": "r15_baku_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Baku City Circuit, April 9, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Baku_City_Circuit%2C_April_9%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 720
+    }
+  },
+  {
+    "slug": "r16_sepang",
+    "article": "Sepang_International_Circuit",
+    "map_local": "r16_sepang_trackmap.png",
+    "map_attribution": {
+      "source_file": "File:Sepang.svg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Sepang.svg",
+      "author": "Will Pittenger",
+      "license": "CC BY-SA 3.0",
+      "width": 1280,
+      "height": 1055
+    }
+  },
+  {
+    "slug": "r17_marinabay",
+    "article": "Marina_Bay_Street_Circuit",
+    "map_file": "File:Singapore street circuit v3.svg",
+    "map_local": "r17_marinabay_trackmap.png",
+    "aerial_local": "r17_marinabay_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Marina Bay Street Circuit, May 8, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Marina_Bay_Street_Circuit%2C_May_8%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 960
+    }
+  },
+  {
+    "slug": "r18_cota",
+    "article": "Circuit_of_the_Americas",
+    "map_file": "File:COTA NASCAR Layout.png",
+    "map_local": "r18_cota_trackmap.png",
+    "aerial_local": "r18_cota_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Circuit of the Americas aerial view from WN4430.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Circuit_of_the_Americas_aerial_view_from_WN4430.jpg",
+      "author": "Spheroidite",
+      "license": "CC0",
+      "width": 1280,
+      "height": 960
+    }
+  },
+  {
+    "slug": "r19_mexico",
+    "article": "Autódromo_Hermanos_Rodríguez",
+    "map_file": "File:Mexico City Champ Car Layout 2006.png",
+    "map_local": "r19_mexico_trackmap.png",
+    "aerial_local": "r19_mexico_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Autódromo Hermanos Rodríguez, June 4, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Aut%C3%B3dromo_Hermanos_Rodr%C3%ADguez%2C_June_4%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 960
+    }
+  },
+  {
+    "slug": "r20_interlagos",
+    "article": "Autódromo_José_Carlos_Pace",
+    "aerial_local": "r20_interlagos_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Autódromo José Carlos Pace, July 3, 2018 SkySat.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Aut%C3%B3dromo_Jos%C3%A9_Carlos_Pace%2C_July_3%2C_2018_SkySat.jpg",
+      "author": "Planet Labs, Inc.",
+      "license": "CC BY-SA 4.0",
+      "width": 1280,
+      "height": 1280
+    },
+    "map_local": "r20_interlagos_trackmap.png",
+    "map_attribution": {
+      "source_file": "File:Autódromo José Carlos Pace (AKA Interlagos) track map.svg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Aut%C3%B3dromo_Jos%C3%A9_Carlos_Pace_%28AKA_Interlagos%29_track_map.svg",
+      "author": "Will Pittenger",
+      "license": "CC BY-SA 3.0",
+      "width": 1280,
+      "height": 838
+    }
+  },
+  {
+    "slug": "r21_vegas",
+    "article": "Las_Vegas_Strip_Circuit",
+    "map_file": "File:2023 Las Vegas street circuit.svg",
+    "map_local": "r21_vegas_trackmap.png",
+    "venue_local": "r21_vegas_sphere.jpg",
+    "venue_note": "ground-level circuit photo at the Sphere (2024 LVGP), not an aerial",
+    "aerial_note": "no freely-licensed aerial of Las Vegas Strip Circuit identified on Commons as of 2026-08-28; venue photo kept instead"
+  },
+  {
+    "slug": "r22_lusail",
+    "article": "Lusail_International_Circuit",
+    "map_file": "File:Lusail International Circuit 2023.svg",
+    "map_local": "r22_lusail_trackmap.png",
+    "aerial_note": "no freely-licensed circuit aerial identified on Commons (generic-geo matches reviewed and rejected) as of 2026-08-28"
+  },
+  {
+    "slug": "r23_yasmarina",
+    "article": "Yas_Marina_Circuit",
+    "map_file": "File:Circuit Yas-Island.svg",
+    "map_local": "r23_yasmarina_trackmap.png",
+    "aerial_local": "r23_yasmarina_aerial.jpg",
+    "aerial_attribution": {
+      "source_file": "File:Yas Marina Circuit + Ferrari World -Abu Dhabi.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Yas_Marina_Circuit_%2B_Ferrari_World_-Abu_Dhabi.jpg",
+      "author": "Dapaan",
+      "license": "CC BY-SA 3.0",
+      "width": 1280,
+      "height": 1849
+    }
+  }
+]

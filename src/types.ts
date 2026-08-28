@@ -80,6 +80,7 @@ export type WorkerCommand =
   | { type: 'DRIVER_COMMAND'; driverId: string; paceMode?: PaceMode; ersMode?: ErsMode }
   | { type: 'PIT_COMMAND'; driverId: string; compound: TireCompound; cancel?: boolean }
   | { type: 'WEATHER'; rainfall: number }
+  | { type: 'SET_MANAGED_TEAM'; teamShort: string }
 
 export interface SetupState {
   frontWing: number

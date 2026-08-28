@@ -2,6 +2,7 @@ import { ChevronDown, ChevronLeft, Minimize2, Radio } from 'lucide-react'
 import { useState } from 'react'
 import type { DriverState } from '../types'
 import { formatGap } from '../utils/format'
+import { TeamLogoBadge } from './TeamGraphics'
 
 interface TimingTowerProps {
   drivers: DriverState[]
@@ -149,10 +150,14 @@ export function TimingTower({
               key={driver.id}
               className={`driver-row ${selected ? 'selected' : ''} ${driver.isManaged ? 'managed' : ''}`}
               onClick={() => onSelectDriver(driver.id)}
-              style={{ '--team-color': driver.teamColor } as React.CSSProperties}
+              style={{ '--team-color': driver.teamColor, '--team-secondary': driver.secondaryColor } as React.CSSProperties}
             >
+              <div className="driver-row-angled-stripes" />
               <span className="driver-position">{driver.position}</span>
               <span className="driver-accent" />
+              <div className="tower-team-logo">
+                <TeamLogoBadge teamCode={driver.teamShort} size={15} glow={false} />
+              </div>
               <span className="driver-identity">
                 <span className="driver-code-line">
                   <b>{driver.code}</b>

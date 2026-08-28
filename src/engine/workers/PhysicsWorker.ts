@@ -262,7 +262,20 @@ workerScope.onmessage = (event: MessageEvent<WorkerCommand>) => {
     return
   }
 
-  if (command.type === 'WEATHER') rainfall = Math.max(0, Math.min(100, command.rainfall))
+  if (command.type === 'WEATHER') {
+    rainfall = Math.max(0, Math.min(100, command.rainfall))
+    return
+  }
+
+  if (command.type === 'SET_MANAGED_TEAM') {
+    const code = command.teamShort.toUpperCase()
+    drivers = drivers.map((driver) => ({
+      ...driver,
+      isManaged: driver.teamShort.toUpperCase() === code || (code === 'RB' && driver.teamShort.toUpperCase() === 'VCARB') || (code === 'HAA' && driver.teamShort.toUpperCase() === 'HAS') || (code === 'AMR' && driver.teamShort.toUpperCase() === 'AST')
+    }))
+    workerScope.postMessage(snapshot())
+    return
+  }
 }
 
 setInterval(simulationTick, TICK_SECONDS * 1000)

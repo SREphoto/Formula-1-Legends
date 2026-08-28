@@ -86,6 +86,8 @@ const NATURAL_VOICE_KEYWORDS = [
 
 export class RadioAudioService {
   private audioCtx: AudioContext | null = null
+  private masterGainNode: GainNode | null = null
+  private analyserNode: AnalyserNode | null = null
   private noiseGainNode: GainNode | null = null
   private noiseSourceNode: AudioBufferSourceNode | null = null
   private isCurrentlyPlaying = false
@@ -95,6 +97,7 @@ export class RadioAudioService {
   private radioMode: RadioAudioMode = 'authentic'
   private masterVolume = 0.8
   private squelchStaticVolume = 0.025
+  private broadcastDelaySec = 0
   private cachedVoices: SpeechSynthesisVoice[] = []
   private voicesLoaded = false
 
@@ -135,7 +138,39 @@ export class RadioAudioService {
     if (this.audioCtx.state === 'suspended') {
       this.audioCtx.resume()
     }
+    if (!this.masterGainNode && this.audioCtx) {
+      this.masterGainNode = this.audioCtx.createGain()
+      this.masterGainNode.gain.setValueAtTime(this.masterVolume, this.audioCtx.currentTime)
+      this.analyserNode = this.audioCtx.createAnalyser()
+      this.analyserNode.fftSize = 64
+      this.analyserNode.smoothingTimeConstant = 0.82
+
+      this.masterGainNode.connect(this.analyserNode)
+      this.analyserNode.connect(this.audioCtx.destination)
+    }
     return this.audioCtx
+  }
+
+  private getMasterDestination(ctx: AudioContext): AudioNode {
+    this.getAudioContext()
+    return this.masterGainNode || ctx.destination
+  }
+
+  public getFrequencyData(targetArray: Uint8Array): void {
+    if (this.analyserNode && this.isCurrentlyPlaying) {
+      this.analyserNode.getByteFrequencyData(targetArray as unknown as Uint8Array<ArrayBuffer>)
+    } else {
+      targetArray.fill(0)
+    }
+  }
+
+  public getAudioLevel(): number {
+    if (!this.analyserNode || !this.isCurrentlyPlaying) return 0
+    const buffer = new Uint8Array(32)
+    this.analyserNode.getByteFrequencyData(buffer)
+    let sum = 0
+    for (let i = 0; i < buffer.length; i++) sum += buffer[i]
+    return sum / (buffer.length * 255)
   }
 
   public subscribe(listener: (isPlaying: boolean, id: string | null) => void): () => void {
@@ -159,10 +194,21 @@ export class RadioAudioService {
 
   public setMasterVolume(vol: number) {
     this.masterVolume = Math.max(0, Math.min(1, vol))
+    if (this.audioCtx && this.masterGainNode) {
+      this.masterGainNode.gain.setValueAtTime(this.masterVolume, this.audioCtx.currentTime)
+    }
   }
 
   public setSquelchStaticVolume(vol: number) {
     this.squelchStaticVolume = Math.max(0, Math.min(0.2, vol))
+  }
+
+  public setBroadcastDelaySec(sec: number) {
+    this.broadcastDelaySec = Math.max(0, Math.min(90, sec))
+  }
+
+  public getBroadcastDelaySec(): number {
+    return this.broadcastDelaySec
   }
 
   /**
@@ -368,7 +414,7 @@ export class RadioAudioService {
     osc1.connect(filter)
     osc2.connect(filter)
     filter.connect(gainNode)
-    gainNode.connect(ctx.destination)
+    gainNode.connect(this.getMasterDestination(ctx))
 
     osc1.start(startTime)
     osc1.stop(startTime + toneDuration)
@@ -401,7 +447,7 @@ export class RadioAudioService {
 
     osc.connect(filter)
     filter.connect(gain)
-    gain.connect(ctx.destination)
+    gain.connect(this.getMasterDestination(ctx))
 
     osc.start(startTime)
     osc.stop(startTime + 0.02)
@@ -437,7 +483,7 @@ export class RadioAudioService {
 
     noise.connect(filter)
     filter.connect(gain)
-    gain.connect(ctx.destination)
+    gain.connect(this.getMasterDestination(ctx))
 
     noise.start(startTime)
     noise.stop(startTime + duration)
@@ -480,7 +526,7 @@ export class RadioAudioService {
 
     noiseSource.connect(bandpass)
     bandpass.connect(gainNode)
-    gainNode.connect(ctx.destination)
+    gainNode.connect(this.getMasterDestination(ctx))
 
     noiseSource.start(startTime)
 

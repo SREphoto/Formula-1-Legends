@@ -21,9 +21,12 @@ import { useState } from 'react'
 import { TEAM_STANDINGS } from '../data/drivers'
 import { PaddockNewsWidget } from '../components/PaddockNewsWidget'
 import { CircuitMapPreview } from '../components/CircuitMapPreview'
+import { TeamBanner, getTeamMeta } from '../components/TeamGraphics'
+import type { PaddockCredentials } from '../components/ParallaxAuthScreen'
 
 interface HQDashboardProps {
   onNotify: (title: string, message: string, tone?: 'success' | 'warning') => void
+  credentials?: PaddockCredentials | null
 }
 
 const RND_PROJECTS_INITIAL = [
@@ -78,33 +81,32 @@ const RND_PROJECTS_INITIAL = [
 ]
 
 const FULL_RACE_CALENDAR = [
-  { round: 1, circuitKey: 63, flag: 'BHR', race: 'Bahrain Grand Prix', track: 'Sakhir', date: 'COMPLETED', state: 'past' },
-  { round: 2, circuitKey: 149, flag: 'SAU', race: 'Saudi Arabian Grand Prix', track: 'Jeddah', date: 'COMPLETED', state: 'past' },
-  { round: 3, circuitKey: 1, flag: 'AUS', race: 'Australian Grand Prix', track: 'Albert Park', date: 'COMPLETED', state: 'past' },
-  { round: 4, circuitKey: 46, flag: 'JPN', race: 'Japanese Grand Prix', track: 'Suzuka', date: 'COMPLETED', state: 'past' },
-  { round: 5, circuitKey: 11, flag: 'CHN', race: 'Chinese Grand Prix', track: 'Shanghai', date: 'COMPLETED', state: 'past' },
-  { round: 6, circuitKey: 151, flag: 'USA', race: 'Miami Grand Prix', track: 'Miami', date: 'COMPLETED', state: 'past' },
-  { round: 7, circuitKey: 6, flag: 'ITA', race: 'Emilia Romagna Grand Prix', track: 'Imola', date: 'COMPLETED', state: 'past' },
-  { round: 8, circuitKey: 22, flag: 'MON', race: 'Monaco Grand Prix', track: 'Monte Carlo', date: 'COMPLETED', state: 'past' },
-  { round: 9, circuitKey: 23, flag: 'CAN', race: 'Canadian Grand Prix', track: 'Montreal', date: 'COMPLETED', state: 'past' },
-  { round: 10, circuitKey: 15, flag: 'ESP', race: 'Spanish Grand Prix', track: 'Barcelona', date: 'COMPLETED', state: 'past' },
-  { round: 11, circuitKey: 19, flag: 'AUT', race: 'Austrian Grand Prix', track: 'Red Bull Ring', date: 'COMPLETED', state: 'past' },
-  { round: 12, circuitKey: 2, flag: 'GBR', race: 'British Grand Prix', track: 'Silverstone', date: 'LIVE ROUND', state: 'live' },
-  { round: 13, circuitKey: 4, flag: 'HUN', race: 'Hungarian Grand Prix', track: 'Hungaroring', date: 'NEXT ROUND', state: 'next' },
-  { round: 14, circuitKey: 7, flag: 'BEL', race: 'Belgian Grand Prix', track: 'Spa-Francorchamps', date: 'UPCOMING', state: 'upcoming' },
-  { round: 15, circuitKey: 55, flag: 'NED', race: 'Dutch Grand Prix', track: 'Zandvoort', date: 'UPCOMING', state: 'upcoming' },
-  { round: 16, circuitKey: 39, flag: 'ITA', race: 'Italian Grand Prix', track: 'Monza', date: 'UPCOMING', state: 'upcoming' },
-  { round: 17, circuitKey: 144, flag: 'AZE', race: 'Azerbaijan Grand Prix', track: 'Baku', date: 'UPCOMING', state: 'upcoming' },
-  { round: 18, circuitKey: 61, flag: 'SIN', race: 'Singapore Grand Prix', track: 'Marina Bay', date: 'UPCOMING', state: 'upcoming' },
-  { round: 19, circuitKey: 9, flag: 'USA', race: 'United States Grand Prix', track: 'COTA Austin', date: 'UPCOMING', state: 'upcoming' },
-  { round: 20, circuitKey: 65, flag: 'MEX', race: 'Mexico City Grand Prix', track: 'Hermanos Rodríguez', date: 'UPCOMING', state: 'upcoming' },
-  { round: 21, circuitKey: 14, flag: 'BRA', race: 'São Paulo Grand Prix', track: 'Interlagos', date: 'UPCOMING', state: 'upcoming' },
-  { round: 22, circuitKey: 152, flag: 'USA', race: 'Las Vegas Grand Prix', track: 'Las Vegas Strip', date: 'UPCOMING', state: 'upcoming' },
-  { round: 23, circuitKey: 150, flag: 'QAT', race: 'Qatar Grand Prix', track: 'Lusail', date: 'UPCOMING', state: 'upcoming' },
-  { round: 24, circuitKey: 70, flag: 'UAE', race: 'Abu Dhabi Grand Prix', track: 'Yas Marina', date: 'SEASON FINALE', state: 'upcoming' },
+  { round: 1, circuitKey: 1, flag: 'AUS', race: 'Australian Grand Prix', track: 'Albert Park', date: 'COMPLETED', state: 'past' },
+  { round: 2, circuitKey: 11, flag: 'CHN', race: 'Chinese Grand Prix', track: 'Shanghai', date: 'COMPLETED', state: 'past' },
+  { round: 3, circuitKey: 46, flag: 'JPN', race: 'Japanese Grand Prix', track: 'Suzuka', date: 'COMPLETED', state: 'past' },
+  { round: 4, circuitKey: 151, flag: 'USA', race: 'Miami Grand Prix', track: 'Miami', date: 'COMPLETED', state: 'past' },
+  { round: 5, circuitKey: 23, flag: 'CAN', race: 'Canadian Grand Prix', track: 'Montreal', date: 'COMPLETED', state: 'past' },
+  { round: 6, circuitKey: 22, flag: 'MON', race: 'Monaco Grand Prix', track: 'Monte Carlo', date: 'COMPLETED', state: 'past' },
+  { round: 7, circuitKey: 15, flag: 'ESP', race: 'Gran Premio de Barcelona-Catalunya', track: 'Barcelona', date: 'COMPLETED', state: 'past' },
+  { round: 8, circuitKey: 19, flag: 'AUT', race: 'Austrian Grand Prix', track: 'Red Bull Ring', date: 'COMPLETED', state: 'past' },
+  { round: 9, circuitKey: 2, flag: 'GBR', race: 'British Grand Prix', track: 'Silverstone', date: 'LIVE ROUND', state: 'live' },
+  { round: 10, circuitKey: 7, flag: 'BEL', race: 'Belgian Grand Prix', track: 'Spa-Francorchamps', date: 'NEXT ROUND', state: 'next' },
+  { round: 11, circuitKey: 4, flag: 'HUN', race: 'Hungarian Grand Prix', track: 'Hungaroring', date: 'UPCOMING', state: 'upcoming' },
+  { round: 12, circuitKey: 55, flag: 'NED', race: 'Dutch Grand Prix', track: 'Zandvoort', date: 'UPCOMING', state: 'upcoming' },
+  { round: 13, circuitKey: 39, flag: 'ITA', race: 'Italian Grand Prix', track: 'Monza', date: 'UPCOMING', state: 'upcoming' },
+  { round: 14, circuitKey: 153, flag: 'ESP', race: 'Gran Premio de España (Madring)', track: 'Madrid IFEMA', date: 'NEW VENUE', state: 'upcoming' },
+  { round: 15, circuitKey: 144, flag: 'AZE', race: 'Azerbaijan Grand Prix', track: 'Baku', date: 'UPCOMING', state: 'upcoming' },
+  { round: 16, circuitKey: 16, flag: 'MAS', race: 'Bahrain Grand Prix in Malaysia', track: 'Sepang', date: 'RELOCATED', state: 'upcoming' },
+  { round: 17, circuitKey: 61, flag: 'SIN', race: 'Singapore Grand Prix', track: 'Marina Bay', date: 'UPCOMING', state: 'upcoming' },
+  { round: 18, circuitKey: 9, flag: 'USA', race: 'United States Grand Prix', track: 'COTA Austin', date: 'UPCOMING', state: 'upcoming' },
+  { round: 19, circuitKey: 65, flag: 'MEX', race: 'Mexico City Grand Prix', track: 'Hermanos Rodríguez', date: 'UPCOMING', state: 'upcoming' },
+  { round: 20, circuitKey: 14, flag: 'BRA', race: 'São Paulo Grand Prix', track: 'Interlagos', date: 'UPCOMING', state: 'upcoming' },
+  { round: 21, circuitKey: 152, flag: 'USA', race: 'Las Vegas Grand Prix', track: 'Las Vegas Strip', date: 'UPCOMING', state: 'upcoming' },
+  { round: 22, circuitKey: 150, flag: 'QAT', race: 'Qatar Grand Prix', track: 'Lusail', date: 'UPCOMING', state: 'upcoming' },
+  { round: 23, circuitKey: 70, flag: 'UAE', race: 'Abu Dhabi Grand Prix', track: 'Yas Marina', date: 'SEASON FINALE', state: 'upcoming' },
 ]
 
-export function HQDashboard({ onNotify }: HQDashboardProps) {
+export function HQDashboard({ onNotify, credentials }: HQDashboardProps) {
   const [department, setDepartment] = useState<'aero' | 'chassis' | 'powertrain'>('aero')
   const [atrAllocation, setAtrAllocation] = useState(64)
   const [projects, setProjects] = useState(RND_PROJECTS_INITIAL)
@@ -148,26 +150,17 @@ export function HQDashboard({ onNotify }: HQDashboardProps) {
 
   const filteredProjects = projects.filter((p) => p.dept === department)
 
+  const teamMeta = getTeamMeta(credentials?.teamCode || 'MCL')
+
   return (
     <main className="workspace hq-workspace">
-      {/* Workspace Header */}
-      <div className="workspace-header-bar">
-        <div>
-          <span className="section-eyebrow">McLAREN RACING TECHNOLOGY CENTRE · WOKING, UK</span>
-          <h1 className="workspace-title">Factory Operations &amp; Team Headquarters</h1>
-        </div>
-
-        <div className="board-rating-chip">
-          <div className="board-score-circle">
-            <strong>92%</strong>
-          </div>
-          <div className="board-meta">
-            <small>EXECUTIVE BOARD CONFIDENCE</small>
-            <strong>Exceeding Championship Target</strong>
-            <span className="positive-text"><TrendingUp size={11} /> +6 pts this month</span>
-          </div>
-        </div>
-      </div>
+      {/* Dynamic Team Constructor Hero Banner */}
+      <TeamBanner
+        teamCode={teamMeta.code}
+        title={`${teamMeta.name.toUpperCase()} · FACTORY HQ`}
+        subtitle="R&D FACILITY & CONSTRUCTOR OPERATIONS"
+        className="hq-hero-banner"
+      />
 
       {/* Top 4 KPI Cards */}
       <div className="hq-kpis-grid">

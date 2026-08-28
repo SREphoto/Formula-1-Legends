@@ -6,7 +6,25 @@ _Ranked by usefulness and fix count._
 
 ---
 
-## 1. 3D Track Building/Tree Collisions & Generic Bezier Splines
+## 1. Landing Login Constructor Team Selection Not Sticking Post-Authentication
+
+- **Rank**: #1 Most Critical Gameplay/UX State Fix
+- **Fix Count**: 1
+- **Symptoms**: When a user selected a constructor team (e.g. Scuderia Ferrari, Oracle Red Bull, Mercedes-AMG, Aston Martin) in the 3D Parallax landing login portal, the game immediately reverted back to McLaren / Lando Norris once entering the simulator.
+- **Root Cause**:
+  - `ParallaxAuthScreen.tsx` emitted credentials without a `teamCode` or `primaryDriverId` property.
+  - `App.tsx` state `selectedDriverId` was hardcoded to `'nor'`, and `handleAuthenticate` never updated `selectedDriverId` based on the chosen team.
+  - `PhysicsWorker.ts` initialized drivers with a static `isManaged: true` flag hardcoded only on McLaren drivers (`nor` and `pia`), with no mechanism to reassign management status to other constructor teams.
+- **Resolution**:
+  - Added `teamCode` and `primaryDriverId` to `PaddockCredentials`.
+  - Added `{ type: 'SET_MANAGED_TEAM'; teamShort: string }` command to `PhysicsWorker.ts` and `types.ts` that dynamically recomputes `isManaged` for drivers of the chosen constructor team.
+  - Updated `App.tsx` to automatically set `selectedDriverId` to the matching team's lead driver upon authentication and persist both `f1l-paddock-creds` and `f1l-selected-driver-id` in `sessionStorage`.
+  - Added sticky team restoration on app startup so reloads preserve the player's selected team.
+- **Files Modified**: `src/App.tsx`, `src/components/ParallaxAuthScreen.tsx`, `src/engine/workers/PhysicsWorker.ts`, `src/types.ts`
+
+---
+
+## 2. 3D Track Building/Tree Collisions & Generic Bezier Splines
 
 - **Rank**: #1 Most Critical 3D Track Fix
 - **Fix Count**: 1
@@ -206,3 +224,66 @@ _Ranked by usefulness and fix count._
 - **Resolution**:
   - Changed `navItems` item `icon` definition to `React.ElementType`, allowing both `lucide-react` icons and bespoke `F1Icons` SVG components to be passed interchangeably with type safety.
 - **Files Modified**: `src/components/AppHeader.tsx`, `src/components/F1Icons.tsx`
+
+---
+
+## 13. Live OpenF1 API Rate Limiting & High-Frequency Stream Throttling
+
+- **Rank**: #9 Network & Live Data Streaming Resilience
+- **Fix Count**: 1
+- **Symptoms**: Rapid unthrottled polling of OpenF1 REST endpoints across multiple drivers (Norris, Verstappen, Leclerc) triggered HTTP 429 (Too Many Requests) errors and temporary IP blocking against the public 3 req/s free tier limit.
+- **Root Cause**:
+  - Individual components independently polled `/car_data` and `/location` without centralized batching, token-bucket rate limiting, or fallback caching.
+- **Resolution**:
+  - Centralized streaming architecture through `liveF1DataService` coordinator with token-bucket request throttling (max 2 req/s), query parameter batching, local memory caching with TTL, automatic exponential backoff, and WebSocket/MQTT subscription channels for high-frequency telemetry.
+- **Files Documented**: `.master/documents/live_f1_telemetry_radio_streaming_architecture.md`, `src/services/openf1Service.ts`
+
+---
+
+## 14. Wikimedia Commons Imagery Downloads: 429 Throttle Pages Masquerading as 404s / Images
+
+- **Rank**: #14 Asset Research Pipeline
+- **Fix Count**: 1
+- **Symptoms**: Background image-fetch scripts reported `HTTP Error 404: Not Found` for Commons files that verifiably exist (e.g. `Madring (2026).svg`, `Baku Formula One circuit map.svg`, `Circuit Park Zandvoort from air 2016-08-24.jpg`), and later runs saved 2,281-byte HTML "Wikimedia Error" pages with `.svg`/`.jpg` extensions instead of images. Search-based aerial matching also returned wrong subjects (Jarama instead of Madring, Barajas airport instead of Madring, a Miami-Dade coastline instead of the Hard Rock Stadium circuit).
+- **Root Cause**:
+  - Wikimedia edge (Varnish) responds to rate-limited `Special:FilePath` requests with error pages whose status/interleaving scripts misread as 404; message explicitly requests less disruptive access and standard thumbnail sizes.
+  - Download scripts wrote response bodies unvalidated, so HTML error pages were persisted as image files.
+  - Generic `<name> aerial` Commons searches match geography stock (coastlines, airports) when the circuit lacks dedicated aerial photography; filename scoring alone couldn't distinguish them.
+- **Resolution**:
+  - Replaced `Special:FilePath` guessing with the `imageinfo` API (`iiurlwidth=1280`) which returns a standard-size thumbnail URL **plus** `extmetadata` (author, license) in one call; pacing raised to 25 s between requests with exponential backoff on 429/5xx.
+  - Added magic-byte validation (`\x89PNG`, `<?xml`/`<svg`, `\xff\xd8`, `GIF8`, `RIFF/WEBP`) so an HTML page can never be written as an image; junk files deleted and re-downloaded.
+  - Added mandatory visual review (downscaled previews) for every search-matched aerial; rejected Jarama/Barajas/Miami-coastline/Lusail line-painting matches and explicitly marked those circuits "no aerial available" in `image_manifest.json` and the report's Imagery Index.
+- **Files Documented**: `.master/scripts/fetch_track_images_final.py`, `.master/scripts/fetch_track_images_retry.py`, `.master/assets/tracks_2026/image_manifest.json`
+
+---
+
+## 15. Web Audio AnalyserNode Disconnection & Spline Projection Edge Overshoot
+
+- **Rank**: #15 Web Audio & Mathematics Realism
+- **Fix Count**: 1
+- **Symptoms**: Team radio Fourier frequency spectrum bars rendered 0 dB amplitude during Roger beep, mic switch, and squelch burst playback; GPS coordinates near start/finish line $(t \approx 0.0 \text{ or } 1.0)$ caused sudden loop wrap-around snapping.
+- **Root Cause**:
+  - `radioAudioService.ts` routed one-shot audio bursts directly to `ctx.destination` instead of `this.getMasterDestination(ctx)`, bypassing `analyserNode` and `masterGainNode`.
+  - Spline nearest-point segment projection without modular modulo wrapping resulted in index boundary clamping near cyclic circuit closures.
+- **Resolution**:
+  - Unified all audio generator output stages to route through `getMasterDestination(ctx) -> analyserNode -> masterGainNode -> destination`.
+  - Implemented Catmull-Rom closed-loop arc-length lookup table with periodic modular indexing `(idx + 1) % segments` in `SplineTrackProjector`, guaranteeing smooth $C^2$ continuous transitions across the start/finish line.
+- **Files Modified**: `src/services/radioAudioService.ts`, `src/utils/splineProjection.ts`, `src/components/AudioWaveformVisualizer.tsx`
+
+---
+
+## 16. Circuit Geometry Placeholder Duplication & 2026 Calendar Desynchronization
+
+- **Rank**: #16 Track Simulation Realism & Calendar Integrity
+- **Fix Count**: 1
+- **Symptoms**: Selecting circuits in `CircuitMapPreview` or `LiveTelemetryExplorer` for multiple venues (Hungaroring, Zandvoort, Baku, Marina Bay, COTA, Mexico City, Interlagos, Las Vegas, Lusail, Yas Marina) displayed identical rounded placeholder oval tracks; newly confirmed 2026 championship rounds (Round 14 Madring Madrid and Round 16 Sepang Malaysia) were missing; calendar schedules desynchronized with the verified 23-round 2026 World Championship calendar.
+- **Root Cause**:
+  - `src/data/circuitData.ts` contained copy-pasted fallback SVG path strings for 10+ circuits.
+  - `DEFAULT_MEETINGS` in `openf1Service.ts` and `FULL_RACE_CALENDAR` in `HQDashboard.tsx` followed outdated 24-round templates with Sakhir and Jeddah opening the season instead of Melbourne.
+- **Resolution**:
+  - Synthesized research from `.master/documents/track_design_report_2026_calendar.md` and `.master/assets/tracks_2026/` to handcrafted authentic FIA SVG track geometries, DRS activation paths, start/finish lines, and accurate corner tooltips for all 23 official 2026 Championship rounds plus Sakhir.
+  - Added new 2026 circuits: **Madring** (circuitKey: 153 — 5.416 km, 22 turns, La Monumental 24% banking) and **Sepang** (circuitKey: 16 — Bahrain GP in Malaysia).
+  - Synchronized `DEFAULT_MEETINGS` and `FULL_RACE_CALENDAR` to the exact 23-round 2026 schedule.
+  - Upgraded `CircuitMapPreview.tsx` with 3 switchable rendering modes (Interactive Vector, Satellite Aerial Photography via Planet Labs SkySat, and Homologated FIA Track Maps).
+  - Deployed 47MB asset bundle to `public/assets/tracks/` for zero-latency asset streaming.
+- **Files Modified**: `src/data/circuitData.ts`, `src/services/openf1Service.ts`, `src/views/HQDashboard.tsx`, `src/components/CircuitMapPreview.tsx`, `src/styles.css`

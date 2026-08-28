@@ -1,6 +1,6 @@
 # Repository File Manifest — Formula 1 Project
 
-Last updated: 2026-08-27
+Last updated: 2026-08-28
 
 This manifest tracks the repository directory tree, active source modules, documentation assets, and archives.
 
@@ -18,10 +18,21 @@ This manifest tracks the repository directory tree, active source modules, docum
 | [`.master/IdeasLog.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/IdeasLog.md) | Roadmap for 3D realism, GPS circuits, audio, OpenF1 telemetry | Active |
 | [`.master/FileManifest.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/FileManifest.md) | Complete file directory manifest | Active |
 | [`.master/scripts/validate_sop.js`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/scripts/validate_sop.js) | Automated validation script verifying SOP compliance | Active |
+| [`.master/scripts/fetch_track_images_final.py`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/scripts/fetch_track_images_final.py) | Paced Commons gap-fill downloader (imageinfo+extmetadata, 25s pacing, magic-byte validation, manifest attribution) | Active |
+| [`.master/scripts/fetch_track_images_retry.py`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/scripts/fetch_track_images_retry.py) | Targeted aerial retry with alternate query terms | Active |
+| [`.master/scripts/embed_track_imagery.py`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/scripts/embed_track_imagery.py) | Idempotent report embedding: per-round imagery links + §6 Imagery Index with attribution | Active |
+| [`.master/scripts/fetch_track_images.py`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/scripts/fetch_track_images.py) | v1 Commons image fetcher (superseded by v2/final; hit 429 rate limits) | Superseded |
+| [`.master/scripts/fetch_track_images_v2.py`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/scripts/fetch_track_images_v2.py) | v2 fetcher with GeoJSON maplink→SVG/PNG rasterization (superseded by final) | Superseded |
+| [`.master/scripts/fetch_track_images_fixup.py`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/scripts/fetch_track_images_fixup.py) | Background map/aerial fixup pass (superseded by final; misread throttle 404s) | Superseded |
+| [`.master/assets/tracks_2026/`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/assets/tracks_2026/) | 2026 circuit imagery: 23 track maps, 19 aerials, 2 venue photos, `image_manifest.json` with Commons attribution | Active |
 | [`.master/documents/implementation_plan_2026_overhaul.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/implementation_plan_2026_overhaul.md) | Technical implementation plan for 2026 grid & UI overhaul | Active |
 | [`.master/documents/walkthrough_2026_overhaul.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/walkthrough_2026_overhaul.md) | Walkthrough and verification notes for 2026 UI overhaul | Active |
 | [`.master/documents/implementation_plan_live_telemetry_news.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/implementation_plan_live_telemetry_news.md) | Technical plan for OpenF1 live telemetry & news integration | Active |
 | [`.master/documents/walkthrough_live_telemetry_news.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/walkthrough_live_telemetry_news.md) | Walkthrough for OpenF1 live telemetry & paddock news | Active |
+| [`.master/documents/track_design_report_2026_calendar.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/track_design_report_2026_calendar.md) | Full physical design dossier of all 23 circuits on the 2026 F1 calendar (layouts, pits, seating, buildings, terrain, climate) | Active |
+| [`.master/documents/f1_2026_car_design_research.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/f1_2026_car_design_research.md) | 2026 F1 car design research: regulation envelope, grid chassis, photo board, Blender build order | Active |
+| [`.master/documents/references/f1_2026_car/`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/references/f1_2026_car/) | Six 1920px Wikimedia Austria 2026 car stills (W17, SF-26, RB22, MCL40, R26, MAC-26) | Active |
+| [`.master/documents/live_f1_telemetry_radio_streaming_architecture.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/live_f1_telemetry_radio_streaming_architecture.md) | Live Formula 1 telemetry, team radio & race data streaming architecture blueprint | Active |
 | [`.master/documents/workflow_run.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/workflow_run.md) | End-to-end execution workflow for /run pipeline | Active |
 | [`.agents/skills/run/SKILL.md`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.agents/skills/run/SKILL.md) | Antigravity custom skill for /run command | Active |
 | [`.master/archive/`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/archive/) | Archive storage for superseded plans and previous notes | Active |
@@ -56,6 +67,7 @@ This manifest tracks the repository directory tree, active source modules, docum
 | :--- | :--- | :--- |
 | [`src/components/AppHeader.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx) | Top navigation header with view tabs, 2026 branding, and interactive Paddock credentials trigger | Active |
 | [`src/components/F1Icons.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/F1Icons.tsx) | 14 bespoke vector SVG motorsport icons (Aero, V6 ICE, MGU-K, Tires, Superlicense, Telemetry, Kiel Probes) | Active |
+| [`src/components/TeamGraphics.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TeamGraphics.tsx) | Vector SVG team logos for all 10 constructor teams, TeamBanner with large angled stripes, TeamAngledBackdrop, and metadata | Active |
 | [`src/components/ContextFocusCard.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ContextFocusCard.tsx) | Reusable compact summary vs. expanded focus card architecture with full-screen inspection modal | Active |
 | [`src/components/ParallaxAuthScreen.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ParallaxAuthScreen.tsx) | Multi-layer 3D parallax Paddock/Telemetry Auth portal with 3D tilting Superlicense pass card & biometric scanner | Active |
 | [`src/components/SteeringWheel3D.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/SteeringWheel3D.tsx) | Interactive Three.js 3D steering wheel canvas with raycasting & holographic tooltips | Active |
@@ -65,9 +77,10 @@ This manifest tracks the repository directory tree, active source modules, docum
 | [`src/components/StrategyHorizon.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/StrategyHorizon.tsx) | Predictive race model chart, stint delta comparison, and collapsible drawer | Active |
 | [`src/components/TrackMap.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TrackMap.tsx) | Authentic 18-corner Silverstone Grand Prix map, Doppler radar layer, and 3D viewport | Active |
 | [`src/components/RaceScene3D.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx) | High-performance Three.js 3D race scene with authentic Silverstone spline, start gantry, and collision-free scenery | Active |
-| [`src/components/CircuitMapPreview.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx) | Interactive 2D SVG track layout preview with DRS zones & corner tooltips | Active |
+| [`src/components/CircuitMapPreview.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx) | Multi-modal circuit visualizer supporting Interactive Vector SVG, Planet Labs SkySat Satellite Aerials, FIA Track Maps, and 2026 active aero dossier | Active |
 | [`src/components/DopplerRadarOverlay.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DopplerRadarOverlay.tsx) | Circular Doppler radar sweep, dBZ reflectivity scale & rain heatmap | Active |
 | [`src/components/PaddockNewsWidget.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/PaddockNewsWidget.tsx) | Paddock news feed widget with category filters, bookmarks, and storage | Active |
+| [`src/components/AudioWaveformVisualizer.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AudioWaveformVisualizer.tsx) | Real-time Fourier spectrum frequency visualizer for live team radio audio | Active |
 | [`src/components/CarShowroom3D.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx) | Interactive 3D CAD showroom with Aero-Rake wake tracers, 4K snapshot export, and live HUD | Active |
 | [`src/components/OnboardingOverlay.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/OnboardingOverlay.tsx) | Modal guide explaining race controls, telemetry, and strategy | Active |
 
@@ -75,10 +88,12 @@ This manifest tracks the repository directory tree, active source modules, docum
 
 | File | Purpose | Status |
 | :--- | :--- | :--- |
+| [`src/utils/splineProjection.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/utils/splineProjection.ts) | 3D Catmull-Rom arc-length spline projector, orthogonal GPS projection & lateral racing line offset calculator | Active |
 | [`src/graphics/steering_wheel/steeringWheelData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/steeringWheelData.ts) | Registry of 28+ steering wheel controls, FIA rules, metadata, and sound mappings | Active |
 | [`src/graphics/steering_wheel/F1SteeringWheelModel.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts) | Procedural 3D F1 steering wheel model, dynamic LCD canvas, shift LEDs, and spring animations | Active |
 | [`src/utils/wheelAudioSynthesizer.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/utils/wheelAudioSynthesizer.ts) | Web Audio synthesizer for tactile switch clicks, rotary detents, and paddle shifts | Active |
-| [`src/data/circuitData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts) | 2D SVG track geometry, DRS paths, and turn metadata for all 24 GP rounds | Active |
+| [`src/data/circuitData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/data/circuitData.ts) | Authentic vector SVG geometry, DRS paths, direction, relief, and turn metadata for all 23 official 2026 World Championship rounds + Sakhir testing | Active |
+| [`public/assets/tracks/`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/public/assets/tracks/) | 45-file imagery library (23 track maps, 19 satellite aerials, venue photography, manifest) | Active |
 | [`src/services/soundEngine.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/soundEngine.ts) | Procedural V6 Turbo-Hybrid ICE harmonics, turbo spool, and skid sound engine | Active |
 | [`src/services/radioAudioService.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/radioAudioService.ts) | Neural & Natural Voice Synthesis Engine, driver/engineer personas, PTT Roger beeps, and VHF squelch DSP | Active |
 | [`src/services/openf1Service.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/services/openf1Service.ts) | OpenF1 API client for meetings, drivers, telemetry & authentic team radio | Active |

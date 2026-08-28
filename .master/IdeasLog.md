@@ -2,19 +2,25 @@
 
 This log tracks prospective features, 3D simulation enhancements, realism upgrades, gameplay modes, external data integrations, architectural expansions, and completed ideas.
 
-*This is a living document. Ideas created in Report Cards are continuously added here, and finished items move to the Completed section at the bottom.*
+_This is a living document. Ideas created in Report Cards are continuously added here, and finished items move to the Completed section at the bottom._
 
 ---
 
 ## 1. Advanced 3D Engine Technologies & Asset Creation Pipeline
 
+- **Accurate Real-World GPS Spline Circuits with Elevation**:
+  - Build millimeter-accurate circuit profiles (Silverstone, Spa-Francorchamps, Monza, Monaco, Suzuka) with real elevation changes (Eau Rouge compression, Becketts switchbacks), authentic kerb profiles, grandstands, pit buildings, safety barriers, and paddock architecture.
+  - **2026 Track Design Dossier as 3D Build Spec** (added 2026-08-28): Use [.master/documents/track_design_report_2026_calendar.md](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/track_design_report_2026_calendar.md) as the authoritative reference for modeling all 23 2026-calendar circuits — including the new Madring (La Monumental banked corner at ≤13.5° banking, twin under-motorway tunnels, covered paddock), the relocated Bahrain GP at Sepang, and per-venue climate profiles to drive dynamic weather simulation.
+
 - **Local 3D Tooling & MCP Integration**:
-  - **Blender + Blender MCP Server**: Utilize local Blender instance via Blender MCP to programmatically generate, inspect, modify, and optimize 3D car models, wing components, and export GLTF/GLB binary assets directly into the web engine.
+  - **Blender + Blender MCP Server**: Use local Blender (MCP) to block in the 2026 envelope from the car design research dossier, inspect topology, and export glTF/GLB into the web engine. Photo board is already in `.master/documents/references/f1_2026_car/`.
   - **Godot Engine & Unity Integration**: Explore WebGL/WebAssembly exports or standalone desktop builds for ultra-high-fidelity physics, ray-traced reflections, and cinematic replays.
 - **Deep-Dive 3D Tech Stack Upgrades (Web & Native)**:
   - **Three.js WebGPU Renderer**: Migrate from WebGL to Three.js WebGPU / TSL (Three.js Shading Language) for compute shaders, realistic particle physics (wet tire spray, tire smoke, sparks), and real-time screen-space reflections (SSR).
   - **Photorealistic 3D Car Meshes & PBR Materials**:
-    - Multi-part modular 2026 chassis with authentic floor venturi tunnels, active DRS wing flap animation, rotating wheels, glowing brake rotors, and Pirelli tire sidewall textures.
+    - Multi-part modular **2026-regulation** chassis (flat floor, large diffuser, **no Venturi tunnels**, **no beam wing**), animated Corner/Straight active front+rear flaps, rotating 18" 280/375 mm wheels, glowing brake rotors, Pirelli sidewall textures. Spec: [.master/documents/f1_2026_car_design_research.md](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/.master/documents/f1_2026_car_design_research.md).
+  - **Blender 2026 Car v1 (next)**:
+    - Generic FIA-envelope car in the Mercedes W17 box (5505 × 1900 × 950 mm, 3400 mm wheelbase), glTF export into `public/models/f1_2026/`, then swap `createF1Car2026` off procedural primitives.
   - **Accurate Real-World GPS Spline Circuits with Elevation**:
     - Build millimeter-accurate circuit profiles (Silverstone, Spa-Francorchamps, Monza, Monaco, Suzuka) with real elevation changes (Eau Rouge compression, Becketts switchbacks), authentic kerb profiles, grandstands, pit buildings, safety barriers, and paddock architecture.
   - **Live Weather & Environmental FX**:
@@ -54,6 +60,12 @@ This log tracks prospective features, 3D simulation enhancements, realism upgrad
   - Allow user to customize race engineer and driver voices via Web Speech API accents or ElevenLabs Web Audio audio buffers.
 - **Multiplayer Pit Wall Strategy Challenge**:
   - WebRTC peer-to-peer synchronization allowing 2 players to compete head-to-head as rival team strategists.
+- **Live OpenF1 & SignalR Telemetry Ingestion Engine & Broadcast Sync Buffer** (added 2026-08-28):
+  - Real-time multi-channel telemetry streamer buffering live GP session feeds (`/car_data`, `/location`, `/team_radio`, `/intervals`, `/race_control`) with 0–90s broadcast delay offset slider matching TV feeds.
+- **Dual-Mode Team Radio Web Audio Pipeline with Direct MP3 + Neural Voice Synthesis** (added 2026-08-28):
+  - Synchronized pit wall comms playing real OpenF1 `.mp3` audio clips through VHF bandpass DSP and falling back to zero-latency natural neural voice synthesis.
+- **Live 3D GPS Car Tracking on Ribbon Circuits** (added 2026-08-28):
+  - Translating real OpenF1 `location` GPS coordinates $(X,Y,Z)$ into 3D spline progress in `RaceScene3D.tsx` to animate actual live cars during Formula 1 Grands Prix.
 
 ---
 
@@ -61,9 +73,15 @@ This log tracks prospective features, 3D simulation enhancements, realism upgrad
 
 Completed items are moved here as they are deployed and verified:
 
+- ✅ **Vector SVG Team Logos, Large Angled Movement Stripes & Constructor Persistence Fix**: Designed bespoke vector SVG logos and crests for all 10 official Formula 1 constructor teams (McLaren, Ferrari, Red Bull, Mercedes, Aston Martin, Williams, Alpine, Racing Bulls, Kick Sauber, Haas). Built `TeamBanner`, `TeamLogoBadge`, and `TeamAngledBackdrop` with large angled stripes (`-22deg`) and movement velocity streaks. Fixed constructor team selection persistence across landing login portal, 100 Hz physics simulation worker, session storage, and dashboard views (`TeamGraphics.tsx`, `ParallaxAuthScreen.tsx`, `App.tsx`, `PhysicsWorker.ts`, `types.ts`, `AppHeader.tsx`, `HQDashboard.tsx`, `DriverTelemetryPanel.tsx`, `StrategyWorkspace.tsx`, `TimingTower.tsx`, `styles.css`).
 - ✅ **Bespoke Motorsport Vector Icon Suite, 3D Parallax Paddock Auth Gateway & Context+Focus Cards**: Created 14 custom vector SVG motorsport icons (`F1Icons.tsx`), multi-layer 3D parallax access portal with 3D tilting FIA Superlicense card, 10-team constructor credentials, 4-tier operational role switcher, simulated biometric chip scan with audio, and reusable `ContextFocusCard` component supporting compact KPI summary strips and full-screen holographic deep-dive modal inspection across CarLab and Strategy Workspace (`F1Icons.tsx`, `ParallaxAuthScreen.tsx`, `ContextFocusCard.tsx`, `App.tsx`, `AppHeader.tsx`, `CarLab.tsx`, `StrategyWorkspace.tsx`, `styles.css`).
 - ✅ **3D Car Showroom CAD Viewport Overhaul, HUD Glassmorphism & Staging Polish**: Implemented missing CSS rules for `.car-showroom-3d` and overlay HUD badges, heroic camera framing (36° FOV, close-up orbit), flush carbon inspection pad with CNC titanium bevel rim, CAD coordinate ground grid (`GridHelper`), soft contact shadow plane, and high-contrast monospace typography (`styles.css`, `CarShowroom3D.tsx`).
 - ✅ **Dynamic Aerodynamic Aero-Rake Rig & 3D Kiel Boundary Layer Wake Matrix**: 40-probe Pitot-tube / Kiel probe grid mounted behind front tyres, dynamic wake turbulence calculation ($C_p \approx -0.65$ to $-0.95$), 3D streamline wake particle tracer system, live in-viewport 40-probe pressure matrix HUD overlay, and Article 3.4 part metadata (`F1Car2026Model.ts`, `carPartsData.ts`, `CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`).
+- ✅ **Authentic 23-Circuit Vector Geometries & 2026 Calendar Synchronization**: Handcrafted authentic FIA vector SVG tracks, DRS activation lines, start/finish lines, corner tooltips, and new 2026 venues (Madring Madrid #153 and Sepang Malaysia #16) replacing all placeholder oval curves; synchronized `DEFAULT_MEETINGS` and `FULL_RACE_CALENDAR` across the simulator (`circuitData.ts`, `openf1Service.ts`, `HQDashboard.tsx`).
+- ✅ **Multi-Modal Circuit Visualizer with Satellite & FIA Map Modes**: 3 switchable preview modes (Vector SVG, Satellite Earth Observation via Planet Labs SkySat, and FIA Track Map), circuit direction badges, elevation relief tags, and 2026 active aero intel strips (`CircuitMapPreview.tsx`, `public/assets/tracks/`, `styles.css`).
+- ✅ **Broadcast Delay Synchronization Scrubber & Buffer Offset Engine**: Interactive TV sync scrubber in `RaceStatusBar` and `LiveTelemetryExplorer` with presets (`LIVE 0s`, `F1 TV 20s`, `SKY/ESPN 35s`, `STREAM 60s`), fine 0–90s slider popover, `sessionStorage` persistence, and synchronization with `radioAudioService` (`RaceStatusBar.tsx`, `App.tsx`, `LiveTelemetryExplorer.tsx`, `radioAudioService.ts`, `styles.css`).
+- ✅ **Real GPS Coordinate to 3D Track Spline Interpolator & GPS Tracker**: High-precision mathematical spline projection engine (`SplineTrackProjector`) with equidistant arc-length lookup table, binary search, orthogonal dot-product projection, lateral racing line deviation, and on-track compliance detection; interactive **GPS TRACK PROJECTION** tab in `LiveTelemetryExplorer` with frame scrubbing and side-by-side metric cards (`splineProjection.ts`, `openf1Service.ts`, `LiveTelemetryExplorer.tsx`, `styles.css`).
+- ✅ **Real-Time Fourier Spectrum Audio Visualizer & Role-Tagged Comms Feed**: Animated Canvas + `AnalyserNode` frequency spectrum bars with team livery coloring, peak-hold caps, speaker role badges (`🎧 RACE ENGINEER`, `🏎️ DRIVER`), category filter tabs (`ALL`, `PIT WALL`, `DRIVER`, `BOX / TIRES`), and master gain DSP routing (`AudioWaveformVisualizer.tsx`, `radioAudioService.ts`, `DriverTelemetryPanel.tsx`, `LiveTelemetryExplorer.tsx`, `styles.css`).
 - ✅ **Custom Livery Color & Sponsor Decal Studio**: Procedural carbon weave textures (Gloss Twill, Raw Matte, Forged Carbon, Satin), dynamic 1024x512 livery canvas map generator with custom team sponsor decals on sidepods, nose cone, shark fin, and rear wing, 7 preset livery themes, and color pickers seamlessly hot-swapped onto 3D CAD meshes (`F1Car2026Model.ts`, `CarLab.tsx`, `styles.css`).
 - ✅ **High-Resolution 4K Studio Snapshot Export Pipeline**: High-res 3840×2160 offscreen render pipeline with aspect-corrected camera, ACESFilmic tone mapping, PCF soft shadows, composite technical watermark footer banner with live telemetry metrics and FIA certification badge, CAD shutter button with audio-visual camera flash, and automated PNG download (`CarShowroom3D.tsx`, `CarLab.tsx`, `styles.css`).
 - ✅ **Broadcast-Quality Natural Team Radio Voices & VHF Squelch DSP**: Strict blacklisting of novelty/robotic voices, dynamic natural/neural voice scoring, persona matching for Race Engineers and Drivers, auto-ducking VHF pink noise static, authentic Roger PTT beeps, squelch tail bursts, acoustic profile presets (`Authentic VHF`, `Studio HD`, `Cockpit Raw`), and interactive Test Comms previews (`radioAudioService.ts`, `openf1Service.ts`, `DriverTelemetryPanel.tsx`, `LiveTelemetryExplorer.tsx`).
@@ -97,3 +115,19 @@ Completed items are moved here as they are deployed and verified:
 - ✅ **Bespoke Motorsport Command Center Design System**: Deep carbon titanium glassmorphism styling, clean typography hierarchy, zero text overlapping, and tactile interactive controls.
 - ✅ **3D Track Shadow Acne & Spike Resolution**: Fixed shadow camera bias (+0.0008) and ribbon normal generation in `RaceScene3D.tsx`.
 - ✅ **Master Governance & SOP Automation**: Established `.master/` documentation system, `FileManifest.md`, `TroubleshootingLog.md` with usage counts, and `npm run sop:validate`.
+
+## Proposed — 2026-08-28 (Track Simulation Realism & Visualizer Roadmap)
+
+- **Dynamic 3D Track Elevation Contouring**: Extrude real elevation deltas (e.g. +40.8m Spa, +30.9m COTA, +27.6m Red Bull Ring) into the 3D ribbon mesh in `RaceScene3D` with banked turns (Zandvoort 18°, Madring 24% / 13.5°).
+- **Track Sector Aero Benchmark Visualizer**: Interactive sector-by-sector delta gauge comparing straight-line drag vs cornering downforce demands across all 23 circuits with recommended active aero flap presets.
+- **Live Weather Radar Cloud Layer on Satellite Imagery**: Layer dynamic Doppler rainfall radar tiles directly on top of the satellite aerial photography in `CircuitMapPreview` for real-time track condition forecasting.
+
+## Proposed — 2026-08-28 (Track Imagery & Live Telemetry Roadmap)
+
+- **Live WebSocket/MQTT OpenF1 Telemetry Streaming Worker**: Connect background Web Worker to OpenF1 MQTT/WebSocket broker during live F1 race weekends with automatic reconnection, buffer queueing, and dropped packet recovery.
+- **Dynamic 3D Car Position Sync via Live GPS Feed**: Feed live 3.7 Hz OpenF1 $(X, Y, Z)$ coordinates directly into `RaceScene3D` through `SplineTrackProjector` to render all 20 real-world cars racing live on our 3D track ribbon in real-time.
+- **Fast-Forward & Rewind Time Machine Buffer**: Store up to 10 minutes of full telemetry and GPS snapshots in IndexedDB, allowing users to scrub backwards in time and replay crucial race overtakes or incidents from multiple camera angles.
+- **Circuit Photo Cards in Track Explorer**: Use the 23 track maps + 19 aerials + 2 venue photos (`.master/assets/tracks_2026/`) as a gallery layer in the Track Explorer / CircuitMapPreview, with lazy-loaded imagery and Commons attribution tooltips.
+- **Aerial-Referenced 3D Terrain Textures**: Project the SkySat aerials as ground textures under the 3D track ribbons for the 14 covered European/American venues to validate layout accuracy against the sim geometry.
+- **Imagery Completeness Bot**: Scheduled re-run of `fetch_track_images_final.py` to detect newly-uploaded Commons aerials for the four gaps (Miami, Madring, Vegas, Lusail) as new photography gets freed.
+- **Typed `circuits2026.ts` Dataset**: Convert the report dossier + manifest into a typed TS dataset (lengths, turns, capacities, imagery paths, licenses) powering both Track Explorer and the weather-sim module.

@@ -24,6 +24,9 @@ import { formatLapTime } from '../utils/format'
 import { TireBadge } from './TimingTower'
 import { getSampleTeamRadio } from '../services/openf1Service'
 import { radioAudioService, type RadioAudioMode } from '../services/radioAudioService'
+import { TeamLogoBadge } from './TeamGraphics'
+
+import { AudioWaveformVisualizer } from './AudioWaveformVisualizer'
 
 interface DriverTelemetryPanelProps {
   driver: DriverState
@@ -132,6 +135,7 @@ export function DriverTelemetryPanel({
   const [showCommandModal, setShowCommandModal] = useState(false)
   const [playingRadioId, setPlayingRadioId] = useState<string | null>(null)
   const [radioAcousticMode, setRadioAcousticMode] = useState<RadioAudioMode>(radioAudioService.getRadioMode())
+  const [radioFilter, setRadioFilter] = useState<'all' | 'engineer' | 'driver' | 'box'>('all')
 
   useEffect(() => {
     return radioAudioService.subscribe((isPlaying, id) => {
@@ -147,6 +151,16 @@ export function DriverTelemetryPanel({
   const radioMessages = useMemo(() => {
     return getSampleTeamRadio(driver.number)
   }, [driver.number])
+
+  const filteredRadioMessages = useMemo(() => {
+    return radioMessages.filter((m) => {
+      const isEng = m.speaker.toLowerCase().includes('engineer') || m.speaker.toLowerCase().includes('joseph') || m.speaker.toLowerCase().includes('stallard') || m.speaker.toLowerCase().includes('gp') || m.speaker.toLowerCase().includes('bozzi') || m.speaker.toLowerCase().includes('adami') || m.speaker.toLowerCase().includes('dudley') || m.speaker.toLowerCase().includes('cronin') || m.speaker.toLowerCase().includes('jego')
+      if (radioFilter === 'engineer') return isEng
+      if (radioFilter === 'driver') return !isEng
+      if (radioFilter === 'box') return m.text.toLowerCase().includes('box') || m.text.toLowerCase().includes('pit') || m.text.toLowerCase().includes('tire') || m.text.toLowerCase().includes('tyre')
+      return true
+    })
+  }, [radioMessages, radioFilter])
 
   const setPace = (paceMode: PaceMode) => {
     sendCommand({ type: 'DRIVER_COMMAND', driverId: driver.id, paceMode })
@@ -198,11 +212,29 @@ export function DriverTelemetryPanel({
 
   return (
     <aside className="panel telemetry-panel">
-      {/* Driver Identity Card & Panel Controls */}
-      <div className="driver-hero" style={{ '--team-color': driver.teamColor } as React.CSSProperties}>
+      {/* Driver Identity Card & Panel Controls with Dynamic Team Graphics */}
+      <div
+        className="driver-hero"
+        style={
+          {
+            '--team-color': driver.teamColor,
+            '--team-secondary': driver.secondaryColor,
+          } as React.CSSProperties
+        }
+      >
+        {/* Large Angled Livery Stripes */}
+        <div className="driver-hero-angled-stripes">
+          <span className="driver-stripe s1" />
+          <span className="driver-stripe s2" />
+        </div>
+
         <div className="driver-hero-watermark">{driver.number}</div>
-        <div className="driver-hero-stripe" />
-        <div className="driver-number-badge">#{driver.number}</div>
+
+        <div className="driver-header-left-col">
+          <div className="driver-number-badge">#{driver.number}</div>
+          <TeamLogoBadge teamCode={driver.teamShort} size={22} glow={false} />
+        </div>
+
         <div className="driver-hero-details">
           <div className="driver-team-line">
             <span className="country-flag">{driver.nationality}</span>
@@ -361,7 +393,7 @@ export function DriverTelemetryPanel({
           </div>
 
           {/* Radio Acoustic Profile Selector */}
-          <div className="radio-mode-bar" style={{ display: 'flex', gap: '6px', marginBottom: '10px', alignItems: 'center' }}>
+          <div className="radio-mode-bar" style={{ display: 'flex', gap: '6px', marginBottom: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '10px', color: '#8d99ae', fontWeight: 600, letterSpacing: '0.05em' }}>ACOUSTICS:</span>
             {[
               { id: 'authentic' as RadioAudioMode, label: '📻 Authentic VHF' },
@@ -410,14 +442,46 @@ export function DriverTelemetryPanel({
             </button>
           </div>
 
+          {/* Quick Radio Category Filter */}
+          <div className="radio-category-filters" style={{ display: 'flex', gap: '5px', marginBottom: '10px' }}>
+            {[
+              { id: 'all' as const, label: 'ALL COMMS' },
+              { id: 'engineer' as const, label: '🎧 PIT WALL' },
+              { id: 'driver' as const, label: '🏎️ DRIVER' },
+              { id: 'box' as const, label: '📦 BOX / TIRES' },
+            ].map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                style={{
+                  flex: 1,
+                  padding: '3px 6px',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  borderRadius: '3px',
+                  border: radioFilter === id ? '1px solid #00f0ff' : '1px solid #232d3d',
+                  background: radioFilter === id ? 'rgba(0, 240, 255, 0.12)' : '#0d121a',
+                  color: radioFilter === id ? '#00f0ff' : '#6c7a92',
+                  cursor: 'pointer',
+                }}
+                onClick={() => setRadioFilter(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <div className="radio-message-list">
-            {radioMessages.map((msg, index) => {
+            {filteredRadioMessages.map((msg, index) => {
               const msgId = `radio-${driver.id}-${index}`
               const isPlaying = playingRadioId === msgId
+              const isEngineer = msg.speaker.toLowerCase().includes('engineer') || msg.speaker.toLowerCase().includes('joseph') || msg.speaker.toLowerCase().includes('gp') || msg.speaker.toLowerCase().includes('stallard') || msg.speaker.toLowerCase().includes('bozzi') || msg.speaker.toLowerCase().includes('adami') || msg.speaker.toLowerCase().includes('dudley') || msg.speaker.toLowerCase().includes('cronin') || msg.speaker.toLowerCase().includes('jego')
               return (
                 <div className={`radio-card ${isPlaying ? 'playing' : ''}`} key={index}>
                   <div className="radio-card-top">
-                    <span className="radio-speaker-badge">{msg.speaker}</span>
+                    <span className={`radio-speaker-badge ${isEngineer ? 'speaker-engineer' : 'speaker-driver'}`}>
+                      {isEngineer ? `🎧 ${msg.speaker}` : `🏎️ ${msg.speaker}`}
+                    </span>
                     <span className="radio-lap-tag">{msg.time}</span>
                   </div>
                   <p className="radio-transcript-quote">"{msg.text}"</p>
@@ -429,7 +493,15 @@ export function DriverTelemetryPanel({
                       {isPlaying ? <Square size={12} /> : <Play size={12} />}
                       <span>{isPlaying ? 'STOP TRANSMISSION' : 'PLAY RADIO AUDIO'}</span>
                     </button>
-                    {isPlaying && (
+                    {isPlaying ? (
+                      <AudioWaveformVisualizer
+                        isPlaying={true}
+                        barCount={16}
+                        height={20}
+                        teamColor={driver.teamColor}
+                        showFrequencyHz={false}
+                      />
+                    ) : (
                       <div className="radio-wave-bars">
                         <span /><span /><span /><span /><span />
                       </div>

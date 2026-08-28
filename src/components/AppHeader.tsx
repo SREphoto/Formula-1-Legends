@@ -9,9 +9,9 @@ import {
 import type { AppView } from '../types'
 import {
   F1SteeringWheelIcon,
-  F1SuperlicenseIcon,
   F1TelemetryWaveIcon,
 } from './F1Icons'
+import { TeamLogoBadge, getTeamMeta } from './TeamGraphics'
 import type { PaddockCredentials } from './ParallaxAuthScreen'
 
 interface AppHeaderProps {
@@ -38,22 +38,33 @@ export function AppHeader({
   credentials,
   onOpenAuth,
 }: AppHeaderProps) {
-  const teamColor = credentials?.teamColor || '#ff8000'
-  const teamName = credentials?.teamName || 'MCLAREN F1'
+  const teamMeta = getTeamMeta(credentials?.teamCode || 'MCL')
+  const teamColor = credentials?.teamColor || teamMeta.primaryColor
+  const teamName = credentials?.teamName || teamMeta.name
   const roleTitle = credentials?.roleTitle || 'LEAD STRATEGIST'
-  const badgeId = credentials?.badgeId || 'FIA-2026-MCL-7742'
+  const badgeId = credentials?.badgeId || `FIA-2026-${teamMeta.code}-7742`
 
   return (
-    <header className="app-header">
+    <header
+      className="app-header"
+      style={{
+        '--header-team-primary': teamColor,
+        '--header-team-accent': teamMeta.accentColor,
+      } as React.CSSProperties}
+    >
+      {/* Subtle Top Angled Motion Accent Strip */}
+      <div className="header-motion-strip">
+        <span className="header-motion-stripe s1" />
+        <span className="header-motion-stripe s2" />
+      </div>
+
       <button className="brand" onClick={() => onViewChange('race')} aria-label="Formula 1 2026 home">
-        <span className="brand-mark" aria-hidden="true" style={{ background: teamColor }}>
-          <i />
-          <i />
-          <i />
-        </span>
+        <div className="brand-logo-container">
+          <TeamLogoBadge teamCode={teamMeta.code} size={28} glow={true} />
+        </div>
         <span className="brand-copy">
           <strong>F1 2026</strong>
-          <small>RACE COMMAND</small>
+          <small>{teamMeta.teamShort.toUpperCase()} COMMAND</small>
         </span>
       </button>
 
@@ -91,14 +102,17 @@ export function AppHeader({
           type="button"
           className="profile-chip interactive-auth-chip"
           onClick={onOpenAuth}
-          title={`Paddock Access Pass: ${badgeId} — Click to reconfigure credentials`}
-          aria-label="Paddock credentials and role profile"
+          title={`Paddock Access Pass: ${badgeId} (${teamName}) — Click to switch constructor team or reconfigure credentials`}
+          aria-label={`Paddock credentials and role profile for ${teamName}`}
         >
-          <span className="profile-badge" style={{ background: teamColor, borderColor: credentials?.teamSecondaryColor || '#fff' }}>
-            <F1SuperlicenseIcon size={14} color="#ffd700" />
+          {/* Angled Stripes Underlay */}
+          <div className="profile-chip-angled-stripes" />
+
+          <span className="profile-badge">
+            <TeamLogoBadge teamCode={teamMeta.code} size={18} glow={false} />
           </span>
           <span className="profile-text">
-            <b>{teamName.substring(0, 14).toUpperCase()}</b>
+            <b>{teamMeta.teamShort.toUpperCase()}</b>
             <small>{roleTitle.toUpperCase()}</small>
           </span>
         </button>
@@ -106,4 +120,3 @@ export function AppHeader({
     </header>
   )
 }
-
