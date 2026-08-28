@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import { createF1Car2026, type F1Car2026Controller } from '../graphics/f1_2026/F1Car2026Model'
+import { createF1Car2026, type F1Car2026Controller, type LiveryConfig } from '../graphics/f1_2026/F1Car2026Model'
 import type { CarPartMetadata, SubsystemCategory } from '../graphics/f1_2026/carPartsData'
 import { soundEngine } from '../services/soundEngine'
 
@@ -40,6 +40,9 @@ interface CarShowroom3DProps {
   isWindAudioActive?: boolean
   telemetrySync?: TelemetrySyncState
   onSelectPart?: (part: CarPartMetadata | null) => void
+  aeroRakeActive?: boolean
+  liveryConfig?: LiveryConfig
+  onSnapshotExport?: (exportFn: () => void) => void
 }
 
 export function CarShowroom3D({
@@ -62,6 +65,9 @@ export function CarShowroom3D({
   isWindAudioActive = false,
   telemetrySync,
   onSelectPart,
+  aeroRakeActive = false,
+  liveryConfig,
+  onSnapshotExport,
 }: CarShowroom3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const valuesRef = useRef({
@@ -81,6 +87,8 @@ export function CarShowroom3D({
     cameraPreset,
     isWindAudioActive,
     telemetrySync,
+    aeroRakeActive,
+    liveryConfig,
   })
   valuesRef.current = {
     frontBalance,
@@ -99,6 +107,8 @@ export function CarShowroom3D({
     cameraPreset,
     isWindAudioActive,
     telemetrySync,
+    aeroRakeActive,
+    liveryConfig,
   }
 
   const carControllerRef = useRef<F1Car2026Controller | null>(null)
@@ -119,6 +129,10 @@ export function CarShowroom3D({
         carControllerRef.current.setCfdHeatmapMode(false)
         carControllerRef.current.setFlirMode(false)
       }
+      carControllerRef.current.setAeroRakeMode(aeroRakeActive)
+      if (liveryConfig) {
+        carControllerRef.current.updateLivery(liveryConfig)
+      }
     }
   }, [
     explodedRatio,
@@ -130,6 +144,8 @@ export function CarShowroom3D({
     clippingOffset,
     cfdHeatmapMode,
     flirMode,
+    aeroRakeActive,
+    liveryConfig,
   ])
 
   useEffect(() => {
@@ -150,9 +166,9 @@ export function CarShowroom3D({
     container.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(38, container.clientWidth / Math.max(1, container.clientHeight), 0.1, 100)
-    camera.position.set(8.2, 4.6, 9.2)
-    camera.lookAt(0, 0.5, 0)
+    const camera = new THREE.PerspectiveCamera(36, container.clientWidth / Math.max(1, container.clientHeight), 0.1, 100)
+    camera.position.set(4.4, 2.1, 4.8)
+    camera.lookAt(0, 0.35, 0)
 
     scene.add(new THREE.HemisphereLight('#d8eeff', '#14181f', 1.9))
     const keyLight = new THREE.DirectionalLight('#fff5e6', 4.5)
@@ -169,18 +185,44 @@ export function CarShowroom3D({
     cyanRim.position.set(-5, 2.5, -3)
     scene.add(cyanRim)
 
-    // Turntable
-    const platformMaterial = new THREE.MeshStandardMaterial({ color: '#11151a', roughness: 0.28, metalness: 0.65 })
-    const platform = new THREE.Mesh(new THREE.CylinderGeometry(4.8, 5.15, 0.36, 64), platformMaterial)
-    platform.position.y = -0.2
+    // Engineering Floor CAD Grid
+    const floorGrid = new THREE.GridHelper(12, 24, '#24324a', '#0d1522')
+    floorGrid.position.y = -0.005
+    scene.add(floorGrid)
+
+    // Soft Contact Shadow Plane
+    const shadowPlaneGeo = new THREE.PlaneGeometry(10, 10)
+    const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.45 })
+    const shadowPlane = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat)
+    shadowPlane.rotation.x = -Math.PI / 2
+    shadowPlane.position.y = -0.003
+    shadowPlane.receiveShadow = true
+    scene.add(shadowPlane)
+
+    // Flush Carbon Inspection Turntable Pad (replaces clunky raised platter)
+    const platformMaterial = new THREE.MeshStandardMaterial({ color: '#12161f', roughness: 0.35, metalness: 0.5 })
+    const platform = new THREE.Mesh(new THREE.CylinderGeometry(3.0, 3.05, 0.02, 64), platformMaterial)
+    platform.position.y = -0.01
     platform.receiveShadow = true
     scene.add(platform)
 
-    const ringMaterial = new THREE.MeshBasicMaterial({ color: primaryColor, transparent: true, opacity: 0.75, side: THREE.DoubleSide })
-    const glowRing = new THREE.Mesh(new THREE.RingGeometry(3.7, 3.76, 96), ringMaterial)
+    const rimMat = new THREE.MeshStandardMaterial({ color: '#4a5568', metalness: 0.85, roughness: 0.2 })
+    const bevelRim = new THREE.Mesh(new THREE.TorusGeometry(3.04, 0.012, 16, 64), rimMat)
+    bevelRim.rotation.x = -Math.PI / 2
+    bevelRim.position.y = 0.001
+    scene.add(bevelRim)
+
+    const ringMaterial = new THREE.MeshBasicMaterial({ color: primaryColor, transparent: true, opacity: 0.55, side: THREE.DoubleSide })
+    const glowRing = new THREE.Mesh(new THREE.RingGeometry(2.55, 2.58, 96), ringMaterial)
     glowRing.rotation.x = -Math.PI / 2
-    glowRing.position.y = 0.005
+    glowRing.position.y = 0.004
     scene.add(glowRing)
+
+    const outerCadRingMat = new THREE.MeshBasicMaterial({ color: '#2a3b53', transparent: true, opacity: 0.35, side: THREE.DoubleSide })
+    const outerCadRing = new THREE.Mesh(new THREE.RingGeometry(3.6, 3.615, 96), outerCadRingMat)
+    outerCadRing.rotation.x = -Math.PI / 2
+    outerCadRing.position.y = 0.002
+    scene.add(outerCadRing)
 
     const carPivot = new THREE.Group()
     carPivot.rotation.y = -0.52
@@ -190,8 +232,8 @@ export function CarShowroom3D({
     const carController = createF1Car2026(primaryColor, accentColor)
     carControllerRef.current = carController
     const car = carController.root
-    car.scale.setScalar(1.2)
-    car.position.y = 0.22
+    car.scale.setScalar(1.22)
+    car.position.y = 0.02
     car.rotation.y = Math.PI / 2
     carPivot.add(car)
 
@@ -205,6 +247,10 @@ export function CarShowroom3D({
       carController.setFlirMode(true)
     } else if (valuesRef.current.cfdHeatmapMode) {
       carController.setCfdHeatmapMode(true, valuesRef.current.activeAeroMode)
+    }
+    carController.setAeroRakeMode(valuesRef.current.aeroRakeActive)
+    if (valuesRef.current.liveryConfig) {
+      carController.updateLivery(valuesRef.current.liveryConfig)
     }
 
     const floorGlowMaterial = new THREE.MeshBasicMaterial({
@@ -287,6 +333,122 @@ export function CarShowroom3D({
     const smokePoints = new THREE.Points(smokeGeometry, smokeMaterial)
     carPivot.add(smokePoints)
 
+    // Aero-Rake Wake Turbulence Visualization Particles
+    const aeroRakeParticleCount = 200
+    const aeroRakePositions = new Float32Array(aeroRakeParticleCount * 3)
+    const aeroRakeColors = new Float32Array(aeroRakeParticleCount * 3)
+    for (let i = 0; i < aeroRakeParticleCount; i++) {
+      const side = i < aeroRakeParticleCount / 2 ? -1 : 1
+      aeroRakePositions[i * 3] = side * (0.55 + Math.random() * 0.35)
+      aeroRakePositions[i * 3 + 1] = 0.05 + Math.random() * 0.65
+      aeroRakePositions[i * 3 + 2] = 1.0 + Math.random() * 1.2
+      // Blue-purple gradient for wake pressure
+      const pressure = Math.random()
+      aeroRakeColors[i * 3] = 0.3 + pressure * 0.5
+      aeroRakeColors[i * 3 + 1] = 0.1 + pressure * 0.15
+      aeroRakeColors[i * 3 + 2] = 0.7 + pressure * 0.3
+    }
+    const aeroRakeWakeGeom = new THREE.BufferGeometry()
+    aeroRakeWakeGeom.setAttribute('position', new THREE.BufferAttribute(aeroRakePositions, 3))
+    aeroRakeWakeGeom.setAttribute('color', new THREE.BufferAttribute(aeroRakeColors, 3))
+    const aeroRakeWakeMat = new THREE.PointsMaterial({
+      size: 0.04,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.7,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    const aeroRakeWakePoints = new THREE.Points(aeroRakeWakeGeom, aeroRakeWakeMat)
+    aeroRakeWakePoints.visible = false
+    carPivot.add(aeroRakeWakePoints)
+
+    // 4K Studio Snapshot Export Pipeline
+    const export4KSnapshot = () => {
+      const originalWidth = renderer.domElement.width
+      const originalHeight = renderer.domElement.height
+      const originalPixelRatio = renderer.getPixelRatio()
+
+      // Render at 4K resolution
+      renderer.setPixelRatio(1)
+      renderer.setSize(3840, 2160, false)
+      camera.aspect = 3840 / 2160
+      camera.updateProjectionMatrix()
+      renderer.render(scene, camera)
+
+      // Capture rendered frame
+      const renderCanvas = renderer.domElement
+
+      // Create composite canvas with watermark banner
+      const compositeCanvas = document.createElement('canvas')
+      compositeCanvas.width = 3840
+      compositeCanvas.height = 2160
+      const ctx2d = compositeCanvas.getContext('2d')!
+
+      // Draw 3D render
+      ctx2d.drawImage(renderCanvas, 0, 0, 3840, 2160)
+
+      // Technical watermark banner (bottom strip)
+      const bannerH = 72
+      ctx2d.fillStyle = 'rgba(8, 10, 15, 0.88)'
+      ctx2d.fillRect(0, 2160 - bannerH, 3840, bannerH)
+
+      ctx2d.fillStyle = primaryColor
+      ctx2d.fillRect(0, 2160 - bannerH, 6, bannerH)
+
+      ctx2d.font = '600 24px "Barlow Condensed", sans-serif'
+      ctx2d.fillStyle = '#ffffff'
+      ctx2d.textBaseline = 'middle'
+      const bannerY = 2160 - bannerH / 2
+
+      ctx2d.fillText('FORMULA 1 LEGENDS · 2026 FIA SPECIFICATION', 24, bannerY - 12)
+      ctx2d.font = '400 16px "Barlow Condensed", sans-serif'
+      ctx2d.fillStyle = '#8aa0b8'
+
+      const v = valuesRef.current
+      const mode = v.flirMode
+        ? 'FLIR'
+        : v.cfdHeatmapMode
+          ? 'CFD'
+          : v.aeroRakeActive
+            ? 'AERO-RAKE'
+            : v.explodedRatio > 0.05
+              ? 'EXPLODED'
+              : 'ASSEMBLED'
+      const statsText = `MODE: ${mode} · DOWNFORCE: ${v.downforceKn.toFixed(1)} kN · BALANCE: ${v.frontBalance.toFixed(1)}% FRONT`
+      ctx2d.fillText(statsText, 24, bannerY + 14)
+
+      // FIA badge on right
+      ctx2d.font = '700 20px "Barlow Condensed", sans-serif'
+      ctx2d.fillStyle = primaryColor
+      ctx2d.textAlign = 'right'
+      ctx2d.fillText('FIA ART. 3.4 · 4K STUDIO RENDER', 3816, bannerY)
+      ctx2d.textAlign = 'left'
+
+      // Download as PNG
+      compositeCanvas.toBlob((blob) => {
+        if (!blob) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `F1-2026-Studio-4K-${mode}-${Date.now()}.png`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 'image/png')
+
+      // Restore original viewport
+      renderer.setPixelRatio(originalPixelRatio)
+      renderer.setSize(originalWidth / originalPixelRatio, originalHeight / originalPixelRatio, false)
+      camera.aspect = container.clientWidth / Math.max(1, container.clientHeight)
+      camera.updateProjectionMatrix()
+    }
+
+    if (onSnapshotExport) {
+      onSnapshotExport(export4KSnapshot)
+    }
+
     // Raycasting
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
@@ -300,9 +462,9 @@ export function CarShowroom3D({
     let targetRotation = carPivot.rotation.y
     let targetCameraDistance = 1
 
-    const currentLookTarget = new THREE.Vector3(0, 0.5, 0)
-    const desiredLookTarget = new THREE.Vector3(0, 0.5, 0)
-    const desiredCameraPos = new THREE.Vector3(8.2, 4.6, 9.2)
+    const currentLookTarget = new THREE.Vector3(0, 0.35, 0)
+    const desiredLookTarget = new THREE.Vector3(0, 0.35, 0)
+    const desiredCameraPos = new THREE.Vector3(4.4, 2.1, 4.8)
 
     const onPointerDown = (event: PointerEvent) => {
       dragging = true
@@ -346,7 +508,7 @@ export function CarShowroom3D({
 
     const onWheel = (event: WheelEvent) => {
       event.preventDefault()
-      targetCameraDistance = THREE.MathUtils.clamp(targetCameraDistance + event.deltaY * 0.0008, 0.72, 1.35)
+      targetCameraDistance = THREE.MathUtils.clamp(targetCameraDistance + event.deltaY * 0.0008, 0.68, 1.45)
     }
 
     renderer.domElement.addEventListener('pointerdown', onPointerDown)
@@ -361,23 +523,23 @@ export function CarShowroom3D({
       const currentSync = valuesRef.current.telemetrySync
       const currentPreset = valuesRef.current.cameraPreset
 
-      // Camera preset targets
+      // Camera preset targets (closely framed for high-detail inspection)
       if (currentPreset === 'FRONT_WING') {
-        desiredCameraPos.set(0, 1.4, 4.4)
+        desiredCameraPos.set(0, 0.95, 3.2)
         desiredLookTarget.set(0, 0.25, 1.8)
       } else if (currentPreset === 'COCKPIT') {
-        desiredCameraPos.set(0, 1.6, 1.5)
-        desiredLookTarget.set(0, 0.52, 0.3)
+        desiredCameraPos.set(0, 1.35, 1.2)
+        desiredLookTarget.set(0, 0.48, 0.2)
       } else if (currentPreset === 'POWERTRAIN') {
-        desiredCameraPos.set(2.4, 2.6, -0.6)
-        desiredLookTarget.set(0, 0.42, -0.6)
+        desiredCameraPos.set(1.9, 1.9, -0.6)
+        desiredLookTarget.set(0, 0.38, -0.6)
       } else if (currentPreset === 'DIFFUSER') {
-        desiredCameraPos.set(0, 1.1, -4.5)
-        desiredLookTarget.set(0, 0.48, -1.8)
+        desiredCameraPos.set(0, 0.85, -3.4)
+        desiredLookTarget.set(0, 0.4, -1.8)
       } else {
         // 'ORBIT'
-        desiredCameraPos.set(8.2, 4.6, 9.2).multiplyScalar(targetCameraDistance)
-        desiredLookTarget.set(0, 0.5, 0)
+        desiredCameraPos.set(4.4, 2.1, 4.8).multiplyScalar(targetCameraDistance)
+        desiredLookTarget.set(0, 0.35, 0)
       }
 
       if (
@@ -397,6 +559,22 @@ export function CarShowroom3D({
 
       // Update car internal kinematics
       carController.update(delta)
+
+      // Aero-Rake Wake Flow Visualization
+      aeroRakeWakePoints.visible = valuesRef.current.aeroRakeActive
+      if (valuesRef.current.aeroRakeActive) {
+        for (let i = 0; i < aeroRakeParticleCount; i++) {
+          aeroRakePositions[i * 3 + 2] -= 2.5 * delta
+          aeroRakePositions[i * 3 + 1] += (Math.random() - 0.45) * 0.8 * delta
+          if (aeroRakePositions[i * 3 + 2] < -0.5) {
+            const side = i < aeroRakeParticleCount / 2 ? -1 : 1
+            aeroRakePositions[i * 3] = side * (0.55 + Math.random() * 0.35)
+            aeroRakePositions[i * 3 + 1] = 0.05 + Math.random() * 0.65
+            aeroRakePositions[i * 3 + 2] = 1.0 + Math.random() * 1.2
+          }
+        }
+        aeroRakeWakeGeom.attributes.position.needsUpdate = true
+      }
 
       // Handle Telemetry Synchronized Playback
       if (currentSync?.active) {
@@ -506,8 +684,16 @@ export function CarShowroom3D({
       carController.dispose()
       platform.geometry.dispose()
       platformMaterial.dispose()
+      bevelRim.geometry.dispose()
+      rimMat.dispose()
       glowRing.geometry.dispose()
       ringMaterial.dispose()
+      outerCadRing.geometry.dispose()
+      outerCadRingMat.dispose()
+      floorGrid.geometry.dispose()
+      floorGrid.dispose()
+      shadowPlaneGeo.dispose()
+      shadowPlaneMat.dispose()
       floorGlow.geometry.dispose()
       floorGlowMaterial.dispose()
       arrowGeometry.dispose()
@@ -516,10 +702,12 @@ export function CarShowroom3D({
       airflowMaterial.dispose()
       smokeGeometry.dispose()
       smokeMaterial.dispose()
+      aeroRakeWakeGeom.dispose()
+      aeroRakeWakeMat.dispose()
       renderer.dispose()
       renderer.domElement.remove()
     }
-  }, [primaryColor, accentColor, onSelectPart])
+  }, [primaryColor, accentColor, onSelectPart, onSnapshotExport])
 
   const currentSync = telemetrySync
 
@@ -533,15 +721,17 @@ export function CarShowroom3D({
       <div className="showroom-help">
         {clippingAxis !== 'NONE'
           ? `CROSS-SECTION CUT: AXIS ${clippingAxis} (${clippingOffset > 0 ? '+' : ''}${clippingOffset.toFixed(2)}m)`
-          : flirMode
-            ? 'FLIR THERMAL INFRARED CAMERA VIEW (IRONBOW PALETTE)'
-            : cfdHeatmapMode
-              ? 'CFD SURFACE PRESSURE DISTRIBUTION (+Cp RED / -Cp PURPLE)'
-              : smokeWandMode !== 'OFF'
-                ? `WIND TUNNEL SMOKE WAND: ${smokeWandMode} STREAMLINES`
-                : cameraPreset !== 'ORBIT'
-                  ? `CAMERA VIEWPORT: ${cameraPreset} FOCUS`
-                  : 'DRAG TO ROTATE · SCROLL TO ZOOM · CLICK ANY PART TO INSPECT'}
+          : aeroRakeActive
+            ? 'AERO-RAKE PITOT RIG ACTIVE · 40-PROBE KIEL BOUNDARY LAYER WAKE PRESSURE GRID'
+            : flirMode
+              ? 'FLIR THERMAL INFRARED CAMERA VIEW (IRONBOW PALETTE)'
+              : cfdHeatmapMode
+                ? 'CFD SURFACE PRESSURE DISTRIBUTION (+Cp RED / -Cp PURPLE)'
+                : smokeWandMode !== 'OFF'
+                  ? `WIND TUNNEL SMOKE WAND: ${smokeWandMode} STREAMLINES`
+                  : cameraPreset !== 'ORBIT'
+                    ? `CAMERA VIEWPORT: ${cameraPreset} FOCUS`
+                    : 'DRAG TO ROTATE · SCROLL TO ZOOM · CLICK ANY PART TO INSPECT'}
       </div>
       <div className="showroom-stat front">
         <small>AERO BALANCE</small>
@@ -583,6 +773,50 @@ export function CarShowroom3D({
                   ? `🔋 8.5 MJ REGEN`
                   : 'NEUTRAL'}
             </b>
+          </div>
+        </div>
+      )}
+
+      {/* Aero-Rake Boundary Layer Wake Pressure HUD */}
+      {aeroRakeActive && (
+        <div className="showroom-aero-rake-hud">
+          <div className="rake-hud-title">
+            <span>◈ AERO-RAKE KIEL PROBE MATRIX</span>
+            <small>40-PROBE PITOT BOUNDARY LAYER</small>
+          </div>
+          <div className="rake-hud-grid">
+            <div className="rake-probe-row">
+              <span className="probe-cell high">−0.92</span>
+              <span className="probe-cell high">−0.87</span>
+              <span className="probe-cell mid">−0.61</span>
+              <span className="probe-cell low">+0.42</span>
+              <span className="probe-cell low">+0.78</span>
+            </div>
+            <div className="rake-probe-row">
+              <span className="probe-cell high">−0.85</span>
+              <span className="probe-cell mid">−0.68</span>
+              <span className="probe-cell mid">−0.45</span>
+              <span className="probe-cell low">+0.55</span>
+              <span className="probe-cell low">+0.85</span>
+            </div>
+            <div className="rake-probe-row">
+              <span className="probe-cell mid">−0.72</span>
+              <span className="probe-cell mid">−0.52</span>
+              <span className="probe-cell low">+0.12</span>
+              <span className="probe-cell low">+0.68</span>
+              <span className="probe-cell low">+0.88</span>
+            </div>
+            <div className="rake-probe-row">
+              <span className="probe-cell mid">−0.65</span>
+              <span className="probe-cell low">+0.15</span>
+              <span className="probe-cell low">+0.52</span>
+              <span className="probe-cell low">+0.82</span>
+              <span className="probe-cell low">+0.91</span>
+            </div>
+          </div>
+          <div className="rake-hud-legend">
+            <span className="rake-leg suction">SUCTION (−Cp)</span>
+            <span className="rake-leg stagnation">STAGNATION (+Cp)</span>
           </div>
         </div>
       )}

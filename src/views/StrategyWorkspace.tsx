@@ -9,6 +9,8 @@ import {
 import { useState } from 'react'
 import type { DriverState, RaceSnapshot, TireCompound, WorkerCommand } from '../types'
 import { TireBadge } from '../components/TimingTower'
+import { ContextFocusCard } from '../components/ContextFocusCard'
+import { F1TelemetryWaveIcon } from '../components/F1Icons'
 
 interface StrategyWorkspaceProps {
   snapshot: RaceSnapshot
@@ -210,30 +212,45 @@ export function StrategyWorkspace({
             })}
           </div>
 
-          {/* Model AI Factors */}
-          <div className="ai-factors-card">
-            <div className="factor-item">
-              <Wind size={15} />
-              <div>
-                <small>TRACK EVOLUTION</small>
-                <strong>+1.2% GRIP GAIN</strong>
+          {/* Model AI Factors Focus Card */}
+          <ContextFocusCard
+            title="Monte Carlo AI Environmental Factors"
+            eyebrow="48,000 NEURAL RUNS"
+            icon={<F1TelemetryWaveIcon size={16} color="#38bdf8" />}
+            accentColor="#38bdf8"
+            defaultExpanded={true}
+            summary={
+              <div className="compact-kpi-row">
+                <span>GRIP: <b>+1.2%</b></span>
+                <span>TRAFFIC: <b>CLEAN AIR</b></span>
+                <span>SC PROB: <b>18%</b></span>
+              </div>
+            }
+          >
+            <div className="ai-factors-card">
+              <div className="factor-item">
+                <Wind size={15} />
+                <div>
+                  <small>TRACK EVOLUTION</small>
+                  <strong>+1.2% GRIP GAIN</strong>
+                </div>
+              </div>
+              <div className="factor-item">
+                <Compass size={15} />
+                <div>
+                  <small>PIT WINDOW TRAFFIC</small>
+                  <strong>CLEAN AIR WINDOW</strong>
+                </div>
+              </div>
+              <div className="factor-item">
+                <Zap size={15} />
+                <div>
+                  <small>SAFETY CAR PROB.</small>
+                  <strong>18% CHANCE</strong>
+                </div>
               </div>
             </div>
-            <div className="factor-item">
-              <Compass size={15} />
-              <div>
-                <small>PIT WINDOW TRAFFIC</small>
-                <strong>CLEAN AIR WINDOW</strong>
-              </div>
-            </div>
-            <div className="factor-item">
-              <Zap size={15} />
-              <div>
-                <small>SAFETY CAR PROB.</small>
-                <strong>18% CHANCE</strong>
-              </div>
-            </div>
-          </div>
+          </ContextFocusCard>
         </section>
 
         {/* Right Column: High-Contrast Race Delta & Degradation Chart */}

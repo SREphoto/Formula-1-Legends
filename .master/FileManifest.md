@@ -54,7 +54,10 @@ This manifest tracks the repository directory tree, active source modules, docum
 
 | File | Purpose | Status |
 | :--- | :--- | :--- |
-| [`src/components/AppHeader.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx) | Top navigation header with view tabs, 2026 branding | Active |
+| [`src/components/AppHeader.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx) | Top navigation header with view tabs, 2026 branding, and interactive Paddock credentials trigger | Active |
+| [`src/components/F1Icons.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/F1Icons.tsx) | 14 bespoke vector SVG motorsport icons (Aero, V6 ICE, MGU-K, Tires, Superlicense, Telemetry, Kiel Probes) | Active |
+| [`src/components/ContextFocusCard.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ContextFocusCard.tsx) | Reusable compact summary vs. expanded focus card architecture with full-screen inspection modal | Active |
+| [`src/components/ParallaxAuthScreen.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ParallaxAuthScreen.tsx) | Multi-layer 3D parallax Paddock/Telemetry Auth portal with 3D tilting Superlicense pass card & biometric scanner | Active |
 | [`src/components/SteeringWheel3D.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/SteeringWheel3D.tsx) | Interactive Three.js 3D steering wheel canvas with raycasting & holographic tooltips | Active |
 | [`src/components/RaceStatusBar.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceStatusBar.tsx) | Race status bar, lap counter, session clock, playback deck | Active |
 | [`src/components/TimingTower.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/TimingTower.tsx) | F1 TV live timing tower leaderboard, tire badges, and collapsible rail | Active |
@@ -65,7 +68,7 @@ This manifest tracks the repository directory tree, active source modules, docum
 | [`src/components/CircuitMapPreview.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CircuitMapPreview.tsx) | Interactive 2D SVG track layout preview with DRS zones & corner tooltips | Active |
 | [`src/components/DopplerRadarOverlay.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/DopplerRadarOverlay.tsx) | Circular Doppler radar sweep, dBZ reflectivity scale & rain heatmap | Active |
 | [`src/components/PaddockNewsWidget.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/PaddockNewsWidget.tsx) | Paddock news feed widget with category filters, bookmarks, and storage | Active |
-| [`src/components/CarShowroom3D.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx) | Interactive 3D engineering showroom and wind tunnel particles | Active |
+| [`src/components/CarShowroom3D.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx) | Interactive 3D CAD showroom with Aero-Rake wake tracers, 4K snapshot export, and live HUD | Active |
 | [`src/components/OnboardingOverlay.tsx`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/OnboardingOverlay.tsx) | Modal guide explaining race controls, telemetry, and strategy | Active |
 
 ### 2.4 Services & Physics Engine (`src/services/`, `src/data/`, `src/engine/`, `src/hooks/`, `src/graphics/`, `src/utils/`)
@@ -86,8 +89,8 @@ This manifest tracks the repository directory tree, active source modules, docum
 | [`src/engine/physics/TireThermodynamics.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/engine/physics/TireThermodynamics.ts) | Two-layer tire surface vs core temperature & degradation | Active |
 | [`src/engine/workers/PhysicsWorker.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/engine/workers/PhysicsWorker.ts) | 100 Hz simulation loop with 10 Hz telemetry snapshots & pit timer | Active |
 | [`src/hooks/useRaceSimulation.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/hooks/useRaceSimulation.ts) | Web Worker lifecycle hook and command dispatch | Active |
-| [`src/graphics/f1_2026/carPartsData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/carPartsData.ts) | 30+ 2026 F1 modular CAD components database, dimensions, materials, FIA articles | Active |
-| [`src/graphics/f1_2026/F1Car2026Model.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts) | Procedural 2026 F1 3D model builder with Active Aero, exploded view & raycasting | Active |
+| [`src/graphics/f1_2026/carPartsData.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/carPartsData.ts) | 30+ 2026 F1 modular CAD components database, Aero-Rake rig metadata, dimensions, FIA articles | Active |
+| [`src/graphics/f1_2026/F1Car2026Model.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts) | Procedural 2026 F1 3D model builder with 3D Aero-Rake Kiel grid, procedural carbon weaves & custom livery engine | Active |
 | [`src/graphics/createF1Car.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/createF1Car.ts) | Procedural 3D car mesh generator for custom team liveries | Active |
 | [`src/graphics/createPitCrew.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/createPitCrew.ts) | Low-poly 3D animated pit crew mechanics, tyre gunners, jacks & lollipop | Active |
 | [`src/utils/format.ts`](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/utils/format.ts) | Formatting helpers for lap times, race clocks, gaps, and currency | Active |

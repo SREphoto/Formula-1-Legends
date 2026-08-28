@@ -2,6 +2,7 @@ import { CheckCircle2, TriangleAlert, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { AppHeader } from './components/AppHeader'
 import { OnboardingOverlay } from './components/OnboardingOverlay'
+import { ParallaxAuthScreen, type PaddockCredentials } from './components/ParallaxAuthScreen'
 import { RaceStatusBar } from './components/RaceStatusBar'
 import { useRaceSimulation } from './hooks/useRaceSimulation'
 import type { AppView } from './types'
@@ -26,6 +27,24 @@ function App() {
   const [paused, setPaused] = useState(false)
   const [speed, setSpeed] = useState(1)
   const [toast, setToast] = useState<ToastState | null>(null)
+
+  // Paddock Credential Authentication State
+  const [credentials, setCredentials] = useState<PaddockCredentials | null>(() => {
+    try {
+      const saved = window.sessionStorage.getItem('f1l-paddock-creds')
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
+  })
+  const [showAuthScreen, setShowAuthScreen] = useState<boolean>(() => {
+    try {
+      return window.sessionStorage.getItem('f1l-auth-completed') !== '1'
+    } catch {
+      return true
+    }
+  })
+
   const [showGuide, setShowGuide] = useState(() => {
     try {
       return window.sessionStorage.getItem('f1l-guide-seen') !== '1'
@@ -33,6 +52,22 @@ function App() {
       return true
     }
   })
+
+  const handleAuthenticate = (creds: PaddockCredentials) => {
+    setCredentials(creds)
+    try {
+      window.sessionStorage.setItem('f1l-paddock-creds', JSON.stringify(creds))
+      window.sessionStorage.setItem('f1l-auth-completed', '1')
+    } catch {
+      // Session storage unavailable
+    }
+    setShowAuthScreen(false)
+    notify(
+      'PADDOCK CLEARANCE GRANTED',
+      `Welcome to the pit wall, ${creds.userName}. ${creds.roleTitle} authorization active for ${creds.teamName}.`,
+      'success',
+    )
+  }
 
   const closeGuide = () => {
     try {
@@ -71,7 +106,13 @@ function App() {
   return (
     <div className="app-shell">
       <span className="build-chip" aria-hidden="true">BUILD R4</span>
-      <AppHeader activeView={activeView} onViewChange={setActiveView} onHelp={() => setShowGuide(true)} />
+      <AppHeader
+        activeView={activeView}
+        onViewChange={setActiveView}
+        onHelp={() => setShowGuide(true)}
+        credentials={credentials}
+        onOpenAuth={() => setShowAuthScreen(true)}
+      />
       <RaceStatusBar
         snapshot={snapshot}
         paused={paused}
@@ -111,6 +152,15 @@ function App() {
       )}
       {activeView === 'hq' && <HQDashboard onNotify={notify} />}
       {activeView === 'telemetry' && <LiveTelemetryExplorer />}
+
+      {/* 3D Parallax Paddock Auth & Credential Portal */}
+      {showAuthScreen && (
+        <ParallaxAuthScreen
+          onAuthenticate={handleAuthenticate}
+          onClose={() => setShowAuthScreen(false)}
+          isReopen={!!credentials}
+        />
+      )}
 
       {showGuide && <OnboardingOverlay onClose={closeGuide} />}
 

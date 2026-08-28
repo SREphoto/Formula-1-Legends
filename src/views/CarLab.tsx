@@ -1,11 +1,13 @@
 import {
   Activity,
   AlertTriangle,
+  Aperture,
   Camera,
   Check,
   ChevronsDown,
   CircleGauge,
   Cpu,
+  Crosshair,
   Eye,
   Flame,
   Layers,
@@ -29,7 +31,16 @@ import type { DriverState, SetupState } from '../types'
 import { calculateAero } from '../engine/physics/AeroEngine'
 import { calculatePowertrain } from '../engine/physics/PowertrainEngine'
 import { F1_2026_CAR_PARTS, type CarPartMetadata, type SubsystemCategory } from '../graphics/f1_2026/carPartsData'
+import type { LiveryConfig, CarbonFinish } from '../graphics/f1_2026/F1Car2026Model'
 import type { CameraPreset, SmokeWandMode, TelemetrySyncState } from '../components/CarShowroom3D'
+import { ContextFocusCard } from '../components/ContextFocusCard'
+import {
+  F1CarAeroIcon,
+  F1EngineV6Icon,
+  F1KielProbeIcon,
+  F1PorpoisingIcon,
+  F1TireCompoundIcon,
+} from '../components/F1Icons'
 import { soundEngine } from '../services/soundEngine'
 
 const CarShowroom3D = lazy(() =>
@@ -126,6 +137,27 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
   const [isWindAudioActive, setIsWindAudioActive] = useState(false)
   const [selectedPart, setSelectedPart] = useState<CarPartMetadata | null>(null)
   const [manualOverrideActive, setManualOverrideActive] = useState(false)
+
+  // Aero-Rake Pitot Probe Rig
+  const [aeroRakeActive, setAeroRakeActive] = useState(false)
+
+  // Custom Livery Studio
+  const [isLiveryStudioOpen, setIsLiveryStudioOpen] = useState(false)
+  const [liveryConfig, setLiveryConfig] = useState<LiveryConfig>({
+    primaryColor: selectedDriver.teamColor,
+    accentColor: selectedDriver.secondaryColor,
+    carbonFinish: 'gloss',
+    sponsorNose: 'FORMULA 1',
+    sponsorSidepods: 'PIRELLI',
+    sponsorSharkFin: 'AWS',
+    sponsorRearWing: 'DHL',
+    driverNumber: selectedDriver.number,
+  })
+  const [liveryApplied, setLiveryApplied] = useState(false)
+
+  // 4K Studio Snapshot
+  const snapshotExportRef = useRef<(() => void) | null>(null)
+  const [snapshotFlash, setSnapshotFlash] = useState(false)
 
   // 3D Telemetry Synchronized Playback Loop
   const [telemetryPlaying, setTelemetryPlaying] = useState(false)
@@ -375,6 +407,9 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               setCameraPreset('ORBIT')
               setIsWindAudioActive(false)
               setTelemetryPlaying(false)
+              setAeroRakeActive(false)
+              setIsLiveryStudioOpen(false)
+              setLiveryApplied(false)
               setSaved(false)
             }}
           >
@@ -416,137 +451,215 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
           </div>
 
           <div className="setup-cards-stack">
-            {/* Active Aero Mode Switcher */}
-            <div className="active-aero-mode-card">
-              <div className="mode-card-header">
-                <strong>ACTIVE AERODYNAMICS (AAS)</strong>
-                <span className="regulation-tag">FIA ART. 3.4 &amp; 3.9</span>
-              </div>
-              <div className="mode-toggle-group">
-                <button
-                  className={`mode-toggle-btn ${activeAeroMode === 'CORNER' ? 'active' : ''}`}
-                  onClick={() => {
-                    setActiveAeroMode('CORNER')
-                    onNotify('AERO MODE', 'Corner Mode (Z-Mode: High Downforce) engaged.', 'success')
-                  }}
-                >
-                  <ChevronsDown size={14} />
-                  <span>CORNER MODE (Z-MODE)</span>
-                </button>
-                <button
-                  className={`mode-toggle-btn ${activeAeroMode === 'STRAIGHT' ? 'active' : ''}`}
-                  onClick={() => {
-                    setActiveAeroMode('STRAIGHT')
-                    onNotify('AERO MODE', 'Straight Mode (X-Mode: -45% Drag) engaged.', 'warning')
-                  }}
-                >
-                  <Wind size={14} />
-                  <span>STRAIGHT MODE (X-MODE)</span>
-                </button>
-              </div>
-              <p className="mode-description">
-                {activeAeroMode === 'CORNER'
-                  ? 'High downforce configuration: Front dual active flaps closed and 3-element rear wing deployed for maximum cornering grip.'
-                  : 'Low drag configuration: Front active flaps shed load (-14°) and rear wing upper element opens (+28°), cutting drag by ~45%.'}
-              </p>
-            </div>
-
-            {/* Wind Tunnel Streamline Smoke Wand Inserter */}
-            <div className="smoke-wand-card">
-              <div className="wand-card-header">
-                <div className="wand-label-block">
-                  <Wind size={14} className="wand-icon" />
-                  <strong>WIND TUNNEL SMOKE WANDS</strong>
+            {/* Active Aero & Flap Settings Focus Card */}
+            <ContextFocusCard
+              title="Active Aero Platform"
+              eyebrow="FIA ART. 3.4 & 3.9"
+              icon={<F1CarAeroIcon size={16} color="#38bdf8" />}
+              accentColor="#38bdf8"
+              defaultExpanded={true}
+              summary={
+                <div className="compact-kpi-row">
+                  <span>MODE: <b>{activeAeroMode === 'CORNER' ? 'Z-MODE' : 'X-MODE'}</b></span>
+                  <span>DF: <b>{(aero.downforceN / 1000).toFixed(1)} kN</b></span>
+                  <span>FW: <b>{setup.frontWing}°</b></span>
+                  <span>RW: <b>{setup.rearWing}°</b></span>
                 </div>
-                <span className="wand-badge">PARTICLE TRACERS</span>
-              </div>
-              <div className="smoke-wand-pills">
-                {(
-                  [
-                    { key: 'OFF', label: 'OFF' },
-                    { key: 'ALL', label: 'ALL WANDS' },
-                    { key: 'FRONT_WING', label: 'FRONT WING' },
-                    { key: 'AIRBOX', label: 'AIRBOX & FIN' },
-                    { key: 'FLOOR', label: 'UNDERFLOOR' },
-                  ] as const
-                ).map((w) => (
+              }
+            >
+              {/* Active Aero Mode Switcher */}
+              <div className="active-aero-mode-card">
+                <div className="mode-toggle-group">
                   <button
-                    key={w.key}
-                    className={`smoke-wand-pill ${smokeWandMode === w.key ? 'active' : ''}`}
+                    type="button"
+                    className={`mode-toggle-btn ${activeAeroMode === 'CORNER' ? 'active' : ''}`}
                     onClick={() => {
-                      setSmokeWandMode(w.key)
-                      onNotify('WIND TUNNEL SMOKE', `Streamline nozzle set to: ${w.label}`, 'success')
+                      setActiveAeroMode('CORNER')
+                      onNotify('AERO MODE', 'Corner Mode (Z-Mode: High Downforce) engaged.', 'success')
                     }}
                   >
-                    {w.label}
+                    <ChevronsDown size={14} />
+                    <span>CORNER MODE (Z-MODE)</span>
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    className={`mode-toggle-btn ${activeAeroMode === 'STRAIGHT' ? 'active' : ''}`}
+                    onClick={() => {
+                      setActiveAeroMode('STRAIGHT')
+                      onNotify('AERO MODE', 'Straight Mode (X-Mode: -45% Drag) engaged.', 'warning')
+                    }}
+                  >
+                    <Wind size={14} />
+                    <span>STRAIGHT MODE (X-MODE)</span>
+                  </button>
+                </div>
+                <p className="mode-description">
+                  {activeAeroMode === 'CORNER'
+                    ? 'High downforce configuration: Front dual active flaps closed and 3-element rear wing deployed for maximum cornering grip.'
+                    : 'Low drag configuration: Front active flaps shed load (-14°) and rear wing upper element opens (+28°), cutting drag by ~45%.'}
+                </p>
               </div>
-            </div>
 
-            <SetupRangeSlider
-              label="Front Wing Flap Angle"
-              hint="Dual-element active flap base pitch"
-              value={setup.frontWing}
-              min={10}
-              max={50}
-              unit="°"
-              onChange={(val) => update('frontWing', val)}
-            />
+              <SetupRangeSlider
+                label="Front Wing Flap Angle"
+                hint="Dual-element active flap base pitch"
+                value={setup.frontWing}
+                min={10}
+                max={50}
+                unit="°"
+                onChange={(val) => update('frontWing', val)}
+              />
 
-            <SetupRangeSlider
-              label="Rear Wing Angle"
-              hint="3-element mainplane baseline angle"
-              value={setup.rearWing}
-              min={10}
-              max={50}
-              unit="°"
-              onChange={(val) => update('rearWing', val)}
-            />
+              <SetupRangeSlider
+                label="Rear Wing Angle"
+                hint="3-element mainplane baseline angle"
+                value={setup.rearWing}
+                min={10}
+                max={50}
+                unit="°"
+                onChange={(val) => update('rearWing', val)}
+              />
 
-            <SetupRangeSlider
-              label="Engine Cooling Aperture"
-              hint="Sidepod louvre opening vs. drag penalty"
-              value={setup.cooling}
-              min={20}
-              max={80}
-              unit="%"
-              onChange={(val) => update('cooling', val)}
-            />
+              <SetupRangeSlider
+                label="Engine Cooling Aperture"
+                hint="Sidepod louvre opening vs. drag penalty"
+                value={setup.cooling}
+                min={20}
+                max={80}
+                unit="%"
+                onChange={(val) => update('cooling', val)}
+              />
+            </ContextFocusCard>
 
-            <div className="separator-line" />
-
-            <SetupRangeSlider
-              label="Front Ride Height"
-              hint="1450mm stepped floor entry clearance"
-              value={setup.rideHeightFront}
-              min={14}
-              max={28}
-              step={0.1}
-              unit="mm"
-              onChange={(val) => update('rideHeightFront', val)}
-            />
-
-            <SetupRangeSlider
-              label="Rear Ride Height"
-              hint="Diffuser expansion and rake angle"
-              value={setup.rideHeightRear}
-              min={18}
-              max={36}
-              step={0.1}
-              unit="mm"
-              onChange={(val) => update('rideHeightRear', val)}
-            />
-
-            {aero.porpoisingActive && (
-              <div className="porpoising-warning-card">
-                <AlertTriangle size={18} />
-                <div>
-                  <strong>GROUND EFFECT OSCILLATION DETECTED</strong>
-                  <p>Raise front ride height above 16.5mm to restore laminar underfloor flow.</p>
+            {/* Wind Tunnel & Aero-Rake Diagnostics Focus Card */}
+            <ContextFocusCard
+              title="Wind Tunnel & Aero-Rake Diagnostics"
+              eyebrow="CFD & PITOT WAKE"
+              icon={<F1KielProbeIcon size={16} color="#c084fc" />}
+              accentColor="#c084fc"
+              defaultExpanded={false}
+              summary={
+                <div className="compact-kpi-row">
+                  <span>SMOKE: <b>{smokeWandMode}</b></span>
+                  <span>AERO-RAKE: <b>{aeroRakeActive ? 'DEPLOYED (40-PROBE)' : 'RETRACTED'}</b></span>
+                </div>
+              }
+            >
+              {/* Wind Tunnel Streamline Smoke Wand Inserter */}
+              <div className="smoke-wand-card">
+                <div className="wand-card-header">
+                  <div className="wand-label-block">
+                    <Wind size={14} className="wand-icon" />
+                    <strong>WIND TUNNEL SMOKE WANDS</strong>
+                  </div>
+                  <span className="wand-badge">PARTICLE TRACERS</span>
+                </div>
+                <div className="smoke-wand-pills">
+                  {(
+                    [
+                      { key: 'OFF', label: 'OFF' },
+                      { key: 'ALL', label: 'ALL WANDS' },
+                      { key: 'FRONT_WING', label: 'FRONT WING' },
+                      { key: 'AIRBOX', label: 'AIRBOX & FIN' },
+                      { key: 'FLOOR', label: 'UNDERFLOOR' },
+                    ] as const
+                  ).map((w) => (
+                    <button
+                      key={w.key}
+                      type="button"
+                      className={`smoke-wand-pill ${smokeWandMode === w.key ? 'active' : ''}`}
+                      onClick={() => {
+                        setSmokeWandMode(w.key)
+                        onNotify('WIND TUNNEL SMOKE', `Streamline nozzle set to: ${w.label}`, 'success')
+                      }}
+                    >
+                      {w.label}
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
+
+              {/* Aero-Rake Pitot Probe Boundary Layer Rig */}
+              <div className="smoke-wand-card aero-rake-card">
+                <div className="wand-card-header">
+                  <div className="wand-label-block">
+                    <Crosshair size={14} className="wand-icon" />
+                    <strong>AERO-RAKE PITOT PROBE RIG</strong>
+                  </div>
+                  <span className="wand-badge">FIA ART. 3.4</span>
+                </div>
+                <p className="mode-description" style={{ marginTop: 6 }}>
+                  40-probe Kiel tube aero-rake grid mounted behind front tyres. Measures 3D boundary layer wake total pressure field for underfloor feed optimisation.
+                </p>
+                <button
+                  type="button"
+                  className={`mode-toggle-btn ${aeroRakeActive ? 'active' : ''}`}
+                  onClick={() => {
+                    setAeroRakeActive(!aeroRakeActive)
+                    onNotify(
+                      'AERO-RAKE RIG',
+                      !aeroRakeActive
+                        ? 'Pitot-tube Kiel probe aero-rake grid deployed. 40-probe 3D boundary layer wake pressure field active.'
+                        : 'Aero-rake rig retracted.',
+                      'success',
+                    )
+                  }}
+                >
+                  <Crosshair size={14} />
+                  <span>{aeroRakeActive ? 'RETRACT AERO-RAKE RIG' : 'DEPLOY AERO-RAKE PITOT RIG'}</span>
+                </button>
+              </div>
+            </ContextFocusCard>
+
+            {/* Ground Effect & Underfloor Ride Heights Focus Card */}
+            <ContextFocusCard
+              title="Ground Effect & Ride Heights"
+              eyebrow="UNDERFLOOR VENTURI TUNNELS"
+              icon={<F1PorpoisingIcon size={16} color={aero.porpoisingActive ? '#ff3b30' : '#30d158'} />}
+              accentColor={aero.porpoisingActive ? '#ff3b30' : '#30d158'}
+              defaultExpanded={true}
+              summary={
+                <div className="compact-kpi-row">
+                  <span>FRONT: <b>{setup.rideHeightFront.toFixed(1)} mm</b></span>
+                  <span>REAR: <b>{setup.rideHeightRear.toFixed(1)} mm</b></span>
+                  <span className={aero.porpoisingActive ? 'text-red font-bold' : 'text-green'}>
+                    {aero.porpoisingActive ? '⚠️ PORPOISING' : '✓ STABLE'}
+                  </span>
+                </div>
+              }
+            >
+              <SetupRangeSlider
+                label="Front Ride Height"
+                hint="1450mm stepped floor entry clearance"
+                value={setup.rideHeightFront}
+                min={14}
+                max={28}
+                step={0.1}
+                unit="mm"
+                onChange={(val) => update('rideHeightFront', val)}
+              />
+
+              <SetupRangeSlider
+                label="Rear Ride Height"
+                hint="Diffuser expansion and rake angle"
+                value={setup.rideHeightRear}
+                min={18}
+                max={36}
+                step={0.1}
+                unit="mm"
+                onChange={(val) => update('rideHeightRear', val)}
+              />
+
+              {aero.porpoisingActive && (
+                <div className="porpoising-warning-card">
+                  <AlertTriangle size={18} />
+                  <div>
+                    <strong>GROUND EFFECT OSCILLATION DETECTED</strong>
+                    <p>Raise front ride height above 16.5mm to restore laminar underfloor flow.</p>
+                  </div>
+                </div>
+              )}
+            </ContextFocusCard>
           </div>
         </section>
 
@@ -629,8 +742,186 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 {isWindAudioActive ? <Volume2 size={13} /> : <VolumeX size={13} />}
                 <span>WIND</span>
               </button>
+              <button
+                className={`cad-tool-btn ${isLiveryStudioOpen ? 'active' : ''}`}
+                onClick={() => setIsLiveryStudioOpen(!isLiveryStudioOpen)}
+                title="Open Custom Livery & Sponsor Decal Studio"
+              >
+                <Palette size={13} />
+                <span>LIVERY</span>
+              </button>
+              <button
+                className="cad-tool-btn snapshot-btn"
+                onClick={() => {
+                  if (snapshotExportRef.current) {
+                    setSnapshotFlash(true)
+                    setTimeout(() => setSnapshotFlash(false), 350)
+                    snapshotExportRef.current()
+                    onNotify(
+                      '4K STUDIO SNAPSHOT',
+                      'Rendering 3840×2160 high-resolution studio capture with technical watermark banner...',
+                      'success',
+                    )
+                  }
+                }}
+                title="Export 4K Studio Snapshot (3840×2160 PNG)"
+              >
+                <Aperture size={13} />
+                <span>4K</span>
+              </button>
             </div>
           </div>
+
+          {/* Custom Livery & Sponsor Decal Studio Drawer */}
+          {isLiveryStudioOpen && (
+            <div className="livery-studio-drawer">
+              <div className="livery-drawer-header">
+                <div>
+                  <strong>LIVERY & DECAL STUDIO</strong>
+                  <small>Custom Team Colors, Carbon Weave & Sponsor Decals</small>
+                </div>
+                <button className="close-spec-btn" onClick={() => setIsLiveryStudioOpen(false)}>
+                  <X size={14} />
+                </button>
+              </div>
+
+              {/* Preset Livery Themes */}
+              <div className="livery-presets-row">
+                <span className="livery-section-label">PRESET THEMES</span>
+                <div className="livery-preset-chips">
+                  {([
+                    { name: 'Apex Racing', primary: '#e10600', accent: '#ffffff' },
+                    { name: 'Cyber Silver', primary: '#c0c0c0', accent: '#00d4ff' },
+                    { name: 'Gulf Legacy', primary: '#6aafe6', accent: '#eb7a2e' },
+                    { name: 'Stealth Carbon', primary: '#1a1a1a', accent: '#39ff14' },
+                    { name: 'Papaya Speed', primary: '#ff8000', accent: '#0090d0' },
+                    { name: 'British Racing', primary: '#004225', accent: '#d4af37' },
+                    { name: 'Neon Cyberpunk', primary: '#0d0221', accent: '#ff00ff' },
+                  ]).map((theme) => (
+                    <button
+                      key={theme.name}
+                      className="livery-preset-chip"
+                      onClick={() => setLiveryConfig((prev) => ({ ...prev, primaryColor: theme.primary, accentColor: theme.accent }))}
+                      title={theme.name}
+                    >
+                      <span className="chip-swatch" style={{ background: `linear-gradient(135deg, ${theme.primary} 50%, ${theme.accent} 50%)` }} />
+                      <span>{theme.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Color Pickers */}
+              <div className="livery-color-row">
+                <label className="livery-color-field">
+                  <span>PRIMARY COLOR</span>
+                  <input
+                    type="color"
+                    value={liveryConfig.primaryColor}
+                    onChange={(e) => setLiveryConfig((prev) => ({ ...prev, primaryColor: e.target.value }))}
+                  />
+                </label>
+                <label className="livery-color-field">
+                  <span>ACCENT COLOR</span>
+                  <input
+                    type="color"
+                    value={liveryConfig.accentColor}
+                    onChange={(e) => setLiveryConfig((prev) => ({ ...prev, accentColor: e.target.value }))}
+                  />
+                </label>
+              </div>
+
+              {/* Carbon Weave Finish Selector */}
+              <div className="livery-carbon-row">
+                <span className="livery-section-label">CARBON WEAVE FINISH</span>
+                <div className="carbon-finish-chips">
+                  {(['gloss', 'matte', 'forged', 'satin'] as CarbonFinish[]).map((finish) => (
+                    <button
+                      key={finish}
+                      className={`carbon-finish-chip ${liveryConfig.carbonFinish === finish ? 'active' : ''}`}
+                      onClick={() => setLiveryConfig((prev) => ({ ...prev, carbonFinish: finish }))}
+                    >
+                      <span className={`carbon-swatch ${finish}`} />
+                      <span>{finish === 'gloss' ? 'GLOSS 2×2 TWILL' : finish === 'matte' ? 'RAW MATTE' : finish === 'forged' ? 'FORGED COMPOSITE' : 'SATIN WEAVE'}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sponsor Decal Inputs */}
+              <div className="livery-sponsor-row">
+                <span className="livery-section-label">SPONSOR DECALS</span>
+                <div className="sponsor-inputs-grid">
+                  <label className="sponsor-input-field">
+                    <span>NOSE CONE</span>
+                    <input
+                      type="text"
+                      value={liveryConfig.sponsorNose}
+                      maxLength={20}
+                      onChange={(e) => setLiveryConfig((prev) => ({ ...prev, sponsorNose: e.target.value }))}
+                    />
+                  </label>
+                  <label className="sponsor-input-field">
+                    <span>SIDEPODS</span>
+                    <input
+                      type="text"
+                      value={liveryConfig.sponsorSidepods}
+                      maxLength={20}
+                      onChange={(e) => setLiveryConfig((prev) => ({ ...prev, sponsorSidepods: e.target.value }))}
+                    />
+                  </label>
+                  <label className="sponsor-input-field">
+                    <span>SHARK FIN</span>
+                    <input
+                      type="text"
+                      value={liveryConfig.sponsorSharkFin}
+                      maxLength={20}
+                      onChange={(e) => setLiveryConfig((prev) => ({ ...prev, sponsorSharkFin: e.target.value }))}
+                    />
+                  </label>
+                  <label className="sponsor-input-field">
+                    <span>REAR WING</span>
+                    <input
+                      type="text"
+                      value={liveryConfig.sponsorRearWing}
+                      maxLength={20}
+                      onChange={(e) => setLiveryConfig((prev) => ({ ...prev, sponsorRearWing: e.target.value }))}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Driver Number */}
+              <div className="livery-number-row">
+                <label className="sponsor-input-field">
+                  <span>DRIVER NUMBER</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={99}
+                    value={liveryConfig.driverNumber}
+                    onChange={(e) => setLiveryConfig((prev) => ({ ...prev, driverNumber: Math.max(1, Math.min(99, Number(e.target.value))) }))}
+                  />
+                </label>
+              </div>
+
+              {/* Apply Livery Button */}
+              <button
+                className={`mode-toggle-btn ${liveryApplied ? 'active' : ''}`}
+                onClick={() => {
+                  setLiveryApplied(true)
+                  onNotify(
+                    'LIVERY APPLIED',
+                    `Custom livery with ${liveryConfig.carbonFinish} carbon weave and sponsor decals applied to 2026 car model.`,
+                    'success',
+                  )
+                }}
+              >
+                <Palette size={14} />
+                <span>APPLY CUSTOM LIVERY TO 3D MODEL</span>
+              </button>
+            </div>
+          )}
 
           {/* Part Inspector Search Bar */}
           <div className="cad-search-bar">
@@ -811,6 +1102,11 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
                 cameraPreset={cameraPreset}
                 isWindAudioActive={isWindAudioActive}
                 telemetrySync={telemetrySyncState}
+                aeroRakeActive={aeroRakeActive}
+                liveryConfig={liveryApplied ? liveryConfig : undefined}
+                onSnapshotExport={(fn) => {
+                  snapshotExportRef.current = fn
+                }}
                 onSelectPart={(part) => setSelectedPart(part)}
               />
             </Suspense>
@@ -885,6 +1181,9 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
               </div>
             )}
           </div>
+
+          {/* 4K Snapshot Camera Flash Overlay */}
+          {snapshotFlash && <div className="snapshot-flash-overlay" />}
 
           {/* 3D Telemetry Synchronized Playback Deck Toolbar */}
           <div className="telemetry-playback-deck">
@@ -996,108 +1295,155 @@ export function CarLab({ selectedDriver, onNotify }: CarLabProps) {
           </div>
 
           <div className="setup-cards-stack">
-            {/* 2026 Power Unit Specs Card */}
-            <div className="pu-2026-summary-card">
-              <div className="pu-card-header">
-                <strong>2026 HYBRID POWER UNIT (PU2026)</strong>
-                <span className="power-total-badge">{powertrain.totalPowerBhp.toFixed(0)} BHP</span>
+            {/* 2026 Hybrid Power Unit Focus Card */}
+            <ContextFocusCard
+              title="350kW MGU-K Hybrid Power Unit"
+              eyebrow="PU2026 50/50 POWER SPLIT"
+              icon={<F1EngineV6Icon size={16} color="#ff8000" />}
+              accentColor="#ff8000"
+              defaultExpanded={true}
+              summary={
+                <div className="compact-kpi-row">
+                  <span>OUTPUT: <b>{powertrain.totalPowerBhp.toFixed(0)} BHP</b></span>
+                  <span>ICE: <b>{powertrain.icePowerKw.toFixed(0)} kW</b></span>
+                  <span>MGU-K: <b>{powertrain.mguKPowerKw.toFixed(0)} kW</b></span>
+                  <span className={manualOverrideActive ? 'text-orange font-bold' : ''}>
+                    {manualOverrideActive ? '⚡ 350kW MOM ACTIVE' : 'STANDARD TAPER'}
+                  </span>
+                </div>
+              }
+            >
+              {/* 2026 Power Unit Specs Card */}
+              <div className="pu-2026-summary-card">
+                <div className="pu-card-header">
+                  <strong>2026 HYBRID POWER UNIT (PU2026)</strong>
+                  <span className="power-total-badge">{powertrain.totalPowerBhp.toFixed(0)} BHP</span>
+                </div>
+                <div className="pu-power-split-grid">
+                  <div className="pu-split-stat">
+                    <span>1.6L V6 TURBO ICE</span>
+                    <strong>{powertrain.icePowerKw.toFixed(0)} kW <small>(536 bhp)</small></strong>
+                  </div>
+                  <div className="pu-split-stat">
+                    <span>350 kW MGU-K HYBRID</span>
+                    <strong>{powertrain.mguKPowerKw.toFixed(0)} kW <small>(470 bhp)</small></strong>
+                  </div>
+                </div>
+
+                {/* Manual Override Mode (Overtake Boost) Test Button */}
+                <button
+                  type="button"
+                  className={`override-boost-btn ${manualOverrideActive ? 'active' : ''}`}
+                  onClick={() => {
+                    setManualOverrideActive(!manualOverrideActive)
+                    onNotify(
+                      'OVERTAKE BOOST',
+                      !manualOverrideActive
+                        ? 'Manual Override Mode active: Full 350kW deployment sustained up to 337 km/h.'
+                        : 'Standard speed-tapered deployment restored.',
+                      !manualOverrideActive ? 'warning' : 'success',
+                    )
+                  }}
+                >
+                  <Zap size={15} />
+                  <span>{manualOverrideActive ? 'MANUAL OVERRIDE (MOM) ENGAGED' : 'ENGAGE MANUAL OVERRIDE (350kW BOOST)'}</span>
+                </button>
               </div>
-              <div className="pu-power-split-grid">
-                <div className="pu-split-stat">
-                  <span>1.6L V6 TURBO ICE</span>
-                  <strong>{powertrain.icePowerKw.toFixed(0)} kW <small>(536 bhp)</small></strong>
+            </ContextFocusCard>
+
+            {/* Brakes & Narrow Tires Focus Card */}
+            <ContextFocusCard
+              title="Brakes & 2026 Narrow Tires"
+              eyebrow="BBW REGEN & 18-INCH CONTACT PATCH"
+              icon={<F1TireCompoundIcon size={16} color="#ffd700" compoundColor="#ffd700" />}
+              accentColor="#ffd700"
+              defaultExpanded={true}
+              summary={
+                <div className="compact-kpi-row">
+                  <span>BIAS: <b>{setup.brakeBias.toFixed(1)}%</b></span>
+                  <span>FRONT: <b>{setup.tirePressureFront.toFixed(1)} psi</b></span>
+                  <span>REAR: <b>{setup.tirePressureRear.toFixed(1)} psi</b></span>
                 </div>
-                <div className="pu-split-stat">
-                  <span>350 kW MGU-K HYBRID</span>
-                  <strong>{powertrain.mguKPowerKw.toFixed(0)} kW <small>(470 bhp)</small></strong>
+              }
+            >
+              <SetupRangeSlider
+                label="Front Brake Bias"
+                hint="BBW regenerative torque blending"
+                value={setup.brakeBias}
+                min={50}
+                max={62}
+                step={0.2}
+                unit="%"
+                onChange={(val) => update('brakeBias', val)}
+              />
+
+              <SetupRangeSlider
+                label="Front Tyre Pressure"
+                hint="2026 narrow 280mm spec tyre patch"
+                value={setup.tirePressureFront}
+                min={20}
+                max={26}
+                step={0.1}
+                unit="psi"
+                onChange={(val) => update('tirePressureFront', val)}
+              />
+
+              <SetupRangeSlider
+                label="Rear Tyre Pressure"
+                hint="2026 narrow 375mm spec traction patch"
+                value={setup.tirePressureRear}
+                min={19}
+                max={24}
+                step={0.1}
+                unit="psi"
+                onChange={(val) => update('tirePressureRear', val)}
+              />
+            </ContextFocusCard>
+
+            {/* 2026 FIA Regulation Compliance Checklist Focus Card */}
+            <ContextFocusCard
+              title="2026 FIA Regulatory Compliance"
+              eyebrow="TECHNICAL SCRUTINEERING"
+              icon={<ShieldCheck size={16} color="#30d158" />}
+              accentColor="#30d158"
+              defaultExpanded={false}
+              summary={
+                <div className="compact-kpi-row">
+                  <span className="text-green font-bold">✓ 6/6 FIA ARTICLES PASSED</span>
+                  <span>MIN MASS: <b>768 kg</b></span>
+                  <span>WIDTH: <b>1,900 mm</b></span>
+                </div>
+              }
+            >
+              <div className="compliance-checklist-card">
+                <div className="compliance-grid">
+                  <div className="compliance-row">
+                    <span>Wheelbase: 3,400 mm (-200mm)</span>
+                    <span className="pass-pill"><Check size={12} /> PASS</span>
+                  </div>
+                  <div className="compliance-row">
+                    <span>Max Width: 1,900 mm (-100mm)</span>
+                    <span className="pass-pill"><Check size={12} /> PASS</span>
+                  </div>
+                  <div className="compliance-row">
+                    <span>Floor Width: 1,450 mm (-150mm)</span>
+                    <span className="pass-pill"><Check size={12} /> PASS</span>
+                  </div>
+                  <div className="compliance-row">
+                    <span>Min Mass: 768 kg (-30kg)</span>
+                    <span className="pass-pill"><Check size={12} /> PASS</span>
+                  </div>
+                  <div className="compliance-row">
+                    <span>MGU-K Output: 350 kW (3x Boost)</span>
+                    <span className="pass-pill"><Check size={12} /> PASS</span>
+                  </div>
+                  <div className="compliance-row">
+                    <span>Fuel: 100% Sustainable E-Fuel</span>
+                    <span className="pass-pill"><Check size={12} /> PASS</span>
+                  </div>
                 </div>
               </div>
-
-              {/* Manual Override Mode (Overtake Boost) Test Button */}
-              <button
-                className={`override-boost-btn ${manualOverrideActive ? 'active' : ''}`}
-                onClick={() => {
-                  setManualOverrideActive(!manualOverrideActive)
-                  onNotify(
-                    'OVERTAKE BOOST',
-                    !manualOverrideActive
-                      ? 'Manual Override Mode active: Full 350kW deployment sustained up to 337 km/h.'
-                      : 'Standard speed-tapered deployment restored.',
-                    !manualOverrideActive ? 'warning' : 'success',
-                  )
-                }}
-              >
-                <Zap size={15} />
-                <span>{manualOverrideActive ? 'MANUAL OVERRIDE (MOM) ENGAGED' : 'ENGAGE MANUAL OVERRIDE (350kW BOOST)'}</span>
-              </button>
-            </div>
-
-            <SetupRangeSlider
-              label="Front Brake Bias"
-              hint="BBW regenerative torque blending"
-              value={setup.brakeBias}
-              min={50}
-              max={62}
-              step={0.2}
-              unit="%"
-              onChange={(val) => update('brakeBias', val)}
-            />
-
-            <SetupRangeSlider
-              label="Front Tyre Pressure"
-              hint="2026 narrow 280mm spec tyre patch"
-              value={setup.tirePressureFront}
-              min={20}
-              max={26}
-              step={0.1}
-              unit="psi"
-              onChange={(val) => update('tirePressureFront', val)}
-            />
-
-            <SetupRangeSlider
-              label="Rear Tyre Pressure"
-              hint="2026 narrow 375mm spec traction patch"
-              value={setup.tirePressureRear}
-              min={19}
-              max={24}
-              step={0.1}
-              unit="psi"
-              onChange={(val) => update('tirePressureRear', val)}
-            />
-
-            {/* 2026 FIA Regulation Compliance Checklist */}
-            <div className="compliance-checklist-card">
-              <div className="compliance-header">
-                <ShieldCheck size={16} className="compliance-icon" />
-                <strong>2026 FIA REGULATORY COMPLIANCE</strong>
-              </div>
-              <div className="compliance-grid">
-                <div className="compliance-row">
-                  <span>Wheelbase: 3,400 mm (-200mm)</span>
-                  <span className="pass-pill"><Check size={12} /> PASS</span>
-                </div>
-                <div className="compliance-row">
-                  <span>Max Width: 1,900 mm (-100mm)</span>
-                  <span className="pass-pill"><Check size={12} /> PASS</span>
-                </div>
-                <div className="compliance-row">
-                  <span>Floor Width: 1,450 mm (-150mm)</span>
-                  <span className="pass-pill"><Check size={12} /> PASS</span>
-                </div>
-                <div className="compliance-row">
-                  <span>Min Mass: 768 kg (-30kg)</span>
-                  <span className="pass-pill"><Check size={12} /> PASS</span>
-                </div>
-                <div className="compliance-row">
-                  <span>MGU-K Output: 350 kW (3x Boost)</span>
-                  <span className="pass-pill"><Check size={12} /> PASS</span>
-                </div>
-                <div className="compliance-row">
-                  <span>Fuel: 100% Sustainable E-Fuel</span>
-                  <span className="pass-pill"><Check size={12} /> PASS</span>
-                </div>
-              </div>
-            </div>
+            </ContextFocusCard>
           </div>
         </section>
       </div>

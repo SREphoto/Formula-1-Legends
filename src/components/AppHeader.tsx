@@ -1,35 +1,52 @@
 import {
   Activity,
   Building2,
-  CircleDot,
-  Gauge,
   HelpCircle,
   Radio,
   SlidersHorizontal,
   Sparkles,
 } from 'lucide-react'
 import type { AppView } from '../types'
+import {
+  F1SteeringWheelIcon,
+  F1SuperlicenseIcon,
+  F1TelemetryWaveIcon,
+} from './F1Icons'
+import type { PaddockCredentials } from './ParallaxAuthScreen'
 
 interface AppHeaderProps {
   activeView: AppView
   onViewChange: (view: AppView) => void
   onHelp?: () => void
+  credentials?: PaddockCredentials | null
+  onOpenAuth?: () => void
 }
 
-const navItems: { id: AppView; label: string; icon: typeof Radio }[] = [
+const navItems: { id: AppView; label: string; icon: React.ElementType }[] = [
   { id: 'race', label: 'Race Center', icon: Radio },
-  { id: 'strategy', label: 'Strategy', icon: Gauge },
+  { id: 'strategy', label: 'Strategy', icon: F1TelemetryWaveIcon },
   { id: 'car', label: 'Car Lab', icon: SlidersHorizontal },
-  { id: 'wheel', label: 'Cockpit Wheel', icon: CircleDot },
+  { id: 'wheel', label: 'Cockpit Wheel', icon: F1SteeringWheelIcon },
   { id: 'hq', label: 'Team HQ', icon: Building2 },
   { id: 'telemetry', label: 'Live Telemetry', icon: Activity },
 ]
 
-export function AppHeader({ activeView, onViewChange, onHelp }: AppHeaderProps) {
+export function AppHeader({
+  activeView,
+  onViewChange,
+  onHelp,
+  credentials,
+  onOpenAuth,
+}: AppHeaderProps) {
+  const teamColor = credentials?.teamColor || '#ff8000'
+  const teamName = credentials?.teamName || 'MCLAREN F1'
+  const roleTitle = credentials?.roleTitle || 'LEAD STRATEGIST'
+  const badgeId = credentials?.badgeId || 'FIA-2026-MCL-7742'
+
   return (
     <header className="app-header">
       <button className="brand" onClick={() => onViewChange('race')} aria-label="Formula 1 2026 home">
-        <span className="brand-mark" aria-hidden="true">
+        <span className="brand-mark" aria-hidden="true" style={{ background: teamColor }}>
           <i />
           <i />
           <i />
@@ -41,13 +58,13 @@ export function AppHeader({ activeView, onViewChange, onHelp }: AppHeaderProps) 
       </button>
 
       <nav className="main-nav" aria-label="Main navigation">
-        {navItems.map(({ id, label, icon: Icon }) => (
+        {navItems.map(({ id, label, icon: IconComponent }) => (
           <button
             key={id}
             className={`nav-item ${activeView === id ? 'active' : ''}`}
             onClick={() => onViewChange(id)}
           >
-            <Icon size={15} strokeWidth={1.8} />
+            <IconComponent size={15} />
             <span>{label}</span>
           </button>
         ))}
@@ -68,11 +85,25 @@ export function AppHeader({ activeView, onViewChange, onHelp }: AppHeaderProps) 
           <Sparkles size={14} />
           <span>SEASON 2026</span>
         </div>
-        <div className="profile-chip" aria-label="Team principal profile">
-          <span className="profile-badge">MCL</span>
-          <span className="profile-text"><b>McLAREN F1</b><small>TEAM PRINCIPAL</small></span>
-        </div>
+
+        {/* Interactive Paddock Credentials & Auth Pass Trigger */}
+        <button
+          type="button"
+          className="profile-chip interactive-auth-chip"
+          onClick={onOpenAuth}
+          title={`Paddock Access Pass: ${badgeId} — Click to reconfigure credentials`}
+          aria-label="Paddock credentials and role profile"
+        >
+          <span className="profile-badge" style={{ background: teamColor, borderColor: credentials?.teamSecondaryColor || '#fff' }}>
+            <F1SuperlicenseIcon size={14} color="#ffd700" />
+          </span>
+          <span className="profile-text">
+            <b>{teamName.substring(0, 14).toUpperCase()}</b>
+            <small>{roleTitle.toUpperCase()}</small>
+          </span>
+        </button>
       </div>
     </header>
   )
 }
+

@@ -1136,17 +1136,19 @@ export function createF1Car2026(
   const updateAeroRakePressures = (speedKmh = 180, frontWingAngle = 32, aeroMode = activeAeroState) => {
     if (!aeroRakeGroup.visible) return
 
+    const dynamicSpeedScale = Math.min(1.5, Math.max(0.5, speedKmh / 200))
+
     probeNodes.forEach((node) => {
       const isOutboard = node.isLeft ? node.col > 2 : node.col < 2
       const heightFactor = node.row / 3
 
       let cp = 0.65
       if (heightFactor > 0.5 && isOutboard) {
-        cp = -0.65 - (frontWingAngle / 50) * 0.3
+        cp = (-0.65 - (frontWingAngle / 50) * 0.3) * dynamicSpeedScale
       } else if (!isOutboard && heightFactor < 0.4) {
-        cp = 0.85 + (aeroMode === 'STRAIGHT' ? 0.15 : 0.0)
+        cp = (0.85 + (aeroMode === 'STRAIGHT' ? 0.15 : 0.0)) * dynamicSpeedScale
       } else {
-        cp = 0.15 + Math.sin(node.row * 1.5 + node.col * 2.1) * 0.25
+        cp = (0.15 + Math.sin(node.row * 1.5 + node.col * 2.1) * 0.25) * dynamicSpeedScale
       }
 
       const tipMat = node.mesh.material as THREE.MeshStandardMaterial

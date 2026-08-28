@@ -4,6 +4,85 @@ All notable project changes, releases, revisions, and architecture updates are d
 
 ---
 
+## [Build R23 / Bespoke F1 Motorsport Icons, 3D Parallax Auth Gateway & Context+Focus Cards] — 2026-08-27
+
+### 08-27S Added & Enhanced
+
+- **Bespoke Motorsport Vector Icon Suite ([src/components/F1Icons.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/F1Icons.tsx))**:
+  - Designed 14 custom vector SVG motorsport icons engineered specifically for the F1 2026 application: `F1CarAeroIcon`, `F1EngineV6Icon`, `F1MguKIcon`, `F1TireCompoundIcon`, `F1TelemetryWaveIcon`, `F1TrackElevationIcon`, `F1PitStopCrewIcon`, `F1SteeringWheelIcon`, `F1RadioSquelchIcon`, `F1SuperlicenseIcon`, `F1KielProbeIcon`, `F1PorpoisingIcon`, `F1FlagChequeredIcon`, and `F1WindTunnelIcon`.
+  - Replaced generic utility icons across navigation, headers, car lab platforms, and strategy modules.
+- **3D Parallax Paddock & Telemetry Auth Gateway ([src/components/ParallaxAuthScreen.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ParallaxAuthScreen.tsx), [src/App.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/App.tsx), [src/components/AppHeader.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/AppHeader.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Built an immersive multi-layer 3D parallax access portal featuring real-time mouse/cursor tracking, speed streak light beams, and ambient Silverstone/Monza topography gridlines.
+  - Engineered an interactive 3D FIA Superlicense & Paddock Pass card with procedural gold smart chip, foil shimmer reflection, and 3D perspective tilt (`rotateX/rotateY`).
+  - Added 10-team constructor credential selector with live theme color reactivity, 4-tier operational role switcher (*Lead Race Strategist, Chief Aerodynamicist, Telemetry Systems Engineer, FIA Technical Delegate*), callsign name input, and simulated biometric fingerprint/FIA chip scan animation with audio feedback.
+  - Added interactive header credential badge allowing instant session switching and re-opening of the credential portal on demand.
+- **Compact Context + Focus Card Architecture ([src/components/ContextFocusCard.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/ContextFocusCard.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/views/StrategyWorkspace.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/StrategyWorkspace.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Implemented reusable `ContextFocusCard` component supporting compact KPI summary strips by default, smooth accordion expansion, and full-screen holographic deep-dive modal inspection.
+  - Integrated across CarLab (Active Aero, Wind Tunnel/Aero-Rake Diagnostics, Ground Effect Ride Heights, 350kW MGU-K Hybrid Power Unit, Brakes & Narrow Tires, and FIA Scrutineering Compliance) and Strategy Workspace (Monte Carlo AI Environmental Factors).
+
+---
+
+## [Build R22 / 3D Car Showroom CAD Viewport Overhaul, HUD Styling & Staging Polish] — 2026-08-27
+
+### 08-27R Added & Enhanced
+
+- **3D Car Showroom CAD Viewport & HUD Overlay Styling ([src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Implemented missing CSS rules for `.car-showroom-3d`, `.showroom-3d-canvas`, `.showroom-grid`, `.showroom-title`, `.showroom-help`, and `.showroom-stat` (`.showroom-stat.front`, `.showroom-stat.load`).
+  - Resolved issue where specification and aerodynamic balance text was rendering unconstrained in standard document flow above the canvas.
+  - Formatted all telemetry and technical overlays into glassmorphism HUD cards with subtle cyan and papaya neon indicators, high-contrast monospace metadata, and responsive positioning.
+- **Heroic 3D Camera Framing & Proportions ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx))**:
+  - Optimized camera projection FOV (36°) and orbit distance coordinates (`(4.4, 2.1, 4.8)` from previous `(8.2, 4.6, 9.2)`), centering the 2026 F1 car prominently in the viewport.
+  - Adjusted model ground clearance (`y = 0.02`) and close-up camera presets (`FRONT_WING`, `COCKPIT`, `POWERTRAIN`, `DIFFUSER`) for crisp component inspection.
+- **Engineering Stage Floor & Turntable Replacement ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx))**:
+  - Replaced the oversized, thick cylinder "platter" with a flush carbon-fiber inspection pad (`CylinderGeometry(3.0, 3.05, 0.02)`), a CNC titanium bevel rim, and a soft shadow receiver plane.
+  - Added an authentic CAD coordinate floor grid (`GridHelper(12, 24)`) and concentric technical measurement calibration rings.
+
+---
+
+## [Build R21 / Dynamic Aero-Rake Pitot Rig, Custom Livery Studio & 4K Studio Snapshot Export] — 2026-08-27
+
+### 08-27Q Added & Enhanced
+
+- **Dynamic Aerodynamic Aero-Rake Rig ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/graphics/f1_2026/carPartsData.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/carPartsData.ts), [src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx))**:
+  - Implemented 3D Pitot-tube / Kiel probe Aero-Rake Grid mounted behind both front tyres (titanium perimeter frames, 4 horizontal and 5 vertical lattice struts, carbon mounting arms to chassis/uprights, and 40 forward-facing Kiel probes with conical shrouds and dynamic color-coded pressure tip spheres).
+  - Added real-time wake pressure calculation algorithm (`updateAeroRakePressures()`) modeling tyre wake boundary layer loss ($C_p \approx -0.65$ to $-0.95$, purple/blue) and clean inboard underfloor feed ($C_p \approx +0.85$, red/orange) dynamically scaled with velocity and active wing pitch.
+  - Added animated 3D wake streamline particle tracer system and live in-viewport 40-probe pressure matrix HUD overlay.
+  - Added dedicated Aero-Rake instrumentation toggle card in the CarLab Aero Platform column and metadata specs in `carPartsData.ts`.
+- **Custom Livery Color & Sponsor Decal Studio ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Created procedural carbon weave texture engine supporting 4 selectable finishes: Gloss 2x2 Twill, Raw Matte Micro-Grain, Forged Carbon Composite, and Satin Weave.
+  - Developed dynamic 1024x512 livery canvas map generator (`createSponsorCanvasTexture`) applying racing color block gradients, driver number roundels, and custom sponsor decals to sidepods, nose cone, shark fin, and rear wing elements.
+  - Integrated interactive Livery Studio drawer panel in CarLab with 7 preset themes (Apex Racing, Cyber Silver, Gulf Legacy, Stealth Carbon, Papaya Speed, British Racing, Neon Cyberpunk), primary/accent HTML5 color pickers, carbon finish selector, and custom text inputs for team sponsor decals.
+  - Configured seamless hot-swapping on 3D meshes while preserving compatibility with CFD pressure heatmaps and FLIR thermal infrared rendering modes.
+- **High-Resolution 4K Studio Snapshot Export ([src/components/CarShowroom3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/CarShowroom3D.tsx), [src/views/CarLab.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/views/CarLab.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Engineered 4K UHD (3840×2160) offscreen render pipeline with aspect-corrected camera projection, anti-aliasing, ACESFilmic tone mapping, and PCF soft shadow maps.
+  - Generated composite technical watermark footer banner displaying car telemetry (Downforce kN, Balance %, Active Mode), FIA Article 3.4 certification badge, and high-contrast typography.
+  - Added camera shutter action button in CAD toolbar with audio-visual camera flash animation and automatic PNG file download.
+- **TypeScript Type Hygiene & Bugfix ([src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts))**:
+  - Fixed pre-existing TypeScript index signature error on telemetry object in steering wheel controller by replacing dynamic index assignment with type-safe `Object.assign`.
+
+---
+
+## [Build R20 / Steering Wheel High-Fidelity Decals, Rear Paddle Lighting & 3D Race View Sizing Fix] — 2026-08-27
+
+### 08-27P Added & Fixed
+
+- **3D Race View Container Sizing & ResizeObserver Fix ([src/components/RaceScene3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/RaceScene3D.tsx), [src/styles.css](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/styles.css))**:
+  - Fixed issue where the 3D race was not displaying on the main dashboard due to missing `.race-scene-container` styling.
+  - Added `.race-scene-container` with explicit flex sizing (`min-height: 280px; flex: 1; position: relative; width: 100%; height: 100%;`).
+  - Added `ResizeObserver` lifecycle listeners with safe fallback dimensions (`800x500`) to guarantee proper WebGL viewport scaling upon container mount.
+- **Steering Wheel Rear Paddle Illumination & Studio Lighting ([src/components/SteeringWheel3D.tsx](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/components/SteeringWheel3D.tsx))**:
+  - Implemented 360° studio lighting with dedicated high-intensity rear key light (`#ffffff`, 2.8), rear cool fill light (`#bad7ff`, 2.4), rear bottom light, and dual rear point lights (`#00f0ff` / `#30d158`) right behind the left and right carbon paddle blades.
+  - Adjusted `paddles` camera preset perspective (`pos: (0, 0.03, -0.34)`, `lookAt: (0, 0.01, -0.01)`) for clear paddle inspection.
+- **High-Definition Silkscreen Button Decals & Mechanical Detailing ([src/graphics/steering_wheel/F1SteeringWheelModel.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/steering_wheel/F1SteeringWheelModel.ts))**:
+  - Built procedural high-res canvas decal generators: `createButtonDecalTexture`, `createPaddleDecalTexture`, and `createDialScaleTexture`.
+  - Upgraded all 16 pushbuttons with laser-etched silkscreen typography (`DRS`, `RAD`, `ACK`, `PL`, `OT`, `N`, `R`, `SOC`, `PASS`, `EB+`, `EB-`, `BB+`, `BB-`, `DRK`, `P+`, `P-`), outer colored bezel rings, concave tactile dish gradients, and raised CNC anodized aluminum collars with titanium chamfer accents.
+  - Upgraded rotary dials with circular laser-etched scale graduations and heavy knurled aluminum knobs.
+  - Upgraded paddle shifters with glossy clearcoat carbon weave, laser-etched green `+` / crimson `−` symbols, titanium pivot brackets, and neodymium magnetic microswitch cylinders.
+- **Code Hygiene & Unused Variable Clean-Up ([src/graphics/f1_2026/F1Car2026Model.ts](file:///Users/Samuel/AGapps/Formula-1-legends/Formula-1-Legends/src/graphics/f1_2026/F1Car2026Model.ts))**:
+  - Resolved unused `speedKmh` in `updateAeroRakePressures` by integrating dynamic velocity scaling into the Kiel probe differential pressure equation.
+
+---
+
 ## [Build R19 / UI/UX Cohesion Overhaul — Design Flow, Graphics & Layout Fix] — 2026-08-27
 
 ### 08-27O Added & Fixed
